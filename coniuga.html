@@ -3196,12 +3196,15 @@ function printDoc(title, html){
   const area = document.getElementById('print-area');
   const date = new Date().toLocaleDateString({hu:'hu-HU', pl:'pl-PL', en:'en-GB'}[LANG] || 'hu-HU');
   area.innerHTML = `<h1>${esc(title)}</h1>${html}<p class="pfoot">Coniuga · ${esc(date)}</p>`;
-  const oldTitle = document.title;
+  /* A tartalmat NEM töröljük nyomtatás után: iPhone-on a Safari az „afterprint” jelzést már a nyomtatási
+     ablak megnyitásakor elküldi, a PDF oldalait pedig csak utána rakja össze – a törlés levágta a dokumentum végét.
+     A nyomtatási terület a képernyőn úgyis rejtett; a következő PDF egyszerűen felülírja. */
+  if (!printDoc.title0) printDoc.title0 = document.title;
   document.title = 'Coniuga – ' + title;
   document.body.classList.add('printing');
-  const done = () => { document.body.classList.remove('printing'); document.title = oldTitle; area.innerHTML = ''; window.removeEventListener('afterprint', done); };
-  window.addEventListener('afterprint', done);
-  setTimeout(() => { try{ window.print(); }catch(e){ done(); } }, 50);
+  clearTimeout(printDoc.timer);
+  printDoc.timer = setTimeout(() => { document.title = printDoc.title0; printDoc.title0 = null; }, 120000);
+  setTimeout(() => { try{ window.print(); }catch(e){} }, 50);
 }
 /* képernyőn lévő tartalom tisztítása nyomtatáshoz: koppintható szavak -> szöveg, gombok, űrlapok el */
 function printableClone(el){
