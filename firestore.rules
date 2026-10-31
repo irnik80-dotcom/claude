@@ -1,9 +1,26 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Mindenki csak a saját profilját olvashatja és írhatja.
+    // A tanár: Google-fiókkal belépve, ellenőrzött e-mail-címmel.
+    // A TANAR_EMAIL_CIME helyére a saját címedet írd (csak a Firebase-konzolban, ne a nyilvános repóba).
+    function isTeacher() {
+      return request.auth != null
+        && request.auth.token.email == 'TANAR_EMAIL_CIME'
+        && request.auth.token.email_verified == true;
+    }
+    function isMe(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, write: if isMe(uid);   // mindenki a saját profilját
+      allow read: if isTeacher();        // a tanár mindenkiét olvashatja
+
+      // válaszok naplója: a felhasználó csak hozzáírhat, a tanár olvashatja
+      match /answers/{aid} {
+        allow create: if isMe(uid);
+        allow read: if isMe(uid) || isTeacher();
+      }
     }
   }
 }

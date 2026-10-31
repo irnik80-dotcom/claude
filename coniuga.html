@@ -699,6 +699,8 @@ const store = {
 
 /* ---- saját profil: mentés a bejelentkezett felhasználó privát tárhelyére ---- */
 let cloudRef = null, cloudBusy = false, cloudDirty = false, cloudTimer = null;
+let cloudExtra = {};      // a profilhoz mentett további mezők (pl. név, e-mail a webes változatban)
+let answerHook = null;    // ha be van állítva, minden válasz naplózásra kerül
 function scheduleCloud(){
   if (!cloudRef) return;
   clearTimeout(cloudTimer);
@@ -708,7 +710,7 @@ async function saveCloud(){
   if (!cloudRef) return;
   if (cloudBusy){ cloudDirty = true; return; }
   cloudBusy = true;
-  try{ await cloudRef.set({stats: JSON.parse(JSON.stringify(ST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()}); }
+  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
   catch(e){ setWho(null, 'Most nem sikerült menteni a fiókodba; a böngészőben megvan.'); }
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
@@ -741,7 +743,7 @@ async function attachCloud(ref, me){
   if (snap.exists) applyData(snap.data());
   cloudRef = ref;
   setWho(me);
-  if (!snap.exists && ST.total) saveCloud();
+  if (snap.exists || ST.total || Object.keys(cloudExtra).length) saveCloud();
 }
 function detachCloud(){
   cloudRef = null; clearTimeout(cloudTimer);
@@ -832,6 +834,9 @@ function renderStats(){
     : '<li class="muted">Itt jelennek meg a hibás válaszaid.</li>';
 }
 function record(vb, t, i, res, given){
+  if (answerHook){
+    try{ answerHook({inf:vb.inf, t, p:i, given:given||'', right:cell(vb,t,i).display, res, ok: res==='ok' || (res==='acc' && S.lenient), at: Date.now()}); }catch(e){}
+  }
   ST.total++;
   if (res==='ok' || (res==='acc' && S.lenient)){ ST.ok++; ST.streak++; ST.best=Math.max(ST.best,ST.streak); if (ST.miss[vb.inf]) ST.miss[vb.inf]=Math.max(0,ST.miss[vb.inf]-1); }
   else {
@@ -998,10 +1003,11 @@ function renderDetail(){
 
 /* ---- fülek ---- */
 function showTab(name){
-  $('tab-practice').setAttribute('aria-selected', name==='practice');
-  $('tab-browse').setAttribute('aria-selected', name==='browse');
-  $('view-practice').hidden = name!=='practice';
-  $('view-browse').hidden = name!=='browse';
+  ['practice','browse','teacher'].forEach(n=>{
+    const tab = $('tab-'+n), view = $('view-'+n);
+    if (tab) tab.setAttribute('aria-selected', n===name);
+    if (view) view.hidden = n!==name;
+  });
 }
 $('tab-practice').onclick = ()=>showTab('practice');
 $('tab-browse').onclick = ()=>showTab('browse');

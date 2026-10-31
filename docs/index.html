@@ -182,6 +182,20 @@ dialog.login .or::before, dialog.login .or::after{content:""; flex:1; border-top
 dialog.login .err{color:var(--pen); font-size:.88rem; margin:0; min-height:1.2em}
 dialog.login .row{display:flex; flex-wrap:wrap; gap:8px}
 dialog.login .row .btn{flex:1 1 140px}
+.privacy{font-size:.8rem; color:var(--ink-soft); margin:12px 0 0}
+.tscroll{overflow-x:auto; margin-top:12px}
+.ttab{width:100%; border-collapse:collapse; font-size:.9rem; font-variant-numeric:tabular-nums}
+.ttab th{text-align:left; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); padding:6px 8px; border-bottom:1.5px solid var(--line); white-space:nowrap}
+.ttab td{padding:7px 8px; border-bottom:1px dashed var(--line); vertical-align:top}
+.ttab tr.click{cursor:pointer}
+.ttab tr.click:hover td{background:var(--accent-soft)}
+.ttab .num{text-align:right}
+.ttab .mono{font-family:var(--f-mono)}
+.okc{color:var(--ok); font-weight:700} .badc{color:var(--pen); font-weight:700}
+.tgrid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; margin-top:16px}
+.tgrid2 h3{font-size:.72rem; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 8px}
+.bar{height:8px; border-radius:4px; background:var(--pen-soft); overflow:hidden; min-width:60px}
+.bar i{display:block; height:100%; background:var(--ok)}
 .linkbtn{font:inherit; background:none; border:0; color:var(--accent); cursor:pointer; padding:0; text-decoration:underline; font-size:.88rem; justify-self:start}
 </style>
 
@@ -198,6 +212,7 @@ dialog.login .row .btn{flex:1 1 140px}
     <nav class="tabs" role="tablist">
       <button id="tab-practice" role="tab" aria-selected="true">Gyakorlás</button>
       <button id="tab-browse" role="tab" aria-selected="false">Igetár</button>
+      <button id="tab-teacher" role="tab" aria-selected="false" hidden>Tanári nézet</button>
     </nav>
   </header>
 
@@ -261,6 +276,7 @@ dialog.login .row .btn{flex:1 1 140px}
       <div class="card" id="b-detail"></div>
     </div>
   </section>
+  <section id="view-teacher" hidden><div class="card" id="teacher"></div></section>
 </div>
 
 <script id="engine">
@@ -722,6 +738,8 @@ const store = {
 
 /* ---- saját profil: mentés a bejelentkezett felhasználó privát tárhelyére ---- */
 let cloudRef = null, cloudBusy = false, cloudDirty = false, cloudTimer = null;
+let cloudExtra = {};      // a profilhoz mentett további mezők (pl. név, e-mail a webes változatban)
+let answerHook = null;    // ha be van állítva, minden válasz naplózásra kerül
 function scheduleCloud(){
   if (!cloudRef) return;
   clearTimeout(cloudTimer);
@@ -731,7 +749,7 @@ async function saveCloud(){
   if (!cloudRef) return;
   if (cloudBusy){ cloudDirty = true; return; }
   cloudBusy = true;
-  try{ await cloudRef.set({stats: JSON.parse(JSON.stringify(ST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()}); }
+  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
   catch(e){ setWho(null, 'Most nem sikerült menteni a fiókodba; a böngészőben megvan.'); }
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
@@ -764,7 +782,7 @@ async function attachCloud(ref, me){
   if (snap.exists) applyData(snap.data());
   cloudRef = ref;
   setWho(me);
-  if (!snap.exists && ST.total) saveCloud();
+  if (snap.exists || ST.total || Object.keys(cloudExtra).length) saveCloud();
 }
 function detachCloud(){
   cloudRef = null; clearTimeout(cloudTimer);
@@ -855,6 +873,9 @@ function renderStats(){
     : '<li class="muted">Itt jelennek meg a hibás válaszaid.</li>';
 }
 function record(vb, t, i, res, given){
+  if (answerHook){
+    try{ answerHook({inf:vb.inf, t, p:i, given:given||'', right:cell(vb,t,i).display, res, ok: res==='ok' || (res==='acc' && S.lenient), at: Date.now()}); }catch(e){}
+  }
   ST.total++;
   if (res==='ok' || (res==='acc' && S.lenient)){ ST.ok++; ST.streak++; ST.best=Math.max(ST.best,ST.streak); if (ST.miss[vb.inf]) ST.miss[vb.inf]=Math.max(0,ST.miss[vb.inf]-1); }
   else {
@@ -1021,10 +1042,11 @@ function renderDetail(){
 
 /* ---- fülek ---- */
 function showTab(name){
-  $('tab-practice').setAttribute('aria-selected', name==='practice');
-  $('tab-browse').setAttribute('aria-selected', name==='browse');
-  $('view-practice').hidden = name!=='practice';
-  $('view-browse').hidden = name!=='browse';
+  ['practice','browse','teacher'].forEach(n=>{
+    const tab = $('tab-'+n), view = $('view-'+n);
+    if (tab) tab.setAttribute('aria-selected', n===name);
+    if (view) view.hidden = n!==name;
+  });
 }
 $('tab-practice').onclick = ()=>showTab('practice');
 $('tab-browse').onclick = ()=>showTab('browse');
@@ -1048,6 +1070,7 @@ renderOptions(); renderStats(); renderBrowseKind(); renderList(); renderDetail()
     <button class="linkbtn" type="button" id="login-reset">Elfelejtettem a jelszavam</button>
     <button class="btn quiet" type="button" id="login-close">Mégse</button>
   </form>
+  <p class="privacy">Bejelentkezve a neved, az e-mail-címed és a gyakorlási válaszaid mentésre kerülnek, és ezeket az oldal üzemeltetője (a tanár) is láthatja.</p>
 </dialog>
 <script type="module" src="auth.js"></script>
 </body>

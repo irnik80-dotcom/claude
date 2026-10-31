@@ -28,6 +28,20 @@ dialog.login .or::before, dialog.login .or::after{content:""; flex:1; border-top
 dialog.login .err{color:var(--pen); font-size:.88rem; margin:0; min-height:1.2em}
 dialog.login .row{display:flex; flex-wrap:wrap; gap:8px}
 dialog.login .row .btn{flex:1 1 140px}
+.privacy{font-size:.8rem; color:var(--ink-soft); margin:12px 0 0}
+.tscroll{overflow-x:auto; margin-top:12px}
+.ttab{width:100%; border-collapse:collapse; font-size:.9rem; font-variant-numeric:tabular-nums}
+.ttab th{text-align:left; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); padding:6px 8px; border-bottom:1.5px solid var(--line); white-space:nowrap}
+.ttab td{padding:7px 8px; border-bottom:1px dashed var(--line); vertical-align:top}
+.ttab tr.click{cursor:pointer}
+.ttab tr.click:hover td{background:var(--accent-soft)}
+.ttab .num{text-align:right}
+.ttab .mono{font-family:var(--f-mono)}
+.okc{color:var(--ok); font-weight:700} .badc{color:var(--pen); font-weight:700}
+.tgrid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; margin-top:16px}
+.tgrid2 h3{font-size:.72rem; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 8px}
+.bar{height:8px; border-radius:4px; background:var(--pen-soft); overflow:hidden; min-width:60px}
+.bar i{display:block; height:100%; background:var(--ok)}
 .linkbtn{font:inherit; background:none; border:0; color:var(--accent); cursor:pointer; padding:0; text-decoration:underline; font-size:.88rem; justify-self:start}
 `;
 must('</style>');
@@ -37,6 +51,14 @@ src = src.replace('</style>', extraCss + '</style>');
 must('<nav class="tabs" role="tablist">');
 src = src.replace('<nav class="tabs" role="tablist">',
   '<div class="auth" id="auth" hidden><button class="btn ghost" id="login-open" type="button">Bejelentkezés</button><button class="btn quiet" id="logout" type="button" hidden>Kijelentkezés</button></div>\n    <nav class="tabs" role="tablist">');
+
+// 3b) tanári nézet: fül + szakasz (csak a tanár fiókjával látszik)
+must('<button id="tab-browse" role="tab" aria-selected="false">Igetár</button>');
+src = src.replace('<button id="tab-browse" role="tab" aria-selected="false">Igetár</button>',
+  '<button id="tab-browse" role="tab" aria-selected="false">Igetár</button>\n      <button id="tab-teacher" role="tab" aria-selected="false" hidden>Tanári nézet</button>');
+must('\n</div>\n\n<script id="engine">');
+src = src.replace('\n</div>\n\n<script id="engine">',
+  '\n  <section id="view-teacher" hidden><div class="card" id="teacher"></div></section>\n</div>\n\n<script id="engine">');
 
 // 4) a Claude-os profilkezelés helyett Firebase
 must('\ninitCloud();');
@@ -59,6 +81,7 @@ const dialog = `
     <button class="linkbtn" type="button" id="login-reset">Elfelejtettem a jelszavam</button>
     <button class="btn quiet" type="button" id="login-close">Mégse</button>
   </form>
+  <p class="privacy">Bejelentkezve a neved, az e-mail-címed és a gyakorlási válaszaid mentésre kerülnek, és ezeket az oldal üzemeltetője (a tanár) is láthatja.</p>
 </dialog>
 <script type="module" src="auth.js"></script>
 `;

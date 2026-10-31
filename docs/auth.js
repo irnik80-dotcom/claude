@@ -80,11 +80,103 @@ async function start() {
         set: (obj) => F.setDoc(ref, obj)
       };
       const me = { name: u.displayName || u.email || 'Saját', avatarUrl: u.photoURL || '' };
+      cloudExtra = { name: u.displayName || '', email: u.email || '' };
+      const answers = F.collection(db, 'users', u.uid, 'answers');
+      answerHook = (a) => { F.addDoc(answers, a).catch((e) => console.warn('Válasz naplózása sikertelen', e)); };
       try { await attachCloud(cloud, me); }
       catch (e) { console.error(e); setWho(null, 'Belépve, de a mentett adataidat most nem sikerült betölteni.'); }
+      teacherCheck(F, db);
     } else if (attachedUid) {
       attachedUid = null;
+      answerHook = null; cloudExtra = {};
+      $('tab-teacher').hidden = true;
+      if (!$('view-teacher').hidden) showTab('practice');
       detachCloud();
     }
   });
+}
+
+/* ---------- Tanári nézet ---------- */
+const fmt = (ms) => ms ? new Date(ms).toLocaleString('hu-HU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '–';
+const pct = (a, b) => b ? Math.round(100 * a / b) + '%' : '–';
+let T = null; // {F, db, rows}
+
+async function teacherCheck(F, db) {
+  try {
+    await F.getDocs(F.query(F.collection(db, 'users'), F.limit(1)));
+  } catch (e) { return; } // nem tanár: a szabály elutasítja
+  T = { F, db, rows: [] };
+  const tab = $('tab-teacher');
+  tab.hidden = false;
+  tab.onclick = () => { showTab('teacher'); loadList(); };
+}
+
+async function loadList() {
+  const box = $('teacher');
+  box.innerHTML = '<p class="muted">Betöltés…</p>';
+  try {
+    const qs = await T.F.getDocs(T.F.collection(T.db, 'users'));
+    T.rows = qs.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (b.updated || 0) - (a.updated || 0));
+  } catch (e) { box.innerHTML = '<p class="badc">Nem sikerült betölteni a felhasználókat. ' + esc(e.message || '') + '</p>'; return; }
+  const r = T.rows;
+  box.innerHTML = `
+    <div class="verb-line"><h2 class="inf" style="font-size:2rem">Tanári nézet</h2><span class="hu">${r.length} felhasználó</span></div>
+    <div class="actions" style="margin-top:8px"><button class="btn quiet" id="t-refresh" type="button">Frissítés</button></div>
+    <div class="tscroll"><table class="ttab">
+      <thead><tr><th>Név</th><th>E-mail</th><th class="num">Válasz</th><th class="num">Helyes</th><th class="num">Legjobb sorozat</th><th>Utoljára</th></tr></thead>
+      <tbody>${r.map((u, k) => {
+        const s = u.stats || {};
+        return `<tr class="click" data-k="${k}" tabindex="0"><td><b></b></td><td class="mono"></td><td class="num">${s.total || 0}</td><td class="num">${pct(s.ok || 0, s.total || 0)}</td><td class="num">${s.best || 0}</td><td>${fmt(u.updated)}</td></tr>`;
+      }).join('') || '<tr><td colspan="6" class="muted">Még senki sem lépett be.</td></tr>'}</tbody>
+    </table></div>
+    <p class="muted">Koppints egy sorra a részletekért.</p>`;
+  box.querySelectorAll('tr.click').forEach((tr) => {
+    const u = r[+tr.dataset.k];
+    tr.cells[0].firstChild.textContent = u.name || '(név nélkül)';
+    tr.cells[1].textContent = u.email || '';
+    tr.onclick = () => loadUser(u);
+    tr.onkeydown = (e) => { if (e.key === 'Enter') loadUser(u); };
+  });
+  $('t-refresh').onclick = loadList;
+}
+
+async function loadUser(u) {
+  const box = $('teacher');
+  box.innerHTML = '<p class="muted">Betöltés…</p>';
+  let ans = [];
+  try {
+    const qs = await T.F.getDocs(T.F.query(T.F.collection(T.db, 'users', u.id, 'answers'), T.F.orderBy('at', 'desc'), T.F.limit(500)));
+    ans = qs.docs.map((d) => d.data());
+  } catch (e) { console.warn(e); }
+  const s = u.stats || {};
+  // igeidőnkénti arány a naplóból
+  const byT = {};
+  ans.forEach((a) => { const o = byT[a.t] || (byT[a.t] = { ok: 0, n: 0 }); o.n++; if (a.ok) o.ok++; });
+  const tenseRows = TENSES.filter((t) => byT[t.id]).map((t) => {
+    const o = byT[t.id], p = Math.round(100 * o.ok / o.n);
+    return `<tr><td>${t.it}</td><td class="num">${o.ok}/${o.n}</td><td style="width:40%"><div class="bar"><i style="width:${p}%"></i></div></td></tr>`;
+  }).join('');
+  // leggyakrabban rontott igék a naplóból (ha nincs napló, a profil számlálójából)
+  const missCount = {};
+  ans.forEach((a) => { if (!a.ok) missCount[a.inf] = (missCount[a.inf] || 0) + 1; });
+  const src = Object.keys(missCount).length ? missCount : (s.miss || {});
+  const top = Object.entries(src).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]).slice(0, 12);
+  const days = new Set(ans.map((a) => new Date(a.at).toDateString())).size;
+
+  box.innerHTML = `
+    <div class="actions" style="margin-top:0"><button class="btn quiet" id="t-back" type="button">← Vissza a listához</button></div>
+    <div class="verb-line" style="margin-top:12px"><h2 class="inf" style="font-size:2rem" id="t-name"></h2><span class="hu mono" id="t-mail"></span></div>
+    <p class="muted" style="margin:6px 0 0">${s.total || 0} válasz · ${pct(s.ok || 0, s.total || 0)} helyes · legjobb sorozat: ${s.best || 0} · ${days} napon gyakorolt (a naplóban) · utoljára: ${fmt(u.updated)}</p>
+    <div class="tgrid2">
+      <div><h3>Igeidők szerint</h3>${tenseRows ? `<table class="ttab"><tbody>${tenseRows}</tbody></table>` : '<p class="muted">Még nincs naplózott válasz.</p>'}</div>
+      <div><h3>Legtöbbet rontott igék</h3>${top.length ? `<table class="ttab"><tbody>${top.map(([inf, n]) => `<tr><td><b>${esc(inf)}</b>${byInf[inf] && byInf[inf].irr ? ' <span class="chip irr">rendhagyó</span>' : ''}</td><td class="muted">${esc(byInf[inf] ? byInf[inf].hu : '')}</td><td class="num">${n}×</td></tr>`).join('')}</tbody></table>` : '<p class="muted">Nincs hibája.</p>'}</div>
+    </div>
+    <h3 style="font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);margin:22px 0 0">Legutóbbi válaszok (${ans.length})</h3>
+    <div class="tscroll"><table class="ttab">
+      <thead><tr><th>Időpont</th><th>Ige</th><th>Idő</th><th>Személy</th><th>Beírta</th><th>Helyes alak</th><th></th></tr></thead>
+      <tbody>${ans.slice(0, 200).map((a) => `<tr><td>${fmt(a.at)}</td><td><b>${esc(a.inf)}</b></td><td>${esc(TNAME[a.t] || a.t)}</td><td>${esc(PERS[a.p] || '')}</td><td class="mono">${esc(a.given || '—')}</td><td class="mono">${esc(a.right)}</td><td>${a.ok ? '<span class="okc">✓</span>' : '<span class="badc">✗</span>'}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Még nincs naplózott válasz.</td></tr>'}</tbody>
+    </table></div>`;
+  $('t-name').textContent = u.name || '(név nélkül)';
+  $('t-mail').textContent = u.email || '';
+  $('t-back').onclick = loadList;
 }
