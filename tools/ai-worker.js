@@ -64,7 +64,7 @@ export default {
     } catch (e) {
       usage.set(key, used); // a sikertelen kérés ne számítson bele
       const status = e.status === 429 ? 429 : 502;
-      return reply(status, { error: 'ai', detail: e.detail || String(e.message || ''), message: e.status === 429 ? 'Az AI ingyenes kerete most elfogyott. Próbáld újra később.' : 'Az AI most nem válaszolt. Próbáld újra.' });
+      return reply(status, { error: 'ai', detail: e.detail || String(e.message || ''), message: e.status === 429 ? 'Az AI ingyenes kerete most elfogyott. Próbáld újra később.' : e.status === 503 ? 'Az AI most túlterhelt. Próbáld újra pár másodperc múlva.' : 'Az AI most nem válaszolt. Próbáld újra.' });
     }
   }
 };
@@ -110,7 +110,8 @@ const SCHEMA = {
 };
 
 async function askGemini(env, hu, ref, given) {
-  const models = [env.MODEL || 'gemini-flash-latest', 'gemini-2.5-flash'];
+  // ha egy modell túlterhelt vagy nem létezik, a következővel próbálkozik
+  const models = [env.MODEL || 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
   let lastErr;
   for (const model of [...new Set(models)]) {
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
@@ -125,7 +126,9 @@ async function askGemini(env, hu, ref, given) {
     if (!r.ok) {
       let detail = '';
       try { const j = await r.json(); detail = (j.error && (j.error.status + ': ' + j.error.message)) || ''; } catch (e) {}
-      throw Object.assign(new Error('gemini ' + r.status), { status: r.status, detail: (model + ' ' + r.status + ' ' + detail).slice(0, 300) });
+      lastErr = Object.assign(new Error('gemini ' + r.status), { status: r.status, detail: (model + ' ' + r.status + ' ' + detail).slice(0, 300) });
+      if (r.status === 503 || r.status === 500 || r.status === 429) continue; // túlterhelt / keret: próbáljuk a következő modellt
+      throw lastErr;
     }
     const data = await r.json();
     const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
