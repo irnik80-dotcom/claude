@@ -1,0 +1,6 @@
+# Cloudflare Worker (AI-közvetítő) beállítása – a Cloudflare GitHub-összekötése ebből telepít.
+name = "coniuga-ai"
+main = "tools/ai-worker.js"
+compatibility_date = "2025-01-01"
+# a Cloudflare felületén megadott változók (pl. DAILY_LIMIT) maradjanak meg telepítéskor
+keep_vars = true
