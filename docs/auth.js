@@ -76,6 +76,17 @@ async function start() {
       cloudExtra = { name: u.displayName || '', email: u.email || '' };
       const answers = F.collection(db, 'users', u.uid, 'answers');
       answerHook = (a) => { F.addDoc(answers, a).catch((e) => console.warn('Válasz naplózása sikertelen', e)); };
+      const boardRef = F.doc(db, 'board', u.uid);
+      boardBackend = {
+        uid: u.uid,
+        name: u.displayName || (u.email || '').split('@')[0],
+        push: (e) => F.setDoc(boardRef, { name: String(e.name || '?').slice(0, 24), week: e.week, pts: Math.max(0, Math.floor(e.pts || 0)), streak: Math.max(0, Math.floor(e.streak || 0)), at: Date.now() }),
+        remove: () => F.deleteDoc(boardRef),
+        list: async (week) => {
+          const snap = await F.getDocs(F.query(F.collection(db, 'board'), F.where('week', '==', week), F.limit(200)));
+          return snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
+        }
+      };
       if (AI_URL) {
         aiBackend = async (p) => {
           const tok = await u.getIdToken();
@@ -95,6 +106,7 @@ async function start() {
     } else if (attachedUid) {
       attachedUid = null;
       answerHook = null; cloudExtra = {}; aiBackend = null; setAINote(AI_OFF);
+      boardBackend = null; BOARD.rows = null; if (typeof renderBoard === 'function') renderBoard();
       $('tab-teacher').hidden = true;
       if (!$('view-teacher').hidden) showTab('practice');
       detachCloud();

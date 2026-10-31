@@ -208,6 +208,33 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .slowbtn{font:inherit; font-size:.8rem; font-weight:700; border:1px solid var(--line); background:var(--card); color:var(--ink-soft); padding:7px 11px; border-radius:10px; cursor:pointer}
 .slowbtn[aria-pressed="true"]{background:var(--accent-soft); color:var(--accent); border-color:var(--accent)}
 .no-tts .slowbtn{display:none}
+.progbtn{font:inherit; font-size:.8rem; font-weight:700; border:1px solid var(--line); background:var(--card); color:var(--ink-soft); padding:7px 11px; border-radius:10px; cursor:pointer; display:inline-flex; gap:6px; align-items:center; font-variant-numeric:tabular-nums}
+.progbtn.met{border-color:var(--ok); color:var(--ok); background:var(--ok-soft)}
+.pbar{height:12px; background:var(--accent-soft); border-radius:99px; overflow:hidden; margin:8px 0 4px}
+.pbar i{display:block; height:100%; background:var(--accent); border-radius:99px; transition:width .3s}
+.pbar.met i{background:var(--ok)}
+.pbig{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:14px 0}
+.pbig div{border:1px solid var(--line); border-radius:10px; padding:10px; text-align:center}
+.pbig b{display:block; font-size:1.6rem; font-variant-numeric:tabular-nums}
+.pbig span{font-size:.8rem; color:var(--ink-soft)}
+.days{display:grid; grid-template-columns:repeat(14,minmax(0,1fr)); gap:4px; align-items:end; height:90px; margin:10px 0 2px}
+.days div{background:var(--accent-soft); border-radius:4px 4px 0 0; min-height:3px}
+.days div.met{background:var(--ok)}
+.days div.today{outline:2px solid var(--accent); outline-offset:1px}
+.dlbl{display:grid; grid-template-columns:repeat(14,minmax(0,1fr)); gap:4px; font-size:.65rem; color:var(--ink-soft); text-align:center}
+.badges{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; margin-top:8px}
+.badge{border:1px solid var(--line); border-radius:10px; padding:10px; text-align:center}
+.badge .ic{font-size:1.8rem; display:block}
+.badge b{display:block; font-size:.85rem; margin-top:4px}
+.badge small{display:block; font-size:.72rem; color:var(--ink-soft); margin-top:2px}
+.badge.off{opacity:.45; filter:grayscale(1)}
+.board{list-style:none; padding:0; margin:8px 0 0}
+.board li{display:flex; gap:10px; align-items:center; padding:7px 4px; border-bottom:1px solid var(--line)}
+.board li .rk{width:2em; text-align:right; font-weight:700; color:var(--ink-soft); font-variant-numeric:tabular-nums}
+.board li .nm{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.board li .pt{font-weight:700; font-variant-numeric:tabular-nums}
+.board li.me{background:var(--accent-soft); border-radius:8px}
+.toast{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:var(--ink); color:var(--card); padding:10px 16px; border-radius:12px; font-weight:600; z-index:50; box-shadow:0 6px 24px rgba(0,0,0,.25); max-width:calc(100vw - 32px)}
 .snt{transition:background .2s}
 .snt.reading{background:var(--warn-soft); box-shadow:0 0 0 3px var(--warn-soft); border-radius:4px}
 nav.tabs{display:flex; flex-wrap:wrap; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:4px}
@@ -372,6 +399,7 @@ dialog.login .row .btn{flex:1 1 140px}
     </div>
     <div class="langs" id="langs" role="group" aria-label="Nyelv / Język / Language"></div>
     <button type="button" class="slowbtn" id="slowbtn" aria-pressed="false"></button>
+    <button type="button" class="progbtn" id="progbtn"></button>
     <div class="auth" id="auth" hidden><button class="btn ghost" id="login-open" type="button" data-i18n="auth.login">Bejelentkezés</button><button class="btn quiet" id="logout" type="button" hidden data-i18n="auth.logout">Kijelentkezés</button></div>
     <nav class="tabs" role="tablist">
       <button id="tab-practice" role="tab" aria-selected="true" data-i18n="tab.practice">Ragozás</button>
@@ -737,6 +765,20 @@ dialog.login .row .btn{flex:1 1 140px}
             <div class="checks" id="h-levels"></div>
           </div>
         </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="view-prog" hidden>
+    <div class="layout">
+      <div class="card" id="pcard"></div>
+      <aside class="side" id="pside">
+        <div class="card">
+          <h3 data-i18n="p.goal"></h3>
+          <div class="checks" id="p-goal"></div>
+          <p class="hint" data-i18n="p.goalhint"></p>
+        </div>
+        <div class="card" id="p-board"></div>
       </aside>
     </div>
   </section>
@@ -3264,6 +3306,68 @@ const I18N = {
   'h.pronavg': ['kiejtés','wymowa','pronunciation'],
   'h.count': ['gyakorlat','ćwiczeń','exercises'],
   'h.dict': ['diktálás','dyktando','dictation'],
+  'p.title': ['Haladás','Postępy','Progress'],
+  'p.today': ['Mai pontok','Dzisiejsze punkty','Today’s points'],
+  'p.streak': ['nap sorozat','dni z rzędu','day streak'],
+  'p.best': ['leghosszabb sorozat','najdłuższa seria','longest streak'],
+  'p.total': ['összes pont','wszystkie punkty','total points'],
+  'p.week': ['heti pont','punkty w tym tygodniu','points this week'],
+  'p.met': ['Mai cél teljesítve!','Dzienny cel osiągnięty!','Daily goal reached!'],
+  'p.left': ['Még {n} pont a mai célig.','Jeszcze {n} pkt do dziennego celu.','{n} more points to today’s goal.'],
+  'p.last14': ['Az utolsó 14 nap','Ostatnie 14 dni','The last 14 days'],
+  'p.how': ['Pontok: ragozás, szójelentés, mondat, ismétlés, hallás 1 · fordítás 3 · beszélgetés, olvasmány, kaland 5. A sorozat azokat a napokat számolja, amikor elérted a napi célt.','Punkty: koniugacja, słówka, zdania, powtórki, słuchanie 1 · tłumaczenie 3 · rozmowa, czytanie, przygoda 5. Seria liczy dni, w których osiągnięto dzienny cel.','Points: conjugation, meanings, sentences, review, listening 1 · translation 3 · conversation, reading, adventure 5. The streak counts the days you reached your daily goal.'],
+  'p.goal': ['Napi cél','Dzienny cel','Daily goal'],
+  'p.goalhint': ['Ennyi pont kell naponta, hogy a sorozatod nőjön.','Tyle punktów dziennie, żeby seria rosła.','Points needed each day to keep your streak growing.'],
+  'p.g10': ['laza · 10','luźno · 10','casual · 10'],
+  'p.g20': ['normál · 20','normalnie · 20','regular · 20'],
+  'p.g40': ['komoly · 40','poważnie · 40','serious · 40'],
+  'p.g80': ['megszállott · 80','szaleństwo · 80','intense · 80'],
+  'p.badges': ['Jelvények','Odznaki','Badges'],
+  'p.newbadge': ['Új jelvény: {b}','Nowa odznaka: {b}','New badge: {b}'],
+  'p.goaltoast': ['🎯 Mai cél teljesítve! Sorozat: {n} nap','🎯 Dzienny cel osiągnięty! Seria: {n} dni','🎯 Daily goal reached! Streak: {n} days'],
+  'p.board': ['Heti ranglista','Ranking tygodnia','Weekly leaderboard'],
+  'p.boardoff': ['A ranglista a weboldalon, bejelentkezve érhető el.','Ranking jest dostępny na stronie po zalogowaniu.','The leaderboard is available on the website when signed in.'],
+  'p.join': ['Szerepeljek a ranglistán','Chcę być w rankingu','Show me on the leaderboard'],
+  'p.nick': ['Becenév a ranglistán','Pseudonim w rankingu','Nickname on the leaderboard'],
+  'p.boardhint': ['A ranglistán csak a beceneved és a heti pontjaid látszanak, mások eredményei nem.','W rankingu widać tylko pseudonim i punkty z tego tygodnia.','Only your nickname and this week’s points are shown.'],
+  'p.boardempty': ['Ezen a héten még senki sincs a listán.','W tym tygodniu nikogo jeszcze nie ma.','Nobody is on the list this week yet.'],
+  'p.boarderr': ['A ranglista most nem tölthető be.','Nie można teraz wczytać rankingu.','The leaderboard cannot be loaded right now.'],
+  'p.refresh': ['Frissítés','Odśwież','Refresh'],
+  'p.pts': ['{n} pont','{n} pkt','{n} pts'],
+  'b.first': ['Első lépés','Pierwszy krok','First step'],
+  'b.first.d': ['Az első válaszod','Pierwsza odpowiedź','Your first answer'],
+  'b.goal': ['Célba értem','Cel osiągnięty','On target'],
+  'b.goal.d': ['Először teljesített napi cél','Pierwszy osiągnięty cel dzienny','First daily goal reached'],
+  'b.s3': ['Lendületben','W rozpędzie','On a roll'],
+  'b.s3.d': ['3 napos sorozat','Seria 3 dni','3-day streak'],
+  'b.s7': ['Egy hét','Tydzień','One week'],
+  'b.s7.d': ['7 napos sorozat','Seria 7 dni','7-day streak'],
+  'b.s30': ['Kitartó','Wytrwały','Unstoppable'],
+  'b.s30.d': ['30 napos sorozat','Seria 30 dni','30-day streak'],
+  'b.p100': ['Százas','Setka','Century'],
+  'b.p100.d': ['100 pont összesen','100 punktów łącznie','100 points in total'],
+  'b.p1000': ['Ezres','Tysiąc','Thousand'],
+  'b.p1000.d': ['1000 pont összesen','1000 punktów łącznie','1000 points in total'],
+  'b.p5000': ['Mester','Mistrz','Master'],
+  'b.p5000.d': ['5000 pont összesen','5000 punktów łącznie','5000 points in total'],
+  'b.conj': ['Ragozógép','Maszyna do odmiany','Conjugation machine'],
+  'b.conj.d': ['500 helyes ragozás','500 poprawnych odmian','500 correct conjugations'],
+  'b.vocab': ['Szókincs','Słownictwo','Vocabulary'],
+  'b.vocab.d': ['200 helyes szójelentés','200 poprawnych znaczeń','200 correct meanings'],
+  'b.sent': ['Mondatépítő','Budowniczy zdań','Sentence builder'],
+  'b.sent.d': ['200 helyes mondat','200 poprawnych zdań','200 correct sentences'],
+  'b.trans': ['Tolmács','Tłumacz','Interpreter'],
+  'b.trans.d': ['25 fordítás','25 tłumaczeń','25 translations'],
+  'b.chat': ['Beszédes','Gaduła','Chatterbox'],
+  'b.chat.d': ['5 befejezett beszélgetés','5 zakończonych rozmów','5 finished conversations'],
+  'b.read': ['Könyvmoly','Mól książkowy','Bookworm'],
+  'b.read.d': ['10 elolvasott szöveg','10 przeczytanych tekstów','10 texts read'],
+  'b.adv': ['Hős','Bohater','Hero'],
+  'b.adv.d': ['Egy kaland jó befejezése','Dobre zakończenie przygody','A good adventure ending'],
+  'b.ears': ['Jó fül','Dobre ucho','Good ears'],
+  'b.ears.d': ['50 diktálás vagy kiejtés','50 dyktand lub wymowy','50 dictations or pronunciations'],
+  'b.coll': ['Gyűjtő','Kolekcjoner','Collector'],
+  'b.coll.d': ['50 kártya az ismétlőben','50 fiszek do powtórek','50 cards to review'],
   'h.pron': ['kiejtés (mikrofon)','wymowa (mikrofon)','pronunciation (mic)'],
   'h.label': ['Hallás','Słuchanie','Listening'],
   'h.dict.title': ['Diktálás','Dyktando','Dictation'],
@@ -3512,7 +3616,7 @@ async function saveCloud(){
   if (!cloudRef) return;
   if (cloudBusy){ cloudDirty = true; return; }
   cloudBusy = true;
-  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), astats: JSON.parse(JSON.stringify(AST)), cards: JSON.parse(JSON.stringify(CARDS)), hstats: JSON.parse(JSON.stringify(HST)), adv: (typeof advPlain === 'function' ? advPlain() : null), advAt: (typeof advAt === 'number' ? advAt : 0), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
+  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), astats: JSON.parse(JSON.stringify(AST)), cards: JSON.parse(JSON.stringify(CARDS)), hstats: JSON.parse(JSON.stringify(HST)), pstats: JSON.parse(JSON.stringify(PST)), adv: (typeof advPlain === 'function' ? advPlain() : null), advAt: (typeof advAt === 'number' ? advAt : 0), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
   catch(e){ setWho(null, t('who.saveerr')); }
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
@@ -3562,6 +3666,8 @@ function applyData(d){
   REV = null; renderRevSide(); renderRev(); revBadge();
   HST = Object.assign({dn:0,ds:0,pn:0,ps:0}, d.hstats ? JSON.parse(JSON.stringify(d.hstats)) : {});
   renderOptionsH(); renderStatsH(); nextH();
+  PST = Object.assign(BLANK_PST(), d.pstats ? JSON.parse(JSON.stringify(d.pstats)) : {});
+  renderP(); boardPush();
 }
 /* ref: {get(): Promise<{exists, data()}>, set(obj): Promise} */
 async function attachCloud(ref, me){
@@ -3605,7 +3711,7 @@ async function initCloud(){
     await attachCloud(db.collection('data/users/' + me.id).doc('coniuga'), me);
   }catch(e){ /* marad a böngészős mentés */ }
 }
-const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rsrc:'ai', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', agenre:'fantasy', atone:'normal', autoForms:true, autoWords:true, hmode:'dict', hlevels:[1,2], rtone:'normal', alevel:'A2', alen:10, atenses:['pres','pp','imp'], ahero:'', ahero2:'', rhero:'', rhero2:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
+const DEF = {goal:20, board:false, nick:'', mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rsrc:'ai', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', agenre:'fantasy', atone:'normal', autoForms:true, autoWords:true, hmode:'dict', hlevels:[1,2], rtone:'normal', alevel:'A2', alen:10, atenses:['pres','pp','imp'], ahero:'', ahero2:'', rhero:'', rhero2:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
 let S = Object.assign({}, DEF, store.get('settings', {}));
 let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
 let VST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('vstats', {}));
@@ -3616,6 +3722,8 @@ let RST = Object.assign({total:0,q:0,ok:0,recent:[]}, store.get('rstats', {}));
 let AST = Object.assign({total:0,good:0,pages:0,recent:[]}, store.get('astats', {}));
 let CARDS = (store.get('cards', []) || []).filter(c => c && c.k);
 let HST = Object.assign({dn:0,ds:0,pn:0,ps:0}, store.get('hstats', {}));
+const BLANK_PST = () => ({days:{}, total:0, best:0, badges:{}});
+let PST = Object.assign(BLANK_PST(), store.get('pstats', {}));
 let cur = null;
 let lastInput = null;
 const byInf = Object.fromEntries(VERBS.map(v=>[v.inf, v]));
@@ -3691,7 +3799,7 @@ function renderStats(){
 }
 function record(vb, tn, i, res, given){ const t_ = tn; return recordImpl(vb, t_, i, res, given); }
 function recordImpl(vb, t, i, res, given){
-  if (answerHook){
+  logActivity(1); if (answerHook){
     try{ answerHook({kind:'conj', inf:vb.inf, t, p:i, given:given||'', right:cell(vb,t,i).display, res, ok: res==='ok' || (res==='acc' && S.lenient), at: Date.now()}); }catch(e){}
   }
   ST.total++;
@@ -3872,7 +3980,7 @@ function renderDetail(){
 /* ---- fülek ---- */
 function showTab(name){
   if (typeof hideBubble === 'function') hideBubble();
-  ['practice','vocab','sent','trans','chat','read','adv','rev','hear','browse','teacher'].forEach(n=>{
+  ['practice','vocab','sent','trans','chat','read','adv','rev','hear','browse','teacher','prog'].forEach(n=>{
     const tab = $('tab-'+n), view = $('view-'+n);
     if (tab) tab.setAttribute('aria-selected', n===name);
     if (view) view.hidden = n!==name;
@@ -3888,6 +3996,152 @@ $('tab-read').onclick = ()=>showTab('read');
 $('tab-adv').onclick = ()=>showTab('adv');
 $('tab-rev').onclick = ()=>{ showTab('rev'); if (!REV) renderRev(); };
 $('tab-hear').onclick = ()=>showTab('hear');
+$('progbtn').onclick = ()=>{ showTab('prog'); renderP(); boardLoad(); };
+
+
+/* ---- Haladás: napi cél, sorozat, jelvények, heti ranglista ---- */
+let boardBackend = null;  // webes változatban: {push(entry), remove(), list(week)}
+const dkey = d => { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+const dayAdd = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+function weekKey(d){
+  d = new Date(d || new Date()); d.setHours(12,0,0,0);
+  d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+  const w1 = new Date(d.getFullYear(), 0, 4);
+  return d.getFullYear() + '-W' + String(1 + Math.round(((d - w1) / 864e5 - 3 + (w1.getDay() + 6) % 7) / 7)).padStart(2,'0');
+}
+function weekPts(){
+  const now = new Date(), mon = dayAdd(now, -((now.getDay() + 6) % 7));
+  let sum = 0; for (let i = 0; i < 7; i++) sum += PST.days[dkey(dayAdd(mon, i))] || 0;
+  return sum;
+}
+const goal = () => S.goal || 20;
+const todayPts = () => PST.days[dkey()] || 0;
+function streak(){
+  let n = 0, d = new Date();
+  if ((PST.days[dkey(d)] || 0) < goal()) d = dayAdd(d, -1);  // a mai nap még nem szakítja meg
+  while ((PST.days[dkey(d)] || 0) >= goal()){ n++; d = dayAdd(d, -1); }
+  return n;
+}
+const BADGES = [
+  ['first','🌱', () => PST.total >= 1],
+  ['goal','🎯', () => Object.values(PST.days).some(v => v >= goal())],
+  ['s3','🔥', () => PST.best >= 3],
+  ['s7','📅', () => PST.best >= 7],
+  ['s30','🏔️', () => PST.best >= 30],
+  ['p100','💯', () => PST.total >= 100],
+  ['p1000','⭐', () => PST.total >= 1000],
+  ['p5000','👑', () => PST.total >= 5000],
+  ['conj','⚙️', () => ST.ok >= 500],
+  ['vocab','📚', () => VST.ok >= 200],
+  ['sent','🧩', () => MST.ok >= 200],
+  ['trans','🌍', () => XST.total >= 25],
+  ['chat','💬', () => CST.total >= 5],
+  ['read','📖', () => RST.total >= 10],
+  ['adv','🗡️', () => AST.good >= 1],
+  ['ears','👂', () => HST.dn + HST.pn >= 50],
+  ['coll','🗂️', () => CARDS.length >= 50]
+];
+let toastTimer = null;
+function toast(msg){
+  let el = document.getElementById('toast');
+  if (!el){ el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; el.setAttribute('role','status'); document.body.appendChild(el); }
+  el.textContent = msg; el.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 3500);
+}
+function checkBadges(quiet){
+  const got = [];
+  BADGES.forEach(([id, , ok]) => { try{ if (!PST.badges[id] && ok()){ PST.badges[id] = Date.now(); got.push(id); } }catch(e){} });
+  if (!quiet && got.length) toast(t('p.newbadge', {b: got.map(id => BADGES.find(b => b[0] === id)[1] + ' ' + t('b.' + id)).join(', ')}));
+  return got.length;
+}
+function logActivity(n){
+  const k = dkey(), before = PST.days[k] || 0;
+  PST.days[k] = before + n; PST.total += n;
+  const keys = Object.keys(PST.days).sort(); while (keys.length > 120) delete PST.days[keys.shift()];
+  const st = streak(); if (st > PST.best) PST.best = st;
+  if (before < goal() && PST.days[k] >= goal()) toast(t('p.goaltoast', {n: st}));
+  checkBadges();
+  store.set('pstats', PST);
+  renderProgBtn();
+  if (!$('view-prog').hidden) renderP();
+  boardPush();
+}
+function renderProgBtn(){
+  const b = $('progbtn'); if (!b) return;
+  const tp = todayPts(), met = tp >= goal();
+  b.classList.toggle('met', met);
+  b.textContent = `🔥 ${streak()} · ${Math.min(tp, 999)}/${goal()}`;
+  b.title = t('p.title');
+}
+function renderP(){
+  renderProgBtn();
+  if (!$('pcard')) return;
+  const tp = todayPts(), g = goal(), met = tp >= g, st = streak();
+  const days = []; for (let i = 13; i >= 0; i--) days.push(dayAdd(new Date(), -i));
+  const mx = Math.max(g, ...days.map(d => PST.days[dkey(d)] || 0));
+  const wd = d => d.toLocaleDateString(({hu:'hu-HU',pl:'pl-PL',en:'en-GB'})[LANG] || 'hu-HU', {weekday:'narrow'});
+  $('pcard').innerHTML = `<div class="task"><span class="task-lbl">${t('p.title')}</span><span class="task-tense">${t('p.today')}: ${tp} / ${g}</span></div>
+    <div class="pbar${met ? ' met' : ''}" role="progressbar" aria-valuemin="0" aria-valuemax="${g}" aria-valuenow="${Math.min(tp, g)}"><i style="width:${Math.min(100, Math.round(100 * tp / g))}%"></i></div>
+    <p class="hint">${met ? t('p.met') : t('p.left', {n: g - tp})}</p>
+    <div class="pbig">
+      <div><b>🔥 ${st}</b><span>${t('p.streak')}</span></div>
+      <div><b>${PST.best}</b><span>${t('p.best')}</span></div>
+      <div><b>${weekPts()}</b><span>${t('p.week')}</span></div>
+    </div>
+    <h3>${t('p.last14')}</h3>
+    <div class="days">${days.map((d, i) => { const v = PST.days[dkey(d)] || 0; return `<div class="${v >= g ? 'met' : ''}${i === 13 ? ' today' : ''}" style="height:${Math.max(3, Math.round(100 * v / mx))}%" title="${dkey(d)}: ${v}"></div>`; }).join('')}</div>
+    <div class="dlbl">${days.map(d => `<span>${esc(wd(d))}</span>`).join('')}</div>
+    <p class="hint" style="margin-top:10px">${t('p.how')} · ${t('p.total')}: <b>${PST.total}</b></p>
+    <h3 style="margin-top:18px">${t('p.badges')} · ${Object.keys(PST.badges).length}/${BADGES.length}</h3>
+    <div class="badges">${BADGES.map(([id, ic]) => `<div class="badge${PST.badges[id] ? '' : ' off'}"><span class="ic" aria-hidden="true">${ic}</span><b>${t('b.' + id)}</b><small>${t('b.' + id + '.d')}</small></div>`).join('')}</div>`;
+  $('p-goal').innerHTML = [10,20,40,80].map(n => chk('radio','pgoal',n,g === n,t('p.g' + n))).join('');
+  renderBoard();
+}
+let BOARD = {rows:null, err:false, busy:false};
+function renderBoard(){
+  const box = $('p-board'); if (!box) return;
+  if (!boardBackend){ box.innerHTML = `<h3>${t('p.board')}</h3><p class="hint">${t('p.boardoff')}</p>`; return; }
+  const meId = boardBackend.uid;
+  const rows = BOARD.rows || [];
+  box.innerHTML = `<h3>${t('p.board')} · ${weekKey()}</h3>
+    <div class="checks"><label><input type="checkbox" id="p-join" ${S.board ? 'checked' : ''}> ${t('p.join')}</label></div>
+    ${S.board ? `<label class="lbl" for="p-nick" style="display:block; margin-top:8px">${t('p.nick')}</label><input class="search" id="p-nick" maxlength="24" autocomplete="off">` : ''}
+    <p class="hint">${t('p.boardhint')}</p>
+    ${BOARD.err ? `<p class="hint">${t('p.boarderr')}</p>` : BOARD.rows === null ? `<p class="hint loading">…</p>` : rows.length ? `<ol class="board">${rows.map((r, i) => `<li class="${r.id === meId ? 'me' : ''}"><span class="rk">${i + 1}.</span><span class="nm"></span><span class="pt">${t('p.pts', {n: r.pts})}</span></li>`).join('')}</ol>` : `<p class="hint">${t('p.boardempty')}</p>`}
+    <div class="actions"><button class="btn ghost" id="p-refresh" type="button">${t('p.refresh')}</button></div>`;
+  box.querySelectorAll('.board .nm').forEach((el, i) => { el.textContent = (rows[i].streak ? '🔥' + rows[i].streak + ' ' : '') + rows[i].name; });
+  const nick = $('p-nick'); if (nick) nick.value = S.nick || '';
+}
+async function boardLoad(){
+  if (!boardBackend) return renderBoard();
+  BOARD.err = false;
+  try{ const rows = await boardBackend.list(weekKey()); BOARD.rows = rows.sort((a, b) => b.pts - a.pts).slice(0, 25); }
+  catch(e){ console.warn(e); BOARD.err = true; }
+  renderBoard();
+}
+let boardTimer = null;
+function boardPush(){
+  if (!boardBackend || !S.board) return;
+  clearTimeout(boardTimer);
+  boardTimer = setTimeout(async () => {
+    try{ await boardBackend.push({name: (S.nick || boardBackend.name || '?').slice(0, 24), week: weekKey(), pts: weekPts(), streak: streak(), at: Date.now()}); }
+    catch(e){ console.warn('Ranglista mentése sikertelen', e); }
+  }, 2500);
+}
+$('pside').addEventListener('change', async e => {
+  const el = e.target;
+  if (el.name === 'pgoal'){ S.goal = +el.value; store.set('settings', S); const st = streak(); if (st > PST.best) PST.best = st; checkBadges(); store.set('pstats', PST); renderP(); boardPush(); }
+  else if (el.id === 'p-join'){
+    S.board = el.checked;
+    if (S.board && !S.nick) S.nick = (boardBackend && boardBackend.name || '').split(/[\s@]/)[0].slice(0, 24);
+    store.set('settings', S);
+    if (S.board){ clearTimeout(boardTimer); try{ await boardBackend.push({name: S.nick || '?', week: weekKey(), pts: weekPts(), streak: streak(), at: Date.now()}); }catch(err){ console.warn(err); } }
+    else { try{ await boardBackend.remove(); }catch(err){ console.warn(err); } }
+    boardLoad();
+  }
+  else if (el.id === 'p-nick'){ S.nick = el.value.trim().slice(0, 24); store.set('settings', S); clearTimeout(boardTimer); try{ await boardBackend.push({name: S.nick || '?', week: weekKey(), pts: weekPts(), streak: streak(), at: Date.now()}); }catch(err){} boardLoad(); }
+});
+document.addEventListener('click', e => { if (e.target.id === 'p-refresh') boardLoad(); });
 
 /* ---- Szójelentés: 4 lehetőség közül a jó ---- */
 const DIRS = {get it2hu(){ return t('dir.it2x'); }, get hu2it(){ return t('dir.x2it'); }};
@@ -3971,7 +4225,7 @@ function answerV(k){
   $('v-next').focus({preventScroll:true});
 }
 function recordV(vb, dir, chosen, ok){
-  if (answerHook){
+  logActivity(1); if (answerHook){
     try{ answerHook({kind:'vocab', inf:vb.inf, dir, given: optText(chosen,dir), right: optText(vb,dir), ok, at: Date.now()}); }catch(e){}
   }
   VST.total++;
@@ -4414,7 +4668,7 @@ PDF.trans = () => {
 };
 function recordX(hu, given, r){
   const ok = r.score >= 9;
-  if (answerHook){
+  logActivity(3); if (answerHook){
     try{ answerHook({kind:'trans', lang: LANG, inf: curX.x ? curX.x.inf : '', hu, given, corrected: r.corrected, score: r.score, errors: r.errors.length, ok, at: Date.now()}); }catch(e){}
   }
   XST.total++; XST.sum = (XST.sum||0) + r.score;
@@ -4573,7 +4827,7 @@ async function endChat(){
 }
 function recordC(c){
   const turns = c.msgs.filter(m=>m.role==='user').length, r = c.sum;
-  if (answerHook){ try{ answerHook({kind:'chat', lang: LANG, scenario: c.scenario, level: c.level, topic: c.topic, turns, score: r.score, summary: r.summary, errors: r.errors.length, ok: r.score >= 8, at: Date.now()}); }catch(e){} }
+  logActivity(5); if (answerHook){ try{ answerHook({kind:'chat', lang: LANG, scenario: c.scenario, level: c.level, topic: c.topic, turns, score: r.score, summary: r.summary, errors: r.errors.length, ok: r.score >= 8, at: Date.now()}); }catch(e){} }
   CST.total++; CST.sum += r.score; CST.best = Math.max(CST.best||0, r.score);
   CST.recent.unshift({scenario: c.scenario, level: c.level, score: r.score, summary: r.summary.slice(0, 160)});
   CST.recent = CST.recent.slice(0, 6);
@@ -4709,7 +4963,7 @@ function answerR(i, k){
   const d = STORY.data;
   if (STORY.answers.filter(a => a != null).length === d.questions.length){
     const good = STORY.answers.filter((a, j) => a === d.questions[j].answer).length;
-    if (answerHook){ try{ answerHook({kind:'read', lang: LANG, own: !!STORY.own, title: d.title, tone: STORY.tone || 'normal', level: STORY.level || '—', tenses: STORY.tenses, score: good, total: d.questions.length, ok: good === d.questions.length, at: Date.now()}); }catch(e){} }
+    logActivity(5); if (answerHook){ try{ answerHook({kind:'read', lang: LANG, own: !!STORY.own, title: d.title, tone: STORY.tone || 'normal', level: STORY.level || '—', tenses: STORY.tenses, score: good, total: d.questions.length, ok: good === d.questions.length, at: Date.now()}); }catch(e){} }
     RST.total++; RST.q += d.questions.length; RST.ok += good;
     RST.recent.unshift({title: d.title, level: STORY.level || t('rsrc.own'), score: good, n: d.questions.length});
     RST.recent = RST.recent.slice(0, 8);
@@ -4839,7 +5093,7 @@ async function requestPage(){
   }
 }
 function recordAdv(a){
-  if (answerHook){ try{ answerHook({kind:'adv', lang: LANG, title: a.title, genre: a.genre, tone: a.tone || 'normal', level: a.level, pages: a.pages.length, ending: a.ending, ok: a.ending === 'good', at: Date.now()}); }catch(e){} }
+  logActivity(5); if (answerHook){ try{ answerHook({kind:'adv', lang: LANG, title: a.title, genre: a.genre, tone: a.tone || 'normal', level: a.level, pages: a.pages.length, ending: a.ending, ok: a.ending === 'good', at: Date.now()}); }catch(e){} }
   AST.total++; AST.pages += a.pages.length; if (a.ending === 'good') AST.good++;
   AST.recent.unshift({title: a.title, genre: a.genre, level: a.level, pages: a.pages.length, ending: a.ending});
   AST.recent = AST.recent.slice(0, 8);
@@ -5182,7 +5436,7 @@ function answerM(gaveUp){
   $('m-go').focus({preventScroll:true});
 }
 function recordM(x, f, res, ok, given){
-  if (answerHook){
+  logActivity(1); if (answerHook){
     try{ answerHook({kind:'sent', inf:x.inf, t:x.t, p:x.p, given, right:f.form, res, ok, at: Date.now()}); }catch(e){}
   }
   MST.total++;
@@ -5218,7 +5472,7 @@ function setLang(l, opts){
   renderOptionsR(); renderStatsR(); renderR();
   renderOptionsA(); renderStatsA(); renderA();
   renderRevSide(); renderRev(); revBadge();
-  renderOptionsH(); renderStatsH(); nextH();
+  renderOptionsH(); renderStatsH(); nextH(); renderP();
   renderBrowseKind(); renderList(); renderDetail();
   setAINote(aiNote);
   if (typeof window.onLangChange === 'function') window.onLangChange();
@@ -5239,7 +5493,8 @@ renderOptionsC(); renderStatsC(); renderC();
 renderOptionsR(); renderStatsR(); renderR();
 renderOptionsA(); renderStatsA(); renderA();
 renderRevSide(); renderRev(); revBadge();
-renderOptionsH(); renderStatsH(); nextH(); initAI();
+renderOptionsH(); renderStatsH(); nextH();
+checkBadges(true); renderP(); initAI();
 </script>
 
 <dialog class="login" id="login">
