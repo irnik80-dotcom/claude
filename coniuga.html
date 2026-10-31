@@ -536,6 +536,13 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
             <div class="checks" id="r-tone"></div>
           </div>
           <div class="opt">
+            <label class="lbl" for="r-hero" data-i18n="opt.rheroes"></label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <input class="search" id="r-hero" maxlength="40" autocomplete="off" data-i18n-ph="rhero.ph" aria-label="1">
+              <input class="search" id="r-hero2" maxlength="40" autocomplete="off" data-i18n-ph="hero2.ph" aria-label="2">
+            </div>
+          </div>
+          <div class="opt">
             <label class="lbl" for="r-topic" data-i18n="opt.rtopic"></label>
             <input class="search" id="r-topic" maxlength="100" autocomplete="off" data-i18n-ph="rtopic.ph">
           </div>
@@ -585,6 +592,10 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
           <div class="opt">
             <label class="lbl" for="a-hero" data-i18n="opt.hero"></label>
             <input class="search" id="a-hero" maxlength="40" autocomplete="off" data-i18n-ph="hero.ph">
+          </div>
+          <div class="opt">
+            <label class="lbl" for="a-hero2" data-i18n="opt.hero2"></label>
+            <input class="search" id="a-hero2" maxlength="40" autocomplete="off" data-i18n-ph="hero2.ph">
           </div>
         </div>
         <div class="card">
@@ -3065,6 +3076,10 @@ const I18N = {
   'pdf.key': ['Megoldások','Odpowiedzi','Answer key'],
   'pdf.you': ['Te','Ty','You'],
   'pdf.tr': ['Fordítás','Tłumaczenie','Translation'],
+  'opt.hero2': ['Második szereplő neve (nem kötelező)','Imię drugiej postaci (opcjonalnie)','Second character’s name (optional)'],
+  'hero2.ph': ['pl. Giulia','np. Giulia','e.g. Giulia'],
+  'opt.rheroes': ['Szereplők nevei (nem kötelező)','Imiona postaci (opcjonalnie)','Characters’ names (optional)'],
+  'rhero.ph': ['pl. Marco','np. Marco','e.g. Marco'],
   'opt.tone': ['Hangulat','Nastrój','Tone'],
   'tone.normal': ['normál','normalny','normal'],
   'tone.funny': ['vicces','zabawny','funny'],
@@ -3346,7 +3361,7 @@ async function initCloud(){
     await attachCloud(db.collection('data/users/' + me.id).doc('coniuga'), me);
   }catch(e){ /* marad a böngészős mentés */ }
 }
-const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', agenre:'fantasy', atone:'normal', rtone:'normal', alevel:'A2', alen:10, atenses:['pres','pp','imp'], ahero:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
+const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', agenre:'fantasy', atone:'normal', rtone:'normal', alevel:'A2', alen:10, atenses:['pres','pp','imp'], ahero:'', ahero2:'', rhero:'', rhero2:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
 let S = Object.assign({}, DEF, store.get('settings', {}));
 let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
 let VST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('vstats', {}));
@@ -3858,7 +3873,7 @@ function sanitize(body) {
   if (type === 'story') {
     const level = CEFR.includes(body.level) ? body.level : 'A2';
     const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
-    return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100), tone: TONES[body.tone] !== undefined ? body.tone : 'normal' };
+    return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100), tone: TONES[body.tone] !== undefined ? body.tone : 'normal', hero: str(body.hero, 40), hero2: str(body.hero2, 40) };
   }
   if (type === 'adv') {
     const level = CEFR.includes(body.level) ? body.level : 'A2';
@@ -3866,7 +3881,7 @@ function sanitize(body) {
     const steps = Math.max(4, Math.min(20, Math.round(Number(body.steps) || 8)));
     const step = Math.max(1, Math.min(steps, Math.round(Number(body.step) || 1)));
     return { type, lang, level, tenses: tenses.length ? tenses : ['pres', 'pp', 'imp'], genre: GENRES[body.genre] ? body.genre : 'fantasy',
-      steps, step, tone: TONES[body.tone] !== undefined ? body.tone : 'normal', hero: str(body.hero, 40), title: str(body.title, 120), summary: str(body.summary, 1500), last: str(body.last, 2000), choice: str(body.choice, 300) };
+      steps, step, tone: TONES[body.tone] !== undefined ? body.tone : 'normal', hero: str(body.hero, 40), hero2: str(body.hero2, 40), title: str(body.title, 120), summary: str(body.summary, 1500), last: str(body.last, 2000), choice: str(body.choice, 300) };
   }
   // alapeset: fordítás javítása
   const hu = str(body && body.hu, 600), given = str(body && body.given, 600);
@@ -3913,7 +3928,7 @@ Evaluate ONLY the learner's Italian. Write everything except the Italian example
     const len = { A1: '60-80', A2: '90-120', B1: '130-170', B2: '170-220', C1: '220-280' }[p.level];
     return `Write a short, original Italian text for a language learner whose native language is ${LN}. Level ${p.level} (${CEFR_HINT[p.level]}). Length: ${len} words.
 Use mainly these tenses, naturally: ${p.tenses.map((x) => TENSE_EN[x]).join(', ')}.
-Topic: ${p.topic ? JSON.stringify(p.topic) : 'an everyday situation of your choice (family, travel, work, food, city life, a small adventure)'}.${p.tone && TONES[p.tone] ? '\n' + TONES[p.tone] : ''}
+Topic: ${p.topic ? JSON.stringify(p.topic) : 'an everyday situation of your choice (family, travel, work, food, city life, a small adventure)'}.${(p.hero || p.hero2) ? `\nThe main character${p.hero && p.hero2 ? 's are' : ' is'} called ${[p.hero, p.hero2].filter(Boolean).map((x) => JSON.stringify(x)).join(' and ')}.` : ''}${p.tone && TONES[p.tone] ? '\n' + TONES[p.tone] : ''}
 Return:
 - "title": a short Italian title,
 - "text": the Italian text (plain text, paragraphs separated by a blank line),
@@ -3925,7 +3940,7 @@ Return:
     const final = p.step >= p.steps;
     const first = p.step === 1;
     return `You are writing an interactive "choose your own adventure" gamebook in Italian for a language learner whose native language is ${LN}. Level ${p.level} (${CEFR_HINT[p.level]}).
-Genre: ${GENRES[p.genre]}.${p.tone && TONES[p.tone] ? ' ' + TONES[p.tone] : ''} ${p.hero ? `The main character (the reader, addressed as "tu") is called ${JSON.stringify(p.hero)}.` : 'The main character is the reader, addressed as "tu".'}
+Genre: ${GENRES[p.genre]}.${p.tone && TONES[p.tone] ? ' ' + TONES[p.tone] : ''} ${p.hero ? `The main character (the reader, addressed as "tu") is called ${JSON.stringify(p.hero)}.` : 'The main character is the reader, addressed as "tu".'}${p.hero2 ? ` Another important character is called ${JSON.stringify(p.hero2)} (a companion, friend, love interest or rival, as fits the genre); give them a real role in the story.` : ''}
 Use mainly these tenses, naturally: ${p.tenses.map((x) => TENSE_EN[x]).join(', ')}.
 This is page ${p.step} of about ${p.steps}.
 ${first ? 'Start the adventure: introduce the hero, the place and a first problem or mystery. Also give the whole adventure a short Italian "title".'
@@ -4297,6 +4312,7 @@ function renderOptionsR(){
   $('r-level').innerHTML = AIP.CEFR.map(l => chk('radio','rlevel',l,S.rlevel===l,t('cefr.'+l))).join('');
   $('r-tenses').innerHTML = TENSES.map(x => chk('checkbox','rtense',x.id,S.rtenses.includes(x.id),x.it)).join('');
   $('r-topic').value = S.rtopic || '';
+  $('r-hero').value = S.rhero || ''; $('r-hero2').value = S.rhero2 || '';
   $('r-tone').innerHTML = TONE_IDS.map(x => chk('radio','rtone',x,(S.rtone||'normal')===x,t('tone.'+x))).join('');
 }
 $('rside').addEventListener('change', e => {
@@ -4304,6 +4320,8 @@ $('rside').addEventListener('change', e => {
   if (el.name==='rlevel') S.rlevel = el.value;
   else if (el.name==='rtense'){ const sel=[...document.querySelectorAll('input[name=rtense]:checked')].map(x=>x.value); if(!sel.length){ el.checked=true; return; } S.rtenses = sel; }
   else if (el.id==='r-topic') S.rtopic = el.value.trim();
+  else if (el.id==='r-hero') S.rhero = el.value.trim();
+  else if (el.id==='r-hero2') S.rhero2 = el.value.trim();
   else if (el.name==='rtone') S.rtone = el.value;
   else return;
   store.set('settings', S);
@@ -4334,7 +4352,7 @@ function renderR(){
   const good = STORY.answers.filter((a, i) => a === d.questions[i].answer).length;
   box.innerHTML = head + `<div class="story">
     <h2>${esc(d.title)}</h2>
-    <p class="muted" style="margin:0 0 12px">${esc(STORY.level)}${esc(toneTag(STORY.tone))} · ${STORY.tenses.map(x => tenseOf(x).it).join(', ')} · ${t('x.tap')}</p>
+    <p class="muted" style="margin:0 0 12px">${esc(STORY.level)}${esc(toneTag(STORY.tone))}${STORY.hero || STORY.hero2 ? ' · ' + esc([STORY.hero, STORY.hero2].filter(Boolean).join(' & ')) : ''} · ${STORY.tenses.map(x => tenseOf(x).it).join(', ')} · ${t('x.tap')}</p>
     ${paras.map(pp => `<p class="para">${glossText(pp)}</p>`).join('')}
     <div class="actions" style="margin-top:4px">
       <button class="btn ghost" type="button" data-say="${esc(d.text)}">${t('r.listen')}</button>
@@ -4365,11 +4383,11 @@ PDF.story = () => {
 };
 async function newStory(){
   if (!aiBackend){ const n = $('rcard').querySelector('.ainote'); if (n) n.style.color = 'var(--pen)'; return; }
-  STORY = {level: S.rlevel, tenses: S.rtenses.slice(), topic: S.rtopic || '', tone: S.rtone || 'normal', answers: [], busy: true};
+  STORY = {level: S.rlevel, tenses: S.rtenses.slice(), topic: S.rtopic || '', tone: S.rtone || 'normal', hero: S.rhero || '', hero2: S.rhero2 || '', answers: [], busy: true};
   renderR();
   const me = STORY;
   try{
-    const res = await aiBackend({type:'story', lang: LANG, level: me.level, tenses: me.tenses, topic: me.topic, tone: me.tone});
+    const res = await aiBackend({type:'story', lang: LANG, level: me.level, tenses: me.tenses, topic: me.topic, tone: me.tone, hero: me.hero || '', hero2: me.hero2 || ''});
     if (STORY !== me) return;
     if (!res.result.text || !res.result.questions.length) throw new Error(t('ai.noreply'));
     me.data = res.result;
@@ -4405,7 +4423,7 @@ function renderOptionsA(){
   $('a-level').innerHTML = AIP.CEFR.map(l => chk('radio','alevel',l,S.alevel===l,t('cefr.'+l))).join('');
   $('a-len').innerHTML = ADV_LENS.map((n,i) => chk('radio','alen',n,+S.alen===n,t(['len.short','len.mid','len.long'][i]))).join('');
   $('a-tenses').innerHTML = TENSES.map(x => chk('checkbox','atense',x.id,S.atenses.includes(x.id),x.it)).join('');
-  $('a-hero').value = S.ahero || '';
+  $('a-hero').value = S.ahero || ''; $('a-hero2').value = S.ahero2 || '';
   $('a-tone').innerHTML = TONE_IDS.map(x => chk('radio','atone',x,(S.atone||'normal')===x,t('tone.'+x))).join('');
 }
 $('advside').addEventListener('change', e => {
@@ -4415,6 +4433,7 @@ $('advside').addEventListener('change', e => {
   else if (el.name==='alen') S.alen = +el.value;
   else if (el.name==='atense'){ const sel=[...document.querySelectorAll('input[name=atense]:checked')].map(x=>x.value); if(!sel.length){ el.checked=true; return; } S.atenses = sel; }
   else if (el.id==='a-hero') S.ahero = el.value.trim();
+  else if (el.id==='a-hero2') S.ahero2 = el.value.trim();
   else if (el.name==='atone') S.atone = el.value;
   else return;
   store.set('settings', S);
@@ -4440,7 +4459,7 @@ function renderA(){
   }
   const pages = ADV.pages, last = pages[pages.length-1];
   let html = head + `<div class="book">${ADV.title ? `<h2>${esc(ADV.title)}</h2>` : ''}
-    <p class="muted" style="margin:0 0 6px">${esc(t('genre.'+ADV.genre))}${esc(toneTag(ADV.tone))} · ${esc(ADV.level)}${ADV.hero ? ' · ' + esc(ADV.hero) : ''}</p>`;
+    <p class="muted" style="margin:0 0 6px">${esc(t('genre.'+ADV.genre))}${esc(toneTag(ADV.tone))} · ${esc(ADV.level)}${ADV.hero || ADV.hero2 ? ' · ' + esc([ADV.hero, ADV.hero2].filter(Boolean).join(' & ')) : ''}</p>`;
   pages.forEach((pg, i) => {
     const isLast = i === pages.length-1;
     html += `<div class="bpage" id="apage${i}"><span class="pnum">§ ${pg.n}<small>${t('a.of', {n: i+1, m: ADV.steps})}</small></span>
@@ -4469,7 +4488,7 @@ function renderA(){
 }
 function startAdv(){
   if (!aiBackend){ renderA(); const n = $('acard').querySelector('.ainote'); if (n) n.style.color = 'var(--pen)'; return; }
-  ADV = {genre: S.agenre, tone: S.atone || 'normal', level: S.alevel, tenses: S.atenses.slice(), steps: +S.alen || 10, hero: S.ahero || '', title: '', pages: [], summary: '', done: false, showTr: {}};
+  ADV = {genre: S.agenre, tone: S.atone || 'normal', level: S.alevel, tenses: S.atenses.slice(), steps: +S.alen || 10, hero: S.ahero || '', hero2: S.ahero2 || '', title: '', pages: [], summary: '', done: false, showTr: {}};
   requestPage();
 }
 function chooseAdv(k){
@@ -4486,7 +4505,7 @@ async function requestPage(){
   const nextEl = $('acard').querySelector('.loading'); if (nextEl) nextEl.scrollIntoView({block:'nearest'});
   try{
     const res = await aiBackend({type:'adv', lang: LANG, genre: me.genre, tone: me.tone || 'normal', level: me.level, tenses: me.tenses, steps: me.steps, step: me.pages.length+1,
-      hero: me.hero, title: me.title, summary: me.summary, last: last ? last.text : '', choice: choice ? choice.text : ''});
+      hero: me.hero, hero2: me.hero2 || '', title: me.title, summary: me.summary, last: last ? last.text : '', choice: choice ? choice.text : ''});
     if (ADV !== me) return;
     const r = res.result;
     if (!r.text) throw new Error(t('ai.noreply'));
@@ -4511,7 +4530,7 @@ function recordAdv(a){
 }
 PDF.adv = () => {
   if (!ADV || !ADV.pages.length) return;
-  printDoc(ADV.title || t('a.label'), `<p class="pmeta">${esc(t('a.label'))} · ${esc(t('genre.'+ADV.genre))}${esc(toneTag(ADV.tone))} · ${esc(ADV.level)}${ADV.hero ? ' · ' + esc(ADV.hero) : ''}</p>
+  printDoc(ADV.title || t('a.label'), `<p class="pmeta">${esc(t('a.label'))} · ${esc(t('genre.'+ADV.genre))}${esc(toneTag(ADV.tone))} · ${esc(ADV.level)}${ADV.hero || ADV.hero2 ? ' · ' + esc([ADV.hero, ADV.hero2].filter(Boolean).join(' & ')) : ''}</p>
     ${ADV.pages.map(pg => `<h2>§ ${pg.n}</h2>${pg.text.split(/\n\s*\n/).filter(x => x.trim()).map(pp => `<p class="pit">${esc(pp)}</p>`).join('')}
       ${pg.tr ? `<p class="ptr">${esc(pg.tr)}</p>` : ''}
       ${pg.vocab && pg.vocab.length ? `<p class="pmeta">${pg.vocab.map(v => `${esc(v.it)}: ${esc(v.tr)}`).join(' · ')}</p>` : ''}

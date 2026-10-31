@@ -61,7 +61,7 @@ export function sanitize(body) {
   if (type === 'story') {
     const level = CEFR.includes(body.level) ? body.level : 'A2';
     const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
-    return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100), tone: TONES[body.tone] !== undefined ? body.tone : 'normal' };
+    return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100), tone: TONES[body.tone] !== undefined ? body.tone : 'normal', hero: str(body.hero, 40), hero2: str(body.hero2, 40) };
   }
   if (type === 'adv') {
     const level = CEFR.includes(body.level) ? body.level : 'A2';
@@ -69,7 +69,7 @@ export function sanitize(body) {
     const steps = Math.max(4, Math.min(20, Math.round(Number(body.steps) || 8)));
     const step = Math.max(1, Math.min(steps, Math.round(Number(body.step) || 1)));
     return { type, lang, level, tenses: tenses.length ? tenses : ['pres', 'pp', 'imp'], genre: GENRES[body.genre] ? body.genre : 'fantasy',
-      steps, step, tone: TONES[body.tone] !== undefined ? body.tone : 'normal', hero: str(body.hero, 40), title: str(body.title, 120), summary: str(body.summary, 1500), last: str(body.last, 2000), choice: str(body.choice, 300) };
+      steps, step, tone: TONES[body.tone] !== undefined ? body.tone : 'normal', hero: str(body.hero, 40), hero2: str(body.hero2, 40), title: str(body.title, 120), summary: str(body.summary, 1500), last: str(body.last, 2000), choice: str(body.choice, 300) };
   }
   // alapeset: fordítás javítása
   const hu = str(body && body.hu, 600), given = str(body && body.given, 600);
@@ -116,7 +116,7 @@ Evaluate ONLY the learner's Italian. Write everything except the Italian example
     const len = { A1: '60-80', A2: '90-120', B1: '130-170', B2: '170-220', C1: '220-280' }[p.level];
     return `Write a short, original Italian text for a language learner whose native language is ${LN}. Level ${p.level} (${CEFR_HINT[p.level]}). Length: ${len} words.
 Use mainly these tenses, naturally: ${p.tenses.map((x) => TENSE_EN[x]).join(', ')}.
-Topic: ${p.topic ? JSON.stringify(p.topic) : 'an everyday situation of your choice (family, travel, work, food, city life, a small adventure)'}.${p.tone && TONES[p.tone] ? '\n' + TONES[p.tone] : ''}
+Topic: ${p.topic ? JSON.stringify(p.topic) : 'an everyday situation of your choice (family, travel, work, food, city life, a small adventure)'}.${(p.hero || p.hero2) ? `\nThe main character${p.hero && p.hero2 ? 's are' : ' is'} called ${[p.hero, p.hero2].filter(Boolean).map((x) => JSON.stringify(x)).join(' and ')}.` : ''}${p.tone && TONES[p.tone] ? '\n' + TONES[p.tone] : ''}
 Return:
 - "title": a short Italian title,
 - "text": the Italian text (plain text, paragraphs separated by a blank line),
@@ -128,7 +128,7 @@ Return:
     const final = p.step >= p.steps;
     const first = p.step === 1;
     return `You are writing an interactive "choose your own adventure" gamebook in Italian for a language learner whose native language is ${LN}. Level ${p.level} (${CEFR_HINT[p.level]}).
-Genre: ${GENRES[p.genre]}.${p.tone && TONES[p.tone] ? ' ' + TONES[p.tone] : ''} ${p.hero ? `The main character (the reader, addressed as "tu") is called ${JSON.stringify(p.hero)}.` : 'The main character is the reader, addressed as "tu".'}
+Genre: ${GENRES[p.genre]}.${p.tone && TONES[p.tone] ? ' ' + TONES[p.tone] : ''} ${p.hero ? `The main character (the reader, addressed as "tu") is called ${JSON.stringify(p.hero)}.` : 'The main character is the reader, addressed as "tu".'}${p.hero2 ? ` Another important character is called ${JSON.stringify(p.hero2)} (a companion, friend, love interest or rival, as fits the genre); give them a real role in the story.` : ''}
 Use mainly these tenses, naturally: ${p.tenses.map((x) => TENSE_EN[x]).join(', ')}.
 This is page ${p.step} of about ${p.steps}.
 ${first ? 'Start the adventure: introduce the hero, the place and a first problem or mystery. Also give the whole adventure a short Italian "title".'
