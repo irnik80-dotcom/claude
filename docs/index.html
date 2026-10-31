@@ -1,0 +1,1054 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Olasz igeragozás gyakorló: több mint 300 ige, hat igeidő, a rendhagyó alakok jelölésével.">
+<title>Coniuga</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: squared exercise-book page; the practice card sits on the grid, the settings live in a right-hand "margin" column that stacks below on phones. Irregular forms are marked like a teacher's red pen. */
+:root{
+  --paper:#f5f7fc; --rule:#e1e7f2; --card:#ffffff; --line:#d2d9e7;
+  --ink:#17213b; --ink-soft:#58647e;
+  --accent:#2341c2; --accent-soft:#e5eafb; --on-accent:#ffffff;
+  --pen:#c92e24; --pen-soft:#fbe8e5;
+  --ok:#1b7c45; --ok-soft:#e2f3e9; --warn:#93650c; --warn-soft:#faf0d9;
+  --f-display:'Young Serif', Georgia, 'Times New Roman', serif;
+  --f-body:'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-mono:'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0f131c; --rule:#1a2130; --card:#161c29; --line:#2a3346;
+    --ink:#e5e9f3; --ink-soft:#9ba6bd;
+    --accent:#8fa5ff; --accent-soft:#222c4a; --on-accent:#0f131c;
+    --pen:#ff8073; --pen-soft:#3a1f1e;
+    --ok:#5ccb8c; --ok-soft:#16301f; --warn:#e6b450; --warn-soft:#352a12;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0f131c; --rule:#1a2130; --card:#161c29; --line:#2a3346;
+  --ink:#e5e9f3; --ink-soft:#9ba6bd;
+  --accent:#8fa5ff; --accent-soft:#222c4a; --on-accent:#0f131c;
+  --pen:#ff8073; --pen-soft:#3a1f1e;
+  --ok:#5ccb8c; --ok-soft:#16301f; --warn:#e6b450; --warn-soft:#352a12;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper); color:var(--ink);
+  background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);
+  background-size:24px 24px;
+  font-family:var(--f-body); font-size:15px; line-height:1.5;
+}
+.wrap{max-width:1120px; margin:0 auto; padding-block:20px 48px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));}
+header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px 24px; margin-bottom:18px}
+.brand h1{font-family:var(--f-display); font-weight:400; font-size:2.4rem; line-height:1; margin:0; letter-spacing:-.01em}
+.brand h1 em{font-style:normal; color:var(--pen)}
+.brand p{margin:6px 0 0; color:var(--ink-soft)}
+.brand p.who{display:flex; align-items:center; gap:8px; font-size:.85rem; margin-top:8px}
+.who img{width:22px; height:22px; border-radius:50%; flex:none}
+.who-dot{width:8px; height:8px; border-radius:50%; background:var(--line); flex:none}
+.who.on .who-dot{background:var(--ok)}
+.who b{color:var(--ink)}
+nav.tabs{display:flex; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:4px}
+nav.tabs button{font:inherit; font-weight:600; border:0; background:transparent; color:var(--ink-soft); padding:8px 16px; border-radius:7px; cursor:pointer}
+nav.tabs button[aria-selected="true"]{background:var(--accent); color:var(--on-accent)}
+button:focus-visible,input:focus-visible,select:focus-visible,label:focus-within{outline:2px solid var(--accent); outline-offset:2px}
+
+.layout{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:20px; align-items:start}
+@media (max-width:860px){.layout{grid-template-columns:minmax(0,1fr)}}
+
+.card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:22px}
+.side{display:flex; flex-direction:column; gap:16px}
+.side .card{padding:16px 18px}
+.side h3{font-size:.72rem; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 10px; font-weight:700}
+
+/* question */
+.q-meta{display:flex; flex-wrap:wrap; gap:6px 12px; align-items:baseline; margin-bottom:6px}
+.tense{font-family:var(--f-mono); font-weight:600; color:var(--accent); font-size:.95rem}
+.tense-hu{color:var(--ink-soft); font-size:.9rem}
+.verb-line{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 14px}
+.inf{font-family:var(--f-display); font-weight:400; font-size:clamp(2rem,6vw,2.9rem); margin:0; line-height:1.15}
+.hu{color:var(--ink-soft); font-size:1.05rem}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 18px}
+.chip{font-size:.75rem; font-weight:600; padding:2px 9px; border-radius:999px; border:1px solid var(--line); color:var(--ink-soft); background:var(--paper); white-space:nowrap}
+.chip.irr{color:var(--pen); border-color:var(--pen); background:var(--pen-soft)}
+.chip.ess{color:var(--accent); border-color:var(--accent); background:var(--accent-soft)}
+.focus-chip{display:inline-flex; gap:6px; align-items:center}
+.focus-chip button{border:0; background:none; color:inherit; cursor:pointer; font:inherit; padding:0 2px}
+
+.answer-row{display:flex; flex-wrap:wrap; align-items:center; gap:10px}
+.person{font-family:var(--f-mono); font-weight:600; font-size:1.15rem; min-width:4.5em}
+.answer-row input, .trow input{
+  font-family:var(--f-mono); font-size:1.15rem; padding:10px 12px; border-radius:8px;
+  border:1.5px solid var(--line); background:var(--paper); color:var(--ink); flex:1 1 220px; min-width:0}
+.answer-row input:focus, .trow input:focus{border-color:var(--accent); outline:none; box-shadow:0 0 0 3px var(--accent-soft)}
+input.is-ok{border-color:var(--ok)!important; background:var(--ok-soft)!important}
+input.is-acc{border-color:var(--warn)!important; background:var(--warn-soft)!important}
+input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!important}
+
+.keys{display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 0}
+.keys button{font-family:var(--f-mono); font-size:1rem; width:38px; height:36px; border-radius:7px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer}
+.keys button:hover{border-color:var(--accent)}
+.actions{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px}
+.btn{font:inherit; font-weight:600; border-radius:8px; padding:9px 16px; cursor:pointer; border:1.5px solid var(--accent); background:var(--accent); color:var(--on-accent)}
+.btn.ghost{background:transparent; color:var(--accent)}
+.btn.quiet{background:transparent; border-color:var(--line); color:var(--ink-soft)}
+.btn:disabled{opacity:.45; cursor:default}
+
+.feedback{margin-top:18px; padding:14px 16px; border-radius:10px; border:1px solid var(--line)}
+.feedback.ok{background:var(--ok-soft); border-color:var(--ok)}
+.feedback.acc{background:var(--warn-soft); border-color:var(--warn)}
+.feedback.bad{background:var(--pen-soft); border-color:var(--pen)}
+.feedback strong.big{font-family:var(--f-mono); font-size:1.15rem}
+.feedback .verdict{font-weight:700}
+.feedback.ok .verdict{color:var(--ok)} .feedback.acc .verdict{color:var(--warn)} .feedback.bad .verdict{color:var(--pen)}
+.feedback p{margin:4px 0}
+
+/* conjugation table */
+.ttable{width:100%; border-collapse:collapse; font-family:var(--f-mono); font-size:.92rem}
+.ttable td{padding:4px 6px; border-bottom:1px dashed var(--line); vertical-align:top}
+.ttable tr:last-child td{border-bottom:0}
+.ttable td.p{color:var(--ink-soft); width:5.2em; white-space:nowrap}
+.ttable tr.hl td{background:var(--accent-soft)}
+.irrf{color:var(--pen); text-decoration:underline wavy var(--pen); text-decoration-thickness:1.2px; text-underline-offset:4px}
+.tbox h4{margin:0 0 6px; font-family:var(--f-mono); font-size:.86rem; color:var(--accent); display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap}
+.tbox h4 span{font-family:var(--f-body); font-weight:500; color:var(--ink-soft)}
+.tbox h4 .irrtag{color:var(--pen); font-weight:700}
+.after-table{margin-top:16px}
+
+/* table mode */
+.trows{display:grid; gap:8px}
+.trow{display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px}
+.trow .person{min-width:4.5em; font-size:1rem}
+.trow input{font-size:1rem; padding:8px 10px}
+.trow .sol{flex-basis:100%; padding-left:calc(4.5em + 10px); font-family:var(--f-mono); font-size:.9rem}
+@media (max-width:480px){.trow .sol{padding-left:0}}
+
+/* side */
+.stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; text-align:center}
+.stat b{display:block; font-family:var(--f-display); font-weight:400; font-size:1.6rem; font-variant-numeric:tabular-nums; line-height:1.2}
+.stat span{font-size:.75rem; color:var(--ink-soft)}
+.opt{display:flex; flex-direction:column; gap:6px}
+.opt + .opt{margin-top:14px; padding-top:12px; border-top:1px dashed var(--line)}
+.opt .lbl{font-size:.8rem; font-weight:700; color:var(--ink-soft)}
+.checks{display:flex; flex-wrap:wrap; gap:6px}
+.checks label{display:inline-flex; align-items:center; gap:6px; padding:4px 10px 4px 8px; border:1px solid var(--line); border-radius:999px; font-size:.85rem; cursor:pointer; background:var(--paper)}
+.checks label:has(input:checked){border-color:var(--accent); background:var(--accent-soft); color:var(--ink)}
+.checks input{accent-color:var(--accent); margin:0}
+.pool{font-size:.82rem; color:var(--ink-soft)}
+.mist{list-style:none; margin:0; padding:0; display:grid; gap:6px; font-size:.85rem}
+.mist li{display:flex; justify-content:space-between; gap:8px; border-bottom:1px dashed var(--line); padding-bottom:4px}
+.mist .w{color:var(--pen); text-decoration:line-through}
+.mist .c{font-family:var(--f-mono)}
+.muted{color:var(--ink-soft); font-size:.85rem}
+
+/* browser */
+.browser{display:grid; grid-template-columns:300px minmax(0,1fr); gap:20px; align-items:start}
+@media (max-width:860px){.browser{grid-template-columns:minmax(0,1fr)}}
+.search{width:100%; font:inherit; padding:10px 12px; border-radius:8px; border:1.5px solid var(--line); background:var(--paper); color:var(--ink)}
+.vlist{list-style:none; margin:10px 0 0; padding:0; max-height:62vh; overflow:auto; border-top:1px solid var(--line)}
+@media (max-width:860px){.vlist{max-height:40vh}}
+.vlist button{width:100%; text-align:left; font:inherit; background:none; border:0; border-bottom:1px solid var(--line); padding:8px 6px; cursor:pointer; color:var(--ink); display:flex; justify-content:space-between; gap:8px; align-items:baseline}
+.vlist button:hover{background:var(--accent-soft)}
+.vlist button[aria-current="true"]{background:var(--accent-soft); box-shadow:inset 3px 0 0 var(--accent)}
+.vlist .vi{font-weight:600}
+.vlist .vh{color:var(--ink-soft); font-size:.82rem; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0}
+.vlist .dot{color:var(--pen); font-weight:700}
+.tgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:18px 20px; margin-top:16px}
+.legend{font-size:.85rem; color:var(--ink-soft); margin-top:6px}
+.count{font-size:.82rem; color:var(--ink-soft); margin-top:8px}
+@media (prefers-reduced-motion: no-preference){
+  .feedback{animation:pop .18s ease-out}
+  @keyframes pop{from{transform:translateY(4px); opacity:.6} to{transform:none; opacity:1}}
+}
+
+body{margin:0}
+[hidden]{display:none!important}
+.auth{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+dialog.login{border:1px solid var(--line); border-radius:14px; background:var(--card); color:var(--ink); padding:24px; width:min(400px, calc(100vw - 32px))}
+dialog.login::backdrop{background:rgba(10,14,25,.45)}
+dialog.login h2{font-family:var(--f-display); font-weight:400; margin:0 0 4px; font-size:1.6rem}
+dialog.login form{display:grid; gap:10px; margin-top:14px}
+dialog.login input{font:inherit; padding:10px 12px; border-radius:8px; border:1.5px solid var(--line); background:var(--paper); color:var(--ink)}
+dialog.login .or{display:flex; align-items:center; gap:10px; color:var(--ink-soft); font-size:.8rem; margin-top:14px}
+dialog.login .or::before, dialog.login .or::after{content:""; flex:1; border-top:1px solid var(--line)}
+dialog.login .err{color:var(--pen); font-size:.88rem; margin:0; min-height:1.2em}
+dialog.login .row{display:flex; flex-wrap:wrap; gap:8px}
+dialog.login .row .btn{flex:1 1 140px}
+.linkbtn{font:inherit; background:none; border:0; color:var(--accent); cursor:pointer; padding:0; text-decoration:underline; font-size:.88rem; justify-self:start}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Coniuga<em>!</em></h1>
+      <p id="subtitle">Olasz igeragozás gyakorló</p>
+      <p class="who" id="who"><span class="who-dot" aria-hidden="true"></span><span id="who-text">Az eredményeid ebben a böngészőben maradnak.</span></p>
+    </div>
+    <div class="auth" id="auth" hidden><button class="btn ghost" id="login-open" type="button">Bejelentkezés</button><button class="btn quiet" id="logout" type="button" hidden>Kijelentkezés</button></div>
+    <nav class="tabs" role="tablist">
+      <button id="tab-practice" role="tab" aria-selected="true">Gyakorlás</button>
+      <button id="tab-browse" role="tab" aria-selected="false">Igetár</button>
+    </nav>
+  </header>
+
+  <section id="view-practice">
+    <div class="layout">
+      <div class="card" id="qcard"></div>
+      <aside class="side">
+        <div class="card">
+          <h3>Eredmény</h3>
+          <div class="stats">
+            <div class="stat"><b id="s-pct">–</b><span>helyes</span></div>
+            <div class="stat"><b id="s-streak">0</b><span>sorozat</span></div>
+            <div class="stat"><b id="s-best">0</b><span>legjobb</span></div>
+          </div>
+          <p class="muted" id="s-total" style="margin:10px 0 0;text-align:center"></p>
+        </div>
+        <div class="card">
+          <h3>Beállítások</h3>
+          <div class="opt">
+            <span class="lbl">Feladattípus</span>
+            <div class="checks" id="o-mode"></div>
+          </div>
+          <div class="opt">
+            <span class="lbl">Igeidők, módok</span>
+            <div class="checks" id="o-tenses"></div>
+          </div>
+          <div class="opt">
+            <span class="lbl">Szint</span>
+            <div class="checks" id="o-levels"></div>
+          </div>
+          <div class="opt">
+            <span class="lbl">Igék</span>
+            <div class="checks" id="o-kind"></div>
+          </div>
+          <div class="opt">
+            <div class="checks">
+              <label><input type="checkbox" id="o-refl"> visszaható igék is</label>
+              <label><input type="checkbox" id="o-lenient"> ékezethiba elfogadva</label>
+            </div>
+            <span class="pool" id="o-pool"></span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Legutóbbi hibák</h3>
+          <ul class="mist" id="mistakes"></ul>
+          <div class="actions" style="margin-top:12px"><button class="btn quiet" id="reset">Eredmények törlése</button></div>
+          <p class="muted" id="reset-confirm" hidden style="margin:8px 0 0">Biztosan? <button class="btn quiet" id="reset-yes" style="padding:3px 10px">Igen, törlöm</button></p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="view-browse" hidden>
+    <div class="browser">
+      <div class="card">
+        <input class="search" id="b-search" type="search" placeholder="Keresés: olaszul vagy magyarul" autocomplete="off">
+        <div class="checks" id="b-kind" style="margin-top:10px"></div>
+        <div class="count" id="b-count"></div>
+        <ul class="vlist" id="b-list"></ul>
+      </div>
+      <div class="card" id="b-detail"></div>
+    </div>
+  </section>
+</div>
+
+<script id="engine">
+/* ---------- Ragozó motor ---------- */
+const PERS = ['io','tu','lui/lei','noi','voi','loro'];
+const REFL = ['mi','ti','si','ci','vi','si'];
+const ESS = ['sono','sei','è','siamo','siete','sono'];
+const AVE = ['ho','hai','ha','abbiamo','avete','hanno'];
+const TENSES = [
+  {id:'pres', it:'Presente', hu:'jelen idő'},
+  {id:'pp',   it:'Passato prossimo', hu:'összetett múlt idő'},
+  {id:'imp',  it:'Imperfetto', hu:'folyamatos múlt idő'},
+  {id:'fut',  it:'Futuro semplice', hu:'jövő idő'},
+  {id:'cond', it:'Condizionale presente', hu:'feltételes mód'},
+  {id:'cong', it:'Congiuntivo presente', hu:'kötőmód, jelen'}
+];
+const TNAME = {pres:'presente', pp:'participio', imp:'imperfetto', fut:'futuro', cond:'condizionale', cong:'congiuntivo'};
+const ENDS = {
+  are:{pres:['o','i','a','iamo','ate','ano'], cong:['i','i','i','iamo','iate','ino'], imp:'av', fut:'er', pp:'ato'},
+  ere:{pres:['o','i','e','iamo','ete','ono'], cong:['a','a','a','iamo','iate','ano'], imp:'ev', fut:'er', pp:'uto'},
+  ire:{pres:['o','i','e','iamo','ite','ono'], cong:['a','a','a','iamo','iate','ano'], imp:'iv', fut:'ir', pp:'ito'},
+  isc:{pres:['isco','isci','isce','iamo','ite','iscono'], cong:['isca','isca','isca','iamo','iate','iscano']}
+};
+const IMPF = ['o','i','a','amo','ate','ano'];
+const FUT = ['ò','ai','à','emo','ete','anno'];
+const COND = ['ei','esti','ebbe','emmo','este','ebbero'];
+
+function join(stem, end, conj, keepI){
+  if (end[0]==='i' && stem.endsWith('i')){
+    if (keepI && (end==='i' || end==='ino')) return stem+end;   // invii, inviino
+    return stem+end.slice(1);                                   // studi+iamo -> studiamo
+  }
+  if (conj==='are' && /[cg]$/.test(stem) && /^[ei]/.test(end)) return stem+'h'+end; // cerchi, pagherò
+  if (!keepI && /[cg]i$/.test(stem) && end[0]==='e') return stem.slice(0,-1)+end;   // mangerò
+  return stem+end;
+}
+
+const VERBS = [];
+const P = s => s.split(' ');
+function v(inf, hu, lvl, o){ VERBS.push(Object.assign({inf, hu, lvl}, o||{})); }
+function ppv(inf, hu, lvl, pp, o){ v(inf, hu, lvl, Object.assign({pp}, o||{})); }
+function porre(pre, hu, lvl){ v(pre+'porre', hu, lvl, {pres:P('pongo poni pone poniamo ponete pongono').map(x=>pre+x), imp:pre+'pon', fut:pre+'porr', pp:pre+'posto'}); }
+function durre(pre, hu, lvl){ v(pre+'durre', hu, lvl, {pres:P('duco duci duce duciamo ducete ducono').map(x=>pre+x), imp:pre+'duc', fut:pre+'durr', pp:pre+'dotto'}); }
+function trarre(pre, hu, lvl){ v(pre+'trarre', hu, lvl, {pres:P('traggo trai trae traiamo traete traggono').map(x=>pre+x), imp:pre+'tra', fut:pre+'trarr', pp:pre+'tratto'}); }
+function tenere(pre, hu, lvl){ v(pre+'tenere', hu, lvl, {pres:P('tengo tieni tiene teniamo tenete tengono').map(x=>pre+x), fut:pre+'terr'}); }
+function cogliere(pre, hu, lvl){ v(pre+'cogliere', hu, lvl, {pres:P('colgo cogli coglie cogliamo cogliete colgono').map(x=>pre+x), pp:pre+'colto'}); }
+
+/* ===== 1. szint: alapigék ===== */
+v('essere','van, létezik',1,{e:1, pres:P('sono sei è siamo siete sono'), imp:P('ero eri era eravamo eravate erano'), fut:'sar', cong:P('sia sia sia siamo siate siano'), pp:'stato'});
+v('avere','van neki, birtokol',1,{pres:P('ho hai ha abbiamo avete hanno'), fut:'avr', cong:P('abbia abbia abbia abbiamo abbiate abbiano')});
+v('fare','csinál',1,{pres:P('faccio fai fa facciamo fate fanno'), imp:'fac', fut:'far', pp:'fatto'});
+v('andare','megy',1,{e:1, pres:P('vado vai va andiamo andate vanno'), fut:'andr'});
+v('venire','jön',1,{e:1, pres:P('vengo vieni viene veniamo venite vengono'), fut:'verr', pp:'venuto'});
+v('dire','mond',1,{pres:P('dico dici dice diciamo dite dicono'), imp:'dic', fut:'dir', pp:'detto'});
+v('dare','ad',1,{pres:P('do dai dà diamo date danno'), fut:'dar', cong:P('dia dia dia diamo diate diano')});
+v('stare','van (valahogy), áll, marad',1,{e:1, pres:P('sto stai sta stiamo state stanno'), fut:'star', cong:P('stia stia stia stiamo stiate stiano')});
+v('potere','tud, -hat/-het',1,{pres:P('posso puoi può possiamo potete possono'), fut:'potr'});
+v('volere','akar',1,{pres:P('voglio vuoi vuole vogliamo volete vogliono'), fut:'vorr'});
+v('dovere','kell, muszáj',1,{pres:P('devo devi deve dobbiamo dovete devono'), fut:'dovr', cong:P('debba/deva debba/deva debba/deva dobbiamo dobbiate debbano/devano')});
+v('sapere','tud (valamit)',1,{pres:P('so sai sa sappiamo sapete sanno'), fut:'sapr', cong:P('sappia sappia sappia sappiamo sappiate sappiano')});
+v('bere','iszik',1,{pres:P('bevo bevi beve beviamo bevete bevono'), imp:'bev', fut:'berr', pp:'bevuto'});
+v('uscire','kimegy, elmegy otthonról',1,{e:1, pres:P('esco esci esce usciamo uscite escono')});
+v('rimanere','marad',1,{e:1, pres:P('rimango rimani rimane rimaniamo rimanete rimangono'), fut:'rimarr', pp:'rimasto'});
+tenere('','tart',1);
+v('piacere','tetszik',1,{e:1, pres:P('piaccio piaci piace piacciamo piacete piacciono'), pp:'piaciuto'});
+v('morire','meghal',1,{e:1, pres:P('muoio muori muore moriamo morite muoiono'), pp:'morto'});
+v('sedersi','leül',1,{pres:P('siedo siedi siede sediamo sedete siedono')});
+v('vedere','lát',1,{fut:'vedr', pp:'visto/veduto'});
+v('vivere','él',1,{fut:'vivr', pp:'vissuto'});
+ppv('prendere','vesz, fog',1,'preso');
+ppv('mettere','tesz, rak',1,'messo');
+ppv('leggere','olvas',1,'letto');
+ppv('scrivere','ír',1,'scritto');
+ppv('aprire','kinyit',1,'aperto');
+ppv('chiudere','bezár',1,'chiuso');
+ppv('chiedere','kérdez, kér',1,'chiesto');
+ppv('rispondere','válaszol',1,'risposto');
+ppv('perdere','elveszít',1,'perso/perduto');
+ppv('nascere','születik',1,'nato',{e:1});
+ppv('conoscere','ismer',1,'conosciuto',{ppReg:1});
+v('parlare','beszél',1);
+v('mangiare','eszik',1);
+v('lavorare','dolgozik',1);
+v('studiare','tanul',1);
+v('abitare','lakik',1);
+v('comprare','vásárol',1);
+v('pagare','fizet',1);
+v('cercare','keres',1);
+v('trovare','talál',1);
+v('pensare','gondol',1);
+v('aspettare','vár',1);
+v('ascoltare','hallgat (zenét, valakit)',1);
+v('guardare','néz',1);
+v('giocare','játszik',1);
+v('cominciare','kezd',1);
+v('portare','visz, hoz',1);
+v('imparare','megtanul',1);
+v('amare','szeret',1);
+v('cucinare','főz',1);
+v('viaggiare','utazik',1);
+v('arrivare','megérkezik',1,{e:1});
+v('tornare','visszatér',1,{e:1});
+v('entrare','belép',1,{e:1});
+v('restare','marad',1,{e:1});
+v('chiamarsi','hívják valahogy',1);
+v('alzarsi','felkel',1);
+v('lavarsi','megmosakszik',1);
+v('svegliarsi','felébred',1);
+v('credere','hisz',1);
+v('vendere','elad',1);
+v('dormire','alszik',1);
+v('sentire','hall, érez',1);
+v('partire','elindul, elutazik',1,{e:1});
+v('capire','ért, megért',1,{isc:1});
+v('finire','befejez',1,{isc:1});
+v('preferire','jobban szeret',1,{isc:1});
+
+/* ===== 2. szint: középhaladó ===== */
+v('salire','felmegy',2,{e:1, pres:P('salgo sali sale saliamo salite salgono')});
+v('riuscire','sikerül, képes',2,{e:1, pres:P('riesco riesci riesce riusciamo riuscite riescono')});
+v('scegliere','választ',2,{pres:P('scelgo scegli sceglie scegliamo scegliete scelgono'), pp:'scelto'});
+v('togliere','levesz, elvesz',2,{pres:P('tolgo togli toglie togliamo togliete tolgono'), pp:'tolto'});
+cogliere('rac','összegyűjt',2);
+v('spegnere','kikapcsol, elolt',2,{pres:P('spengo spegni spegne spegniamo spegnete spengono'), pp:'spento'});
+v('cadere','leesik, elesik',2,{e:1, fut:'cadr'});
+v('dispiacere','sajnál (dispiace = sajnálom)',2,{e:1, pres:P('dispiaccio dispiaci dispiace dispiacciamo dispiacete dispiacciono'), pp:'dispiaciuto'});
+durre('tra','fordít',2);
+durre('pro','termel, gyárt',2);
+porre('pro','javasol',2);
+tenere('ot','elér, megszerez',2);
+tenere('man','fenntart, megtart',2);
+v('prevedere','előre lát',2,{fut:'prevedr', pp:'previsto'});
+v('rivedere','újra lát',2,{fut:'rivedr', pp:'rivisto'});
+ppv('scendere','lemegy, leszáll',2,'sceso',{e:1});
+ppv('correre','fut, rohan',2,'corso');
+ppv('decidere','eldönt',2,'deciso');
+ppv('ridere','nevet',2,'riso');
+ppv('sorridere','mosolyog',2,'sorriso');
+ppv('piangere','sír',2,'pianto');
+ppv('vincere','nyer',2,'vinto');
+ppv('spendere','költ (pénzt)',2,'speso');
+ppv('accendere','bekapcsol, meggyújt',2,'acceso');
+ppv('promettere','megígér',2,'promesso');
+ppv('permettere','megenged',2,'permesso');
+ppv('smettere','abbahagy',2,'smesso');
+ppv('comprendere','megért, magában foglal',2,'compreso');
+ppv('sorprendere','meglep',2,'sorpreso');
+ppv('descrivere','leír, ábrázol',2,'descritto');
+ppv('iscriversi','beiratkozik',2,'iscritto');
+ppv('mettersi','felvesz (ruhát), nekiáll',2,'messo');
+ppv('rompere','eltör',2,'rotto');
+ppv('muovere','mozgat',2,'mosso');
+ppv('discutere','megvitat, vitatkozik',2,'discusso');
+ppv('rendere','visszaad; valamilyenné tesz',2,'reso');
+ppv('nascondere','elrejt',2,'nascosto');
+ppv('aggiungere','hozzáad',2,'aggiunto');
+ppv('raggiungere','elér, utolér',2,'raggiunto');
+ppv('dipingere','fest',2,'dipinto');
+ppv('spingere','tol, lök',2,'spinto');
+ppv('risolvere','megold',2,'risolto');
+ppv('accorgersi','észrevesz',2,'accorto');
+ppv('offrire','kínál, felajánl',2,'offerto');
+ppv('soffrire','szenved',2,'sofferto');
+ppv('scoprire','felfedez',2,'scoperto');
+ppv('coprire','betakar',2,'coperto');
+ppv('crescere','nő, felnő',2,'cresciuto',{e:1, ppReg:1});
+ppv('esistere','létezik',2,'esistito',{e:1});
+ppv('insistere','ragaszkodik, erősködik',2,'insistito');
+v('ricevere','kap',2);
+v('ripetere','ismétel',2);
+v('temere','fél, tart valamitől',2);
+v('ballare','táncol',2);
+v('cantare','énekel',2);
+v('camminare','sétál, gyalogol',2);
+v('chiamare','hív',2);
+v('insegnare','tanít',2);
+v('lavare','mos',2);
+v('nuotare','úszik',2);
+v('preparare','elkészít',2);
+v('provare','próbál',2);
+v('ricordare','emlékszik, emlékeztet',2);
+v('suonare','játszik (hangszeren), csönget',2);
+v('telefonare','telefonál',2);
+v('usare','használ',2);
+v('visitare','meglátogat, megtekint',2);
+v('passare','elhalad, eltölt',2);
+v('lasciare','hagy',2);
+v('sperare','remél',2);
+v('sognare','álmodik',2);
+v('sbagliare','hibázik, téved',2);
+v('spiegare','elmagyaráz',2);
+v('mandare','küld',2);
+v('regalare','ajándékoz',2);
+v('prenotare','lefoglal',2);
+v('incontrare','találkozik',2);
+v('aiutare','segít',2);
+v('ringraziare','megköszön',2);
+v('salutare','köszön, üdvözöl',2);
+v('cambiare','változtat, cserél',2);
+v('fermare','megállít',2);
+v('guidare','vezet (autót)',2);
+v('iniziare','elkezd',2);
+v('continuare','folytat',2);
+v('dimenticare','elfelejt',2);
+v('mostrare','megmutat',2);
+v('raccontare','elmesél',2);
+v('ordinare','rendel',2);
+v('affittare','bérel, kiad',2);
+v('accompagnare','elkísér',2);
+v('parcheggiare','parkol',2);
+v('festeggiare','ünnepel',2);
+v('pranzare','ebédel',2);
+v('cenare','vacsorázik',2);
+v('tagliare','vág',2);
+v('toccare','megérint',2);
+v('volare','repül',2);
+v('disegnare','rajzol',2);
+v('fumare','dohányzik',2);
+v('girare','fordul, forgat',2);
+v('gridare','kiabál',2);
+v('odiare','gyűlöl',2);
+v('risparmiare','spórol',2);
+v('controllare','ellenőriz',2);
+v('funzionare','működik',2);
+v('migliorare','javít, javul',2);
+v('organizzare','szervez',2);
+v('pregare','imádkozik, kér',2);
+v('prestare','kölcsönad',2);
+v('consigliare','tanácsol',2);
+v('desiderare','kíván, óhajt',2);
+v('domandare','kérdez',2);
+v('creare','alkot, létrehoz',2);
+v('evitare','elkerül',2);
+v('baciare','megcsókol',2);
+v('abbracciare','megölel',2);
+v('assaggiare','megkóstol',2);
+v('inviare','elküld',2,{keepI:1});
+v('sciare','síel',2,{keepI:1});
+v('diventare','válik valamivé',2,{e:1});
+v('sembrare','tűnik, látszik',2,{e:1});
+v('ingrassare','meghízik',2,{e:1});
+v('durare','tart (időben)',2,{e:1});
+v('mancare','hiányzik',2,{e:1});
+v('invecchiare','megöregszik',2,{e:1});
+v('riposarsi','pihen',2);
+v('prepararsi','készülődik',2);
+v('sposarsi','összeházasodik',2);
+v('arrabbiarsi','mérges lesz',2);
+v('annoiarsi','unatkozik',2);
+v('fermarsi','megáll',2);
+v('ricordarsi','emlékszik',2);
+v('trovarsi','van valahol, érzi magát',2);
+v('preoccuparsi','aggódik',2);
+v('innamorarsi','beleszeret',2);
+v('addormentarsi','elalszik',2);
+v('rilassarsi','lazít, pihen',2);
+v('pettinarsi','fésülködik',2);
+v('sbrigarsi','siet',2);
+v('divertirsi','szórakozik, jól érzi magát',2);
+v('vestirsi','felöltözik',2);
+v('sentirsi','érzi magát',2);
+v('seguire','követ',2);
+v('servire','szolgál; kell, szükséges',2);
+v('fuggire','menekül',2,{e:1});
+v('pulire','takarít',2,{isc:1});
+v('spedire','felad (postán), elküld',2,{isc:1});
+v('costruire','épít',2,{isc:1});
+v('suggerire','javasol, súg',2,{isc:1});
+v('unire','egyesít, összeköt',2,{isc:1});
+v('impedire','megakadályoz',2,{isc:1});
+v('restituire','visszaad',2,{isc:1});
+v('sparire','eltűnik',2,{isc:1, e:1});
+v('guarire','meggyógyul',2,{isc:1, e:1});
+v('dimagrire','lefogy',2,{isc:1, e:1});
+v('trasferirsi','átköltözik',2,{isc:1});
+
+/* ===== 3. szint: haladó ===== */
+porre('','helyez, tesz',3);
+porre('com','összeállít, komponál',3);
+porre('sup','feltételez',3);
+porre('es','kiállít, kifejt',3);
+porre('im','előír, rákényszerít',3);
+durre('con','vezet, irányít',3);
+durre('ri','csökkent',3);
+durre('intro','bevezet',3);
+trarre('','húz, merít',3);
+trarre('at','vonz',3);
+trarre('dis','eltereli a figyelmét',3);
+tenere('con','tartalmaz',3);
+tenere('sos','támogat, állít',3);
+cogliere('','leszakít, megragad',3);
+cogliere('ac','fogad, befogad',3);
+v('possedere','birtokol',3,{pres:P('possiedo possiedi possiede possediamo possedete possiedono')});
+v('apparire','megjelenik',3,{e:1, pres:P('appaio appari appare appariamo apparite appaiono'), pp:'apparso'});
+v('scomparire','eltűnik',3,{e:1, pres:P('scompaio scompari scompare scompariamo scomparite scompaiono'), pp:'scomparso'});
+v('cuocere','főz, süt',3,{pres:P('cuocio cuoci cuoce cuociamo cuocete cuociono'), pp:'cotto'});
+v('tacere','hallgat, nem szól',3,{pres:P('taccio taci tace taciamo tacete tacciono'), pp:'taciuto'});
+ppv('giungere','megérkezik',3,'giunto',{e:1});
+ppv('dipendere','függ valamitől',3,'dipeso',{e:1});
+ppv('succedere','történik',3,'successo',{e:1});
+ppv('convincere','meggyőz',3,'convinto');
+ppv('esprimere','kifejez',3,'espresso');
+ppv('correggere','kijavít',3,'corretto');
+ppv('proteggere','véd, megvéd',3,'protetto');
+ppv('distruggere','lerombol',3,'distrutto');
+ppv('assumere','alkalmaz, felvesz (munkára)',3,'assunto');
+ppv('stringere','szorít',3,'stretto');
+ppv('svolgere','végez, lebonyolít',3,'svolto');
+ppv('includere','magába foglal',3,'incluso');
+ppv('concludere','befejez, lezár',3,'concluso');
+ppv('escludere','kizár',3,'escluso');
+ppv('deludere','csalódást okoz',3,'deluso');
+ppv('uccidere','megöl',3,'ucciso');
+ppv('dividere','feloszt, megoszt',3,'diviso');
+ppv('difendere','megvéd',3,'difeso');
+ppv('offendere','megsért',3,'offeso');
+ppv('attendere','vár',3,'atteso');
+ppv('sospendere','felfüggeszt',3,'sospeso');
+ppv('mordere','harap',3,'morso');
+ppv('ammettere','beismer, beenged',3,'ammesso');
+ppv('trasmettere','közvetít, sugároz',3,'trasmesso');
+ppv('riprendere','újrakezd, visszavesz',3,'ripreso');
+ppv('apprendere','megtud, elsajátít',3,'appreso');
+ppv('resistere','ellenáll',3,'resistito');
+ppv('assistere','jelen van, segít',3,'assistito');
+v('battere','üt, ver',3);
+v('godere','élvez',3);
+v('cedere','átenged, enged',3);
+v('superare','túllép, legyőz',3);
+v('realizzare','megvalósít',3);
+v('scherzare','viccelődik',3);
+v('criticare','bírál',3);
+v('significare','jelent',3);
+v('partecipare','részt vesz',3);
+v('osservare','megfigyel',3);
+v('votare','szavaz',3);
+v('vietare','megtilt',3);
+v('trasformare','átalakít',3);
+v('spostare','áthelyez, elhalaszt',3);
+v('sistemare','elrendez, elintéz',3);
+v('completare','kiegészít, befejez',3);
+v('lanciare','dob, elindít',3);
+v('laurearsi','diplomát szerez',3);
+v('lamentarsi','panaszkodik',3);
+v('truccarsi','kisminkeli magát',3);
+v('avvertire','figyelmeztet',3);
+v('consentire','megenged',3);
+v('convertire','átalakít, áttérít',3);
+v('investire','befektet; elüt',3);
+v('mentire','hazudik',3);
+v('pentirsi','megbán',3);
+v('gestire','kezel, irányít',3,{isc:1});
+v('fornire','szállít, biztosít',3,{isc:1});
+v('garantire','garantál',3,{isc:1});
+v('inserire','beilleszt',3,{isc:1});
+v('obbedire','engedelmeskedik',3,{isc:1});
+v('punire','büntet',3,{isc:1});
+v('reagire','reagál',3,{isc:1});
+v('sostituire','helyettesít',3,{isc:1});
+v('stabilire','megállapít',3,{isc:1});
+v('tradire','elárul',3,{isc:1});
+v('approfondire','elmélyít',3,{isc:1});
+v('definire','meghatároz',3,{isc:1});
+v('distribuire','szétoszt',3,{isc:1});
+v('contribuire','hozzájárul',3,{isc:1});
+v('chiarire','tisztáz',3,{isc:1});
+v('agire','cselekszik',3,{isc:1});
+v('ferire','megsebesít',3,{isc:1});
+v('favorire','kedvez, elősegít',3,{isc:1});
+v('colpire','megüt, eltalál',3,{isc:1});
+v('arrossire','elpirul',3,{isc:1, e:1});
+
+/* ---- ragozás kiszámítása ---- */
+function build(vb){
+  vb.refl = vb.inf.endsWith('rsi');
+  const base = vb.refl ? vb.inf.slice(0,-3)+'re' : vb.inf;
+  let conj = base.slice(-3); if (conj==='rre') conj='ere';
+  const stem = base.slice(0,-3), cls = vb.isc ? 'isc' : conj, k = !!vb.keepI;
+  const futS = s => FUT.map(e=>s+e), condS = s => COND.map(e=>s+e);
+  const rFut = join(stem, ENDS[conj].fut, conj, k);
+  const R = {
+    pres: ENDS[cls].pres.map(e=>join(stem,e,conj,k)),
+    imp:  IMPF.map(e=>join(stem,ENDS[conj].imp,conj,k)+e),
+    fut:  futS(rFut), cond: condS(rFut),
+    cong: ENDS[cls].cong.map(e=>join(stem,e,conj,k)),
+    pp:   join(stem, ENDS[conj].pp, conj, k)
+  };
+  const F = {pres:R.pres.slice(), imp:R.imp.slice(), fut:R.fut.slice(), cond:R.cond.slice(), cong:R.cong.slice(), pp:R.pp};
+  if (vb.pres){
+    F.pres = vb.pres.slice();
+    const io = F.pres[0].split('/')[0], noi = F.pres[3].split('/')[0];
+    const sg = io.replace(/o$/,'a');
+    F.cong = [sg,sg,sg,noi,noi.replace(/amo$/,'ate'),sg+'no'];
+  }
+  if (vb.cong) F.cong = vb.cong.slice();
+  if (vb.imp) F.imp = Array.isArray(vb.imp) ? vb.imp.slice() : IMPF.map(e=>vb.imp+'ev'+e);
+  if (vb.fut){ F.fut = futS(vb.fut); F.cond = condS(vb.fut); }
+  if (vb.pp){ F.pp = vb.pp; if (vb.ppReg) R.pp = vb.pp; }
+  vb.R = R; vb.F = F;
+  vb.irrT = [];
+  ['pres','imp','fut','cond','cong'].forEach(t=>{ if (F[t].some((x,i)=>x!==R[t][i])) vb.irrT.push(t); });
+  if (F.pp!==R.pp) vb.irrT.push('pp');
+  vb.irr = vb.irrT.length>0;
+  vb.aux = (vb.e || vb.refl) ? 'essere' : 'avere';
+  return vb;
+}
+VERBS.forEach(build);
+VERBS.sort((a,b)=>a.inf.localeCompare(b.inf,'it'));
+
+/* egy alak: megjelenítés + elfogadható válaszok + rendhagyó-e */
+function cell(vb, t, i){
+  const pron = vb.refl ? REFL[i]+' ' : '';
+  if (t==='pp'){
+    const pps = vb.F.pp.split('/');
+    const irr = vb.F.pp !== vb.R.pp;
+    if (vb.aux==='avere'){
+      const accept = pps.map(p=>pron+AVE[i]+' '+p);
+      return {display: accept[0] + (pps.length>1 ? ' ('+pps.slice(1).join(', ')+')' : ''), accept, irr};
+    }
+    const accept = [];
+    pps.forEach(p=>{ const s=p.slice(0,-1); (i<3?['o','a']:['i','e']).forEach(g=>accept.push(pron+ESS[i]+' '+s+g)); });
+    const s0 = pps[0].slice(0,-1);
+    return {display: pron+ESS[i]+' '+s0+(i<3?'o/a':'i/e'), accept, irr};
+  }
+  const raw = vb.F[t][i], alts = raw.split('/');
+  return {display: pron+alts[0] + (alts.length>1 ? ' ('+alts.slice(1).map(a=>pron+a).join(', ')+')' : ''),
+          accept: alts.map(a=>pron+a), irr: raw !== vb.R[t][i]};
+}
+
+/* válasz ellenőrzése */
+const ACC = {a:'à',e:'è',i:'ì',o:'ò',u:'ù'};
+function norm(s){
+  s = (s||'').toLowerCase().normalize('NFC').trim().replace(/\s+/g,' ');
+  s = s.replace(/([aeiou])['`´’]/g,(m,c)=>ACC[c]);
+  s = s.replace(/^(io|tu|lui\/lei|lui|lei|noi|voi|loro)\s+/,'');
+  return s;
+}
+const deacc = s => s.normalize('NFD').replace(/[̀-ͯ]/g,'');
+function check(input, accept){
+  const n = norm(input);
+  if (!n) return 'empty';
+  if (accept.some(a=>norm(a)===n)) return 'ok';
+  if (accept.some(a=>deacc(norm(a))===deacc(n))) return 'acc';
+  return 'bad';
+}
+if (typeof module!=='undefined') module.exports = {VERBS, cell, check, TENSES};
+</script>
+
+<script>
+/* ---------- Felület ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LEVELS = {1:'Alap', 2:'Középhaladó', 3:'Haladó'};
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem('coniuga:'+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  /* bejelentkezve a fiókba ment, különben a böngészőbe (megosztott gépen így nem keverednek a profilok) */
+  set(k, v){ if (cloudRef){ scheduleCloud(); return; } try{ localStorage.setItem('coniuga:'+k, JSON.stringify(v)); }catch(e){} }
+};
+
+/* ---- saját profil: mentés a bejelentkezett felhasználó privát tárhelyére ---- */
+let cloudRef = null, cloudBusy = false, cloudDirty = false, cloudTimer = null;
+function scheduleCloud(){
+  if (!cloudRef) return;
+  clearTimeout(cloudTimer);
+  cloudTimer = setTimeout(saveCloud, 1200);
+}
+async function saveCloud(){
+  if (!cloudRef) return;
+  if (cloudBusy){ cloudDirty = true; return; }
+  cloudBusy = true;
+  try{ await cloudRef.set({stats: JSON.parse(JSON.stringify(ST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()}); }
+  catch(e){ setWho(null, 'Most nem sikerült menteni a fiókodba; a böngészőben megvan.'); }
+  cloudBusy = false;
+  if (cloudDirty){ cloudDirty = false; saveCloud(); }
+}
+const WHO_LOCAL = 'Az eredményeid ebben a böngészőben maradnak.';
+function setWho(me, msg){
+  const w = $('who');
+  if (me){
+    w.classList.add('on');
+    w.innerHTML = (me.avatarUrl ? `<img alt="" src="${esc(me.avatarUrl)}">` : '<span class="who-dot" aria-hidden="true"></span>') +
+      '<span><b></b> profilja · az eredmények a fiókodba mentődnek</span>';
+    w.querySelector('b').textContent = me.name || 'Saját';
+  } else {
+    w.classList.remove('on');
+    w.innerHTML = '<span class="who-dot" aria-hidden="true"></span><span></span>';
+    w.lastElementChild.textContent = msg || WHO_LOCAL;
+  }
+}
+const BLANK_STATS = () => ({ok:0,total:0,streak:0,best:0,miss:{},recent:[]});
+function applyData(d){
+  d = d || {};
+  ST = Object.assign(BLANK_STATS(), d.stats ? JSON.parse(JSON.stringify(d.stats)) : {});
+  S = Object.assign({}, DEF, d.settings ? JSON.parse(JSON.stringify(d.settings)) : {});
+  if (S.focus && !byInf[S.focus]) S.focus = null;
+  renderOptions(); renderStats(); next();
+}
+/* ref: {get(): Promise<{exists, data()}>, set(obj): Promise} */
+async function attachCloud(ref, me){
+  const snap = await Promise.race([ref.get(), new Promise((_, rej)=>setTimeout(()=>rej(new Error('timeout')), 10000))]);
+  if (snap.exists) applyData(snap.data());
+  cloudRef = ref;
+  setWho(me);
+  if (!snap.exists && ST.total) saveCloud();
+}
+function detachCloud(){
+  cloudRef = null; clearTimeout(cloudTimer);
+  applyData({stats: store.get('stats', {}), settings: store.get('settings', {})});
+  setWho(null);
+}
+async function initCloud(){
+  if (!window.claude || typeof window.claude.use !== 'function') return;
+  try{
+    const [user, db] = await Promise.all([window.claude.use('user'), window.claude.use('db')]);
+    if (!user || !db) return;
+    const me = await user.me();
+    if (!me || !me.id) return;
+    await attachCloud(db.collection('data/users/' + me.id).doc('coniuga'), me);
+  }catch(e){ /* marad a böngészős mentés */ }
+}
+const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null};
+let S = Object.assign({}, DEF, store.get('settings', {}));
+let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
+let cur = null;
+let lastInput = null;
+const byInf = Object.fromEntries(VERBS.map(v=>[v.inf, v]));
+if (S.focus && !byInf[S.focus]) S.focus = null;
+
+const nIrr = VERBS.filter(v=>v.irr).length;
+$('subtitle').textContent = `Olasz igeragozás gyakorló · ${VERBS.length} ige, ebből ${nIrr} rendhagyó`;
+
+function tenseOf(id){ return TENSES.find(t=>t.id===id); }
+function chips(vb){
+  const out = [];
+  if (vb.irr) out.push(`<span class="chip irr" title="Rendhagyó alakok: ${esc(vb.irrT.map(t=>TNAME[t]).join(', '))}">rendhagyó · ${esc(vb.irrT.map(t=>TNAME[t]).join(', '))}</span>`);
+  else out.push(`<span class="chip">szabályos</span>`);
+  if (vb.isc) out.push(`<span class="chip" title="A jelen időben és a congiuntivóban -isc- betoldás: finisco, finisci…">-isc- típus</span>`);
+  if (vb.refl) out.push(`<span class="chip ess">visszaható</span>`);
+  else if (vb.aux==='essere') out.push(`<span class="chip ess" title="A passato prossimo segédigéje az essere, a participio egyeztetendő">essere segédige</span>`);
+  out.push(`<span class="chip">${LEVELS[vb.lvl]}</span>`);
+  return out.join('');
+}
+function table(vb, t, hl){
+  const rows = PERS.map((p,i)=>{
+    const c = cell(vb,t,i);
+    return `<tr class="${i===hl?'hl':''}"><td class="p">${p}</td><td>${c.irr?`<span class="irrf" title="rendhagyó alak">${esc(c.display)}</span>`:esc(c.display)}</td></tr>`;
+  }).join('');
+  const T = tenseOf(t), irr = vb.irrT.includes(t);
+  return `<div class="tbox"><h4>${T.it}<span>${T.hu}${irr?' · <span class="irrtag">rendhagyó</span>':''}</span></h4><table class="ttable"><tbody>${rows}</tbody></table></div>`;
+}
+
+/* ---- beállítások panel ---- */
+function chk(type, name, val, checked, label){
+  return `<label><input type="${type}" name="${name}" value="${val}" ${checked?'checked':''}> ${label}</label>`;
+}
+function renderOptions(){
+  $('o-mode').innerHTML = chk('radio','mode','single',S.mode==='single','egy alak') + chk('radio','mode','table',S.mode==='table','teljes ragozás');
+  $('o-tenses').innerHTML = TENSES.map(t=>chk('checkbox','tense',t.id,S.tenses.includes(t.id),t.it)).join('');
+  $('o-levels').innerHTML = [1,2,3].map(l=>chk('checkbox','level',l,S.levels.includes(l),LEVELS[l])).join('');
+  $('o-kind').innerHTML = chk('radio','kind','all',S.kind==='all','mind') + chk('radio','kind','irr',S.kind==='irr','csak rendhagyó') + chk('radio','kind','reg',S.kind==='reg','csak szabályos');
+  $('o-refl').checked = S.refl; $('o-lenient').checked = S.lenient;
+  updatePool();
+}
+function pool(){
+  if (S.focus) return [byInf[S.focus]];
+  return VERBS.filter(v => S.levels.includes(v.lvl) && (S.refl || !v.refl) &&
+    (S.kind==='all' || (S.kind==='irr' ? v.irr : !v.irr)));
+}
+function updatePool(){
+  const n = pool().length;
+  $('o-pool').textContent = S.focus ? `Csak ezt az igét gyakorlod: ${S.focus}` : `${n} ige felel meg a szűrésnek.`;
+}
+document.querySelector('.side').addEventListener('change', e=>{
+  const el = e.target; if (!el.name && !el.id) return;
+  if (el.name==='mode') S.mode = el.value;
+  else if (el.name==='kind') S.kind = el.value;
+  else if (el.name==='tense'){ const sel=[...document.querySelectorAll('input[name=tense]:checked')].map(x=>x.value); if(!sel.length){ el.checked=true; return; } S.tenses = sel; }
+  else if (el.name==='level'){ const sel=[...document.querySelectorAll('input[name=level]:checked')].map(x=>+x.value); if(!sel.length){ el.checked=true; return; } S.levels = sel; }
+  else if (el.id==='o-refl') S.refl = el.checked;
+  else if (el.id==='o-lenient'){ S.lenient = el.checked; store.set('settings',S); return; }
+  else return;
+  store.set('settings', S); updatePool(); next();
+});
+
+/* ---- statisztika ---- */
+function renderStats(){
+  $('s-pct').textContent = ST.total ? Math.round(100*ST.ok/ST.total)+'%' : '–';
+  $('s-streak').textContent = ST.streak; $('s-best').textContent = ST.best;
+  $('s-total').textContent = ST.total ? `${ST.ok} helyes / ${ST.total} válasz` : 'Még nincs válasz.';
+  $('mistakes').innerHTML = ST.recent.length ? ST.recent.map(m=>
+    `<li><span><b>${esc(m.inf)}</b> · ${esc(m.p)} · ${esc(TNAME[m.t])}<br><span class="w">${esc(m.given||'—')}</span></span><span class="c">${esc(m.right)}</span></li>`).join('')
+    : '<li class="muted">Itt jelennek meg a hibás válaszaid.</li>';
+}
+function record(vb, t, i, res, given){
+  ST.total++;
+  if (res==='ok' || (res==='acc' && S.lenient)){ ST.ok++; ST.streak++; ST.best=Math.max(ST.best,ST.streak); if (ST.miss[vb.inf]) ST.miss[vb.inf]=Math.max(0,ST.miss[vb.inf]-1); }
+  else {
+    ST.streak=0; ST.miss[vb.inf]=(ST.miss[vb.inf]||0)+1;
+    ST.recent.unshift({inf:vb.inf, t, p:PERS[i], given, right:cell(vb,t,i).display});
+    ST.recent = ST.recent.slice(0,8);
+  }
+  store.set('stats', ST); renderStats();
+}
+$('reset').onclick = ()=>{ $('reset-confirm').hidden = false; };
+$('reset-yes').onclick = ()=>{ ST={ok:0,total:0,streak:0,best:0,miss:{},recent:[]}; store.set('stats',ST); renderStats(); $('reset-confirm').hidden = true; };
+
+/* ---- kérdésválasztás (a sokat rontott igék gyakrabban jönnek) ---- */
+function pickVerb(){
+  const pl = pool(); if (!pl.length) return null;
+  const w = pl.map(v=>1+Math.min(4,(ST.miss[v.inf]||0))*1.5);
+  let r = Math.random()*w.reduce((a,b)=>a+b,0);
+  for (let k=0;k<pl.length;k++){ r-=w[k]; if (r<=0) return pl[k]; }
+  return pl[pl.length-1];
+}
+const rnd = a => a[Math.floor(Math.random()*a.length)];
+
+function next(){
+  const vb = pickVerb();
+  if (!vb){ $('qcard').innerHTML = '<p>Nincs a szűrésnek megfelelő ige. Válassz más szintet vagy igetípust.</p>'; return; }
+  let t = rnd(S.tenses);
+  if (S.kind==='irr' && Math.random()<.7){ const it = S.tenses.filter(x=>vb.irrT.includes(x)); if (it.length) t = rnd(it); }
+  cur = {vb, t, i: Math.floor(Math.random()*6), done:false};
+  S.mode==='table' ? renderTableQ() : renderSingleQ();
+}
+
+function head(vb, t, extra){
+  const T = tenseOf(t);
+  return `<div class="q-meta"><span class="tense">${T.it}</span><span class="tense-hu">${T.hu}</span>${extra||''}</div>
+  <div class="verb-line"><h2 class="inf">${esc(vb.inf)}</h2><span class="hu">${esc(vb.hu)}</span></div>
+  <div class="chips">${chips(vb)}${S.focus?`<span class="chip ess focus-chip">csak ez az ige <button id="unfocus" aria-label="Szűrés törlése">×</button></span>`:''}</div>`;
+}
+const KEYS = ['à','è','é','ì','ò','ù'];
+function keysHtml(){ return `<div class="keys" aria-label="Ékezetes betűk">${KEYS.map(k=>`<button type="button" data-k="${k}">${k}</button>`).join('')}</div>`; }
+function wireCommon(){
+  const u = $('unfocus'); if (u) u.onclick = ()=>{ S.focus=null; store.set('settings',S); updatePool(); next(); };
+  document.querySelectorAll('.keys button').forEach(b=>{
+    b.onmousedown = e=>e.preventDefault();
+    b.onclick = ()=>{
+      const inp = (lastInput && document.body.contains(lastInput)) ? lastInput : document.querySelector('#qcard input');
+      if (!inp || inp.readOnly) return;
+      const s=inp.selectionStart??inp.value.length, en=inp.selectionEnd??inp.value.length;
+      inp.value = inp.value.slice(0,s)+b.dataset.k+inp.value.slice(en);
+      inp.focus(); inp.setSelectionRange(s+1,s+1);
+    };
+  });
+  document.querySelectorAll('#qcard input').forEach(i=>i.addEventListener('focus',()=>{lastInput=i;}));
+}
+
+function renderSingleQ(){
+  const {vb,t,i} = cur;
+  $('qcard').innerHTML = head(vb,t) + `
+  <form id="qform" autocomplete="off">
+    <div class="answer-row"><label class="person" for="ans">${PERS[i]}</label>
+    <input id="ans" autocapitalize="off" spellcheck="false" placeholder="${vb.refl?'pl. mi …':'írd be az alakot'}"></div>
+    ${keysHtml()}
+    <div class="actions">
+      <button class="btn" type="submit" id="go">Ellenőrzés</button>
+      <button class="btn ghost" type="button" id="idk">Nem tudom</button>
+      <button class="btn quiet" type="button" id="skip">Másik kérdés</button>
+    </div>
+  </form><div id="fb"></div>`;
+  wireCommon();
+  const inp = $('ans'); inp.focus({preventScroll:true});
+  $('skip').onclick = next;
+  $('idk').onclick = ()=>{ if(!cur.done) answerSingle(true); };
+  $('qform').onsubmit = e=>{ e.preventDefault(); cur.done ? next() : answerSingle(false); };
+}
+function answerSingle(gaveUp){
+  const {vb,t,i} = cur, c = cell(vb,t,i), inp = $('ans');
+  const given = inp.value;
+  if (!gaveUp && !norm(given)){ inp.focus(); return; }
+  const res = gaveUp ? 'bad' : check(given, c.accept);
+  cur.done = true; record(vb,t,i,res,gaveUp?'':given);
+  inp.readOnly = true;
+  inp.classList.add(res==='ok'?'is-ok':res==='acc'?(S.lenient?'is-acc':'is-bad'):'is-bad');
+  $('go').textContent = 'Következő →'; $('idk').disabled = true; $('skip').hidden = true;
+  const cls = res==='ok'?'ok':res==='acc'?'acc':'bad';
+  const verdict = res==='ok'?'Helyes!':res==='acc'?(S.lenient?'Majdnem: figyelj az ékezetre!':'Ékezethiba'):(gaveUp?'A helyes alak:':'Nem jó.');
+  const note = c.irr ? `<p><span class="irrf">Ez az alak rendhagyó.</span>${t==='pp'?' (a participio rendhagyó: '+esc(vb.F.pp.split('/')[0])+')':''}</p>` : '';
+  const auxNote = (t==='pp' && vb.aux==='essere') ? `<p class="muted">Essere segédigével a participio egyezik az alannyal (-o/-a, -i/-e).</p>` : '';
+  $('fb').innerHTML = `<div class="feedback ${cls}">
+    <p><span class="verdict">${verdict}</span> ${res!=='ok'?`<strong class="big">${esc(PERS[i])} ${esc(c.display)}</strong>`:''}</p>
+    ${note}${auxNote}
+    <div class="after-table">${table(vb,t,i)}</div></div>`;
+  $('go').focus({preventScroll:true});
+}
+
+function renderTableQ(){
+  const {vb,t} = cur;
+  $('qcard').innerHTML = head(vb,t,'<span class="tense-hu">· töltsd ki mind a hat alakot</span>') + `
+  <form id="qform" autocomplete="off"><div class="trows">
+  ${PERS.map((p,i)=>`<div class="trow"><label class="person" for="t${i}">${p}</label><input id="t${i}" autocapitalize="off" spellcheck="false"><div class="sol" id="sol${i}" hidden></div></div>`).join('')}
+  </div>${keysHtml()}
+  <div class="actions"><button class="btn" type="submit" id="go">Ellenőrzés</button>
+  <button class="btn ghost" type="button" id="idk">Megoldás</button>
+  <button class="btn quiet" type="button" id="skip">Másik ige</button></div></form><div id="fb"></div>`;
+  wireCommon();
+  $('t0').focus({preventScroll:true});
+  for (let i=0;i<5;i++) $('t'+i).addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); $('t'+(i+1)).focus(); } });
+  $('skip').onclick = next;
+  $('idk').onclick = ()=>{ if(!cur.done) answerTable(true); };
+  $('qform').onsubmit = e=>{ e.preventDefault(); cur.done ? next() : answerTable(false); };
+}
+function answerTable(gaveUp){
+  const {vb,t} = cur; let good = 0;
+  cur.done = true;
+  PERS.forEach((p,i)=>{
+    const c = cell(vb,t,i), inp = $('t'+i), given = inp.value;
+    const res = gaveUp ? 'bad' : check(given, c.accept);
+    const ok = res==='ok' || (res==='acc' && S.lenient);
+    if (ok) good++;
+    record(vb,t,i,res,gaveUp?'':given);
+    inp.readOnly = true;
+    inp.classList.add(res==='ok'?'is-ok':(res==='acc'&&S.lenient)?'is-acc':'is-bad');
+    if (res!=='ok'){ const s=$('sol'+i); s.hidden=false; s.innerHTML = c.irr?`<span class="irrf">${esc(c.display)}</span>`:esc(c.display); }
+  });
+  $('go').textContent = 'Következő →'; $('idk').disabled = true; $('skip').hidden = true;
+  const cls = good===6?'ok':good>=4?'acc':'bad';
+  $('fb').innerHTML = `<div class="feedback ${cls}"><p><span class="verdict">${good}/6 helyes</span>${vb.irrT.includes(t)?' · <span class="irrf">ebben az időben rendhagyó</span>':''}</p><div class="after-table">${table(vb,t,-1)}</div></div>`;
+  $('go').focus({preventScroll:true});
+}
+
+/* ---- Igetár ---- */
+let B = {q:'', kind:'all', sel: 'andare'};
+function renderBrowseKind(){
+  $('b-kind').innerHTML = [['all','mind'],['irr','rendhagyó'],['reg','szabályos'],['1','alap'],['2','középhaladó'],['3','haladó']]
+    .map(([v,l])=>chk('radio','bkind',v,B.kind===v,l)).join('');
+}
+$('b-kind').addEventListener('change', e=>{ B.kind = e.target.value; renderList(); });
+$('b-search').addEventListener('input', e=>{ B.q = e.target.value; renderList(); });
+function renderList(){
+  const q = deacc(B.q.trim().toLowerCase());
+  const list = VERBS.filter(v=>{
+    if (B.kind==='irr' && !v.irr) return false;
+    if (B.kind==='reg' && v.irr) return false;
+    if (/^[123]$/.test(B.kind) && v.lvl!==+B.kind) return false;
+    return !q || deacc(v.inf).includes(q) || deacc(v.hu.toLowerCase()).includes(q);
+  });
+  $('b-count').textContent = `${list.length} ige · a piros pont rendhagyót jelöl`;
+  $('b-list').innerHTML = list.map(v=>`<li><button data-inf="${v.inf}" aria-current="${v.inf===B.sel}"><span class="vi">${v.irr?'<span class="dot" aria-label="rendhagyó">• </span>':''}${esc(v.inf)}</span><span class="vh">${esc(v.hu)}</span></button></li>`).join('') || '<li class="muted" style="padding:10px 4px">Nincs találat.</li>';
+}
+$('b-list').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-inf]'); if(!b) return;
+  B.sel = b.dataset.inf; renderList(); renderDetail();
+  if (window.matchMedia('(max-width:860px)').matches) $('b-detail').scrollIntoView({behavior:'smooth', block:'start'});
+});
+function renderDetail(){
+  const vb = byInf[B.sel];
+  const pp = vb.F.pp.split('/');
+  $('b-detail').innerHTML = `
+    <div class="verb-line"><h2 class="inf">${esc(vb.inf)}</h2><span class="hu">${esc(vb.hu)}</span></div>
+    <div class="chips">${chips(vb)}</div>
+    <p class="legend">Participio passato: <b style="font-family:var(--f-mono)">${vb.irrT.includes('pp')?`<span class="irrf">${esc(pp.join(' / '))}</span>`:esc(pp.join(' / '))}</b> · segédige: <b>${vb.aux}</b>${vb.irr?' · <span class="irrf">aláhúzva</span> = rendhagyó alak':''}</p>
+    <div class="actions"><button class="btn ghost" id="practice-this">Ennek az igének a gyakorlása</button></div>
+    <div class="tgrid">${TENSES.map(t=>table(vb,t.id,-1)).join('')}</div>`;
+  $('practice-this').onclick = ()=>{ S.focus = vb.inf; store.set('settings',S); updatePool(); showTab('practice'); next(); };
+}
+
+/* ---- fülek ---- */
+function showTab(name){
+  $('tab-practice').setAttribute('aria-selected', name==='practice');
+  $('tab-browse').setAttribute('aria-selected', name==='browse');
+  $('view-practice').hidden = name!=='practice';
+  $('view-browse').hidden = name!=='browse';
+}
+$('tab-practice').onclick = ()=>showTab('practice');
+$('tab-browse').onclick = ()=>showTab('browse');
+
+renderOptions(); renderStats(); renderBrowseKind(); renderList(); renderDetail(); next();
+</script>
+
+<dialog class="login" id="login">
+  <h2>Bejelentkezés</h2>
+  <p class="muted" style="margin:0">Így minden eszközödön megmaradnak az eredményeid.</p>
+  <div class="row" style="margin-top:16px"><button class="btn" id="login-google" type="button">Belépés Google-fiókkal</button></div>
+  <div class="or">vagy e-maillel</div>
+  <form id="login-form" method="dialog">
+    <input id="login-email" type="email" autocomplete="email" placeholder="E-mail-cím" required>
+    <input id="login-pass" type="password" autocomplete="current-password" placeholder="Jelszó (legalább 6 karakter)" required minlength="6">
+    <p class="err" id="login-err" role="alert"></p>
+    <div class="row">
+      <button class="btn" type="submit" id="login-submit">Belépés</button>
+      <button class="btn ghost" type="button" id="login-register">Regisztráció</button>
+    </div>
+    <button class="linkbtn" type="button" id="login-reset">Elfelejtettem a jelszavam</button>
+    <button class="btn quiet" type="button" id="login-close">Mégse</button>
+  </form>
+</dialog>
+<script type="module" src="auth.js"></script>
+</body>
+</html>

@@ -693,7 +693,8 @@ const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&
 const LEVELS = {1:'Alap', 2:'Középhaladó', 3:'Haladó'};
 const store = {
   get(k, d){ try{ const v = localStorage.getItem('coniuga:'+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem('coniuga:'+k, JSON.stringify(v)); }catch(e){} scheduleCloud(); }
+  /* bejelentkezve a fiókba ment, különben a böngészőbe (megosztott gépen így nem keverednek a profilok) */
+  set(k, v){ if (cloudRef){ scheduleCloud(); return; } try{ localStorage.setItem('coniuga:'+k, JSON.stringify(v)); }catch(e){} }
 };
 
 /* ---- saját profil: mentés a bejelentkezett felhasználó privát tárhelyére ---- */
@@ -712,13 +713,40 @@ async function saveCloud(){
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
 }
+const WHO_LOCAL = 'Az eredményeid ebben a böngészőben maradnak.';
 function setWho(me, msg){
   const w = $('who');
   if (me){
     w.classList.add('on');
-    w.innerHTML = `<img alt="" src="${esc(me.avatarUrl)}"><span><b></b> profilja · az eredmények a fiókodba mentődnek</span>`;
+    w.innerHTML = (me.avatarUrl ? `<img alt="" src="${esc(me.avatarUrl)}">` : '<span class="who-dot" aria-hidden="true"></span>') +
+      '<span><b></b> profilja · az eredmények a fiókodba mentődnek</span>';
     w.querySelector('b').textContent = me.name || 'Saját';
-  } else if (msg){ $('who-text') ? ($('who-text').textContent = msg) : (w.lastElementChild.textContent = msg); }
+  } else {
+    w.classList.remove('on');
+    w.innerHTML = '<span class="who-dot" aria-hidden="true"></span><span></span>';
+    w.lastElementChild.textContent = msg || WHO_LOCAL;
+  }
+}
+const BLANK_STATS = () => ({ok:0,total:0,streak:0,best:0,miss:{},recent:[]});
+function applyData(d){
+  d = d || {};
+  ST = Object.assign(BLANK_STATS(), d.stats ? JSON.parse(JSON.stringify(d.stats)) : {});
+  S = Object.assign({}, DEF, d.settings ? JSON.parse(JSON.stringify(d.settings)) : {});
+  if (S.focus && !byInf[S.focus]) S.focus = null;
+  renderOptions(); renderStats(); next();
+}
+/* ref: {get(): Promise<{exists, data()}>, set(obj): Promise} */
+async function attachCloud(ref, me){
+  const snap = await Promise.race([ref.get(), new Promise((_, rej)=>setTimeout(()=>rej(new Error('timeout')), 10000))]);
+  if (snap.exists) applyData(snap.data());
+  cloudRef = ref;
+  setWho(me);
+  if (!snap.exists && ST.total) saveCloud();
+}
+function detachCloud(){
+  cloudRef = null; clearTimeout(cloudTimer);
+  applyData({stats: store.get('stats', {}), settings: store.get('settings', {})});
+  setWho(null);
 }
 async function initCloud(){
   if (!window.claude || typeof window.claude.use !== 'function') return;
@@ -727,18 +755,7 @@ async function initCloud(){
     if (!user || !db) return;
     const me = await user.me();
     if (!me || !me.id) return;
-    const ref = db.collection('data/users/' + me.id).doc('coniuga');
-    const snap = await Promise.race([ref.get(), new Promise((_, rej)=>setTimeout(()=>rej(new Error('timeout')), 10000))]);
-    if (snap.exists){
-      const d = snap.data() || {};
-      if (d.stats) ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, JSON.parse(JSON.stringify(d.stats)));
-      if (d.settings) S = Object.assign({}, DEF, JSON.parse(JSON.stringify(d.settings)));
-      if (S.focus && !byInf[S.focus]) S.focus = null;
-      renderOptions(); renderStats(); next();
-    }
-    cloudRef = ref;
-    setWho(me);
-    if (!snap.exists && ST.total) saveCloud();
+    await attachCloud(db.collection('data/users/' + me.id).doc('coniuga'), me);
   }catch(e){ /* marad a böngészős mentés */ }
 }
 const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null};
