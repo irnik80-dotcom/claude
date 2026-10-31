@@ -3,7 +3,7 @@
 Olasz igeragozás gyakorló: 482 ige három szinten, 15 igeidő/mód (minden olasz igeidő és a felszólító mód), a rendhagyó alakok jelölve. Nyelvek: magyar, lengyel, angol.
 
 - `coniuga.html`: a forrás (ez fut Claude artifactként is).
-- `docs/`: a nyilvános weboldal (GitHub Pages), saját bejelentkezéssel (Firebase). Fülek: Ragozás, Szójelentés (4 lehetőség közül), Mondatok (hiányzó ige), Fordítás (AI), Beszélgetés (AI), Olvasás (AI), Igetár, Tanári nézet. Kiejtés és példamondat minden igéhez.
+- `docs/`: a nyilvános weboldal (GitHub Pages), saját bejelentkezéssel (Firebase). Fülek: Ragozás, Szójelentés (4 lehetőség közül), Mondatok (hiányzó ige), Fordítás (AI), Beszélgetés (AI), Olvasás (AI), Kaland (AI-s lapozgatós könyv), Igetár, Tanári nézet. Kiejtés és példamondat minden igéhez.
   A `docs/index.html` generált fájl. Ha a `coniuga.html` változik: `node tools/build-site.mjs`.
 - `firestore.rules`: az adatbázis biztonsági szabályai (mindenki csak a saját profilját látja).
 

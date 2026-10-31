@@ -22,6 +22,16 @@ export const SCENARIOS = {
   meet: 'You are a friendly Italian person the learner has just met at a language exchange evening. Chat about where they are from, family, work, hobbies and plans.',
   free: 'Have a friendly everyday conversation with the learner about the topic they chose.'
 };
+export const GENRES = {
+  fantasy: 'fantasy (magic, quests, mythical creatures)',
+  scifi: 'science fiction (space, robots, the future)',
+  mystery: 'mystery / detective story (a giallo)',
+  horror: 'light spooky story (suspenseful but not gory)',
+  romance: 'romantic comedy',
+  history: 'historical adventure set in Italy (ancient Rome, the Renaissance, etc.)',
+  fairy: 'fairy tale for all ages',
+  travel: 'travel adventure across Italy (cities, food, people)'
+};
 const TENSE_EN = { pres: 'presente', pp: 'passato prossimo', imp: 'imperfetto', trp: 'trapassato prossimo', rem: 'passato remoto', trr: 'trapassato remoto', fut: 'futuro semplice', futa: 'futuro anteriore', cond: 'condizionale presente', condp: 'condizionale passato', cong: 'congiuntivo presente', congp: 'congiuntivo passato', congi: 'congiuntivo imperfetto', congt: 'congiuntivo trapassato', impv: 'imperativo' };
 
 const str = (v, n) => String(v == null ? '' : v).slice(0, n).trim();
@@ -47,6 +57,14 @@ export function sanitize(body) {
     const level = CEFR.includes(body.level) ? body.level : 'A2';
     const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
     return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100) };
+  }
+  if (type === 'adv') {
+    const level = CEFR.includes(body.level) ? body.level : 'A2';
+    const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
+    const steps = Math.max(4, Math.min(20, Math.round(Number(body.steps) || 8)));
+    const step = Math.max(1, Math.min(steps, Math.round(Number(body.step) || 1)));
+    return { type, lang, level, tenses: tenses.length ? tenses : ['pres', 'pp', 'imp'], genre: GENRES[body.genre] ? body.genre : 'fantasy',
+      steps, step, hero: str(body.hero, 40), title: str(body.title, 120), summary: str(body.summary, 1500), last: str(body.last, 2000), choice: str(body.choice, 300) };
   }
   // alapeset: fordítás javítása
   const hu = str(body && body.hu, 600), given = str(body && body.given, 600);
@@ -100,6 +118,28 @@ Return:
 - "translation": a faithful translation of the text into ${LN},
 - "questions": exactly 3 multiple-choice comprehension questions in Italian, each with 4 short options in Italian, "answer" = index (0-3) of the correct option, and "explanation" = one short sentence in ${LN}.`;
   }
+  if (p.type === 'adv') {
+    const len = { A1: '50-70', A2: '70-100', B1: '100-130', B2: '120-160', C1: '140-180' }[p.level];
+    const final = p.step >= p.steps;
+    const first = p.step === 1;
+    return `You are writing an interactive "choose your own adventure" gamebook in Italian for a language learner whose native language is ${LN}. Level ${p.level} (${CEFR_HINT[p.level]}).
+Genre: ${GENRES[p.genre]}. ${p.hero ? `The main character (the reader, addressed as "tu") is called ${JSON.stringify(p.hero)}.` : 'The main character is the reader, addressed as "tu".'}
+Use mainly these tenses, naturally: ${p.tenses.map((x) => TENSE_EN[x]).join(', ')}.
+This is page ${p.step} of about ${p.steps}.
+${first ? 'Start the adventure: introduce the hero, the place and a first problem or mystery. Also give the whole adventure a short Italian "title".'
+  : `Story so far (summary): ${JSON.stringify(p.summary)}
+${p.title ? `Title: ${JSON.stringify(p.title)}
+` : ''}Previous page: ${JSON.stringify(p.last)}
+The reader chose: ${JSON.stringify(p.choice)}
+Continue directly from this choice, consistently with the story so far.`}
+Write "text": the next page in Italian, ${len} words, vivid but at level ${p.level}, second person ("tu").
+${final ? 'This is the LAST page: bring the story to a satisfying ending (good or bad, depending on the choices made). "choices" must be empty and "ending" must be "good" or "bad".'
+  : `Then give 2 or 3 different "choices" for what to do next: short Italian phrases (max 12 words, "tu" form, e.g. "Entri nella grotta buia"), each with its translation into ${LN}. ${p.step >= 3 ? 'Only if the last choice was clearly reckless, you may end the story here with a bad ending (then choices must be empty and ending "bad"); otherwise ending is "none".' : 'ending is "none".'}`}
+Also return:
+- "translation": a faithful translation of "text" into ${LN},
+- "vocab": 3 to 5 useful or difficult Italian words or phrases from this page with their meaning in ${LN},
+- "summary": an updated summary in English (max 100 words) of the whole story so far including this page, so the story can continue consistently.`;
+  }
   // check
   return `You are an Italian teacher helping learners whose native language is ${LN}.
 The learner translated the following ${LN} text into Italian. Evaluate the translation. Write ALL explanations, error types and the comment in ${LN}.
@@ -126,6 +166,7 @@ export const SCHEMAS = {
   gloss: OBJ({ translations: S('ARRAY', { items: S('STRING') }) }),
   chat: OBJ({ reply: S('STRING'), translation: S('STRING'), correction: OBJ({ ok: S('BOOLEAN'), corrected: S('STRING'), explanation: S('STRING') }, ['ok']) }),
   chatsum: OBJ({ score: S('INTEGER'), summary: S('STRING'), errors: S('ARRAY', { items: ERR }), tips: S('ARRAY', { items: S('STRING') }) }),
+  adv: OBJ({ title: S('STRING'), text: S('STRING'), translation: S('STRING'), choices: S('ARRAY', { items: OBJ({ text: S('STRING'), translation: S('STRING') }) }), vocab: S('ARRAY', { items: OBJ({ it: S('STRING'), tr: S('STRING') }) }), summary: S('STRING'), ending: S('STRING') }, ['text', 'translation', 'choices', 'vocab', 'summary', 'ending']),
   story: OBJ({ title: S('STRING'), text: S('STRING'), translation: S('STRING'), questions: S('ARRAY', { items: OBJ({ q: S('STRING'), options: S('ARRAY', { items: S('STRING') }), answer: S('INTEGER'), explanation: S('STRING') }) }) })
 };
 /* ugyanez szövegesen, olyan AI-nak, amelyik nem kap sémát (Claude) */
@@ -134,6 +175,7 @@ export const JSON_SPEC = {
   gloss: '{"translations": ["...", "..."]}  (exactly as many items as words)',
   chat: '{"reply": "...", "translation": "...", "correction": {"ok": true/false, "corrected": "...", "explanation": "..."}}',
   chatsum: '{"score": 0-10, "summary": "...", "errors": [{"wrong": "...", "fix": "...", "explanation": "..."}], "tips": ["..."]}',
+  adv: '{"title": "...", "text": "...", "translation": "...", "choices": [{"text": "...", "translation": "..."}], "vocab": [{"it": "...", "tr": "..."}], "summary": "...", "ending": "none|good|bad"}',
   story: '{"title": "...", "text": "...", "translation": "...", "questions": [{"q": "...", "options": ["...", "...", "...", "..."], "answer": 0-3, "explanation": "..."}]}'
 };
 
@@ -141,7 +183,7 @@ export const JSON_SPEC = {
 const ODD = /[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]/u;
 export function looksBroken(type, r) {
   if (!r) return true;
-  if (type === 'story') return ODD.test(String(r.text || '') + String(r.title || '')) || !r.text;
+  if (type === 'story' || type === 'adv') return ODD.test(String(r.text || '') + String(r.title || '')) || !r.text;
   if (type === 'chat') return ODD.test(String(r.reply || '')) || !r.reply;
   return false;
 }
@@ -155,6 +197,15 @@ export function normalize(type, r, p) {
   if (type === 'gloss') { const t = Array.isArray(r.translations) ? r.translations : []; return { translations: p.words.map((_, i) => str(t[i], 80)) }; }
   if (type === 'chat') { const c = r.correction || {}; return { reply: str(clean(r.reply), 1200), translation: str(r.translation, 1200), correction: { ok: c.ok !== false || !str(c.corrected, 10), corrected: str(c.corrected, 600), explanation: str(c.explanation, 600) } }; }
   if (type === 'chatsum') return { score: score(r.score), summary: str(r.summary, 1200), errors: errs(r.errors).slice(0, 6), tips: (Array.isArray(r.tips) ? r.tips : []).slice(0, 3).map((x) => str(x, 300)) };
+  if (type === 'adv') {
+    const ending = ['good', 'bad'].includes(r.ending) ? r.ending : 'none';
+    const final = p && p.step >= p.steps;
+    let choices = (Array.isArray(r.choices) ? r.choices : []).slice(0, 3).map((c) => ({ text: str(clean(c && c.text), 200), translation: str(c && c.translation, 200) })).filter((c) => c.text);
+    const end = final ? (ending === 'none' ? 'good' : ending) : (choices.length ? 'none' : (ending === 'none' ? 'bad' : ending));
+    if (end !== 'none') choices = [];
+    return { title: str(clean(r.title), 120), text: str(clean(r.text), 3000), translation: str(r.translation, 3500), choices,
+      vocab: (Array.isArray(r.vocab) ? r.vocab : []).slice(0, 6).map((v) => ({ it: str(v && v.it, 80), tr: str(v && v.tr, 120) })).filter((v) => v.it), summary: str(r.summary, 1500), ending: end };
+  }
   if (type === 'story') {
     const qs = (Array.isArray(r.questions) ? r.questions : []).slice(0, 3).map((q) => {
       const options = (Array.isArray(q && q.options) ? q.options : []).slice(0, 4).map((o) => str(o, 200));

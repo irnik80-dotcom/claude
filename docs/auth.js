@@ -145,12 +145,12 @@ function renderList() {
     <div class="verb-line"><h2 class="inf" style="font-size:2rem">${t('tab.teacher')}</h2><span class="hu">${t('t.users', { n: r.length })}</span></div>
     <div class="actions" style="margin-top:8px"><button class="btn quiet" id="t-refresh" type="button">${t('t.refresh')}</button></div>
     <div class="tscroll"><table class="ttab">
-      <thead><tr><th rowspan="2">${t('t.name')}</th><th rowspan="2">${t('t.email')}</th><th colspan="2" style="text-align:center">${t('tab.practice')}</th><th colspan="2" style="text-align:center">${t('tab.vocab')}</th><th colspan="2" style="text-align:center">${t('tab.sent')}</th><th colspan="2" style="text-align:center">${t('tab.trans')}</th><th colspan="2" style="text-align:center">${t('tab.chat')}</th><th colspan="2" style="text-align:center">${t('tab.read')}</th><th rowspan="2">${t('t.last')}</th></tr>
-      <tr><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.avg')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.avg')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.correct')}</th></tr></thead>
+      <thead><tr><th rowspan="2">${t('t.name')}</th><th rowspan="2">${t('t.email')}</th><th colspan="2" style="text-align:center">${t('tab.practice')}</th><th colspan="2" style="text-align:center">${t('tab.vocab')}</th><th colspan="2" style="text-align:center">${t('tab.sent')}</th><th colspan="2" style="text-align:center">${t('tab.trans')}</th><th colspan="2" style="text-align:center">${t('tab.chat')}</th><th colspan="2" style="text-align:center">${t('tab.read')}</th><th colspan="2" style="text-align:center">${t('tab.adv')}</th><th rowspan="2">${t('t.last')}</th></tr>
+      <tr><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.avg')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.avg')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.count')}</th><th class="num">★</th></tr></thead>
       <tbody>${r.map((u, k) => {
-        const s = u.stats || {}, v = u.vstats || {}, m = u.mstats || {}, x = u.xstats || {}, c = u.cstats || {}, rd = u.rstats || {};
-        return `<tr class="click" data-k="${k}" tabindex="0"><td><b></b></td><td class="mono"></td><td class="num">${s.total || 0}</td><td class="num">${pct(s.ok || 0, s.total || 0)}</td><td class="num">${v.total || 0}</td><td class="num">${pct(v.ok || 0, v.total || 0)}</td><td class="num">${m.total || 0}</td><td class="num">${pct(m.ok || 0, m.total || 0)}</td><td class="num">${x.total || 0}</td><td class="num">${x.total ? (x.sum / x.total).toFixed(1) : '–'}</td><td class="num">${c.total || 0}</td><td class="num">${c.total ? (c.sum / c.total).toFixed(1) : '–'}</td><td class="num">${rd.total || 0}</td><td class="num">${pct(rd.ok || 0, rd.q || 0)}</td><td>${fmt(u.updated)}</td></tr>`;
-      }).join('') || `<tr><td colspan="15" class="muted">${t('t.nobody')}</td></tr>`}</tbody>
+        const s = u.stats || {}, v = u.vstats || {}, m = u.mstats || {}, x = u.xstats || {}, c = u.cstats || {}, rd = u.rstats || {}, ad = u.astats || {};
+        return `<tr class="click" data-k="${k}" tabindex="0"><td><b></b></td><td class="mono"></td><td class="num">${s.total || 0}</td><td class="num">${pct(s.ok || 0, s.total || 0)}</td><td class="num">${v.total || 0}</td><td class="num">${pct(v.ok || 0, v.total || 0)}</td><td class="num">${m.total || 0}</td><td class="num">${pct(m.ok || 0, m.total || 0)}</td><td class="num">${x.total || 0}</td><td class="num">${x.total ? (x.sum / x.total).toFixed(1) : '–'}</td><td class="num">${c.total || 0}</td><td class="num">${c.total ? (c.sum / c.total).toFixed(1) : '–'}</td><td class="num">${rd.total || 0}</td><td class="num">${pct(rd.ok || 0, rd.q || 0)}</td><td class="num">${ad.total || 0}</td><td class="num">${ad.good || 0}</td><td>${fmt(u.updated)}</td></tr>`;
+      }).join('') || `<tr><td colspan="17" class="muted">${t('t.nobody')}</td></tr>`}</tbody>
     </table></div>
     <p class="muted">${t('t.tap')}</p>`;
   box.querySelectorAll('tr.click').forEach((tr) => {
@@ -194,8 +194,8 @@ async function loadUser(u) {
     const qs = await T.F.getDocs(T.F.query(T.F.collection(T.db, 'users', u.id, 'answers'), T.F.orderBy('at', 'desc'), T.F.limit(1000)));
     ans = qs.docs.map((d) => d.data());
   } catch (e) { console.warn(e); }
-  const tra = ans.filter((a) => a.kind === 'trans'), chats = ans.filter((a) => a.kind === 'chat'), reads = ans.filter((a) => a.kind === 'read');
-  const cs = u.cstats || {}, rs = u.rstats || {};
+  const tra = ans.filter((a) => a.kind === 'trans'), chats = ans.filter((a) => a.kind === 'chat'), reads = ans.filter((a) => a.kind === 'read'), advs = ans.filter((a) => a.kind === 'adv');
+  const cs = u.cstats || {}, rs = u.rstats || {}, as = u.astats || {};
   const conj = ans.filter((a) => !a.kind || a.kind === 'conj'), voc = ans.filter((a) => a.kind === 'vocab'), sen = ans.filter((a) => a.kind === 'sent');
   const s = u.stats || {}, v = u.vstats || {}, m = u.mstats || {}, x = u.xstats || {};
   const DIRS_ = DIRS_T();
@@ -267,6 +267,13 @@ async function loadUser(u) {
     <div class="tscroll"><table class="ttab">
       <thead><tr><th>${t('t.time')}</th><th>${t('t.title')}</th><th>${t('t.level')}</th><th>${t('t.tense')}</th><th class="num">${t('t.result')}</th></tr></thead>
       <tbody>${reads.slice(0, 100).map((a) => `<tr><td>${fmt(a.at)}</td><td>${esc(a.title || '')}</td><td>${esc(a.level || '')}</td><td>${esc((a.tenses || []).map(tname).join(', '))}</td><td class="num"><span class="${a.score === a.total ? 'okc' : a.score ? '' : 'badc'}">${a.score}/${a.total}</span></td></tr>`).join('') || `<tr><td colspan="5" class="muted">${t('t.noread')}</td></tr>`}</tbody>
+    </table></div>
+
+    ${section(t('tab.adv'))}
+    <p class="muted" style="margin:0">${t('t.asummary', { n: as.total || 0, g: as.good || 0 })}</p>
+    <div class="tscroll"><table class="ttab">
+      <thead><tr><th>${t('t.time')}</th><th>${t('t.title')}</th><th>${t('t.genre')}</th><th>${t('t.level')}</th><th class="num">${t('t.pagesCol')}</th><th>${t('t.ending')}</th></tr></thead>
+      <tbody>${advs.slice(0, 100).map((a) => `<tr><td>${fmt(a.at)}</td><td>${esc(a.title || '')}${a.lang && a.lang !== 'hu' ? ` <span class="muted">(${esc(a.lang.toUpperCase())})</span>` : ''}</td><td>${esc(t('genre.' + a.genre))}</td><td>${esc(a.level || '')}</td><td class="num">${a.pages || 0}</td><td>${a.ending === 'good' ? '<span class="okc">★</span>' : '<span class="badc">✗</span>'}</td></tr>`).join('') || `<tr><td colspan="6" class="muted">${t('t.noadv')}</td></tr>`}</tbody>
     </table></div>`;
   $('t-name').textContent = u.name || t('t.noname');
   $('t-mail').textContent = u.email || '';

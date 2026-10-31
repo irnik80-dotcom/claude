@@ -101,6 +101,26 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .qblock h4{margin:0 0 8px; font-size:1rem}
 .qexp{font-size:.88rem; color:var(--ink-soft); margin:8px 0 0}
 .tiplist{margin:6px 0 0; padding-left:20px}
+.book h2{font-family:var(--f-display); font-weight:400; font-size:clamp(1.6rem,5.5vw,2.2rem); margin:0 0 4px; text-wrap:balance}
+.bpage{border-top:1px dashed var(--line); padding-top:16px; margin-top:16px}
+.bpage:first-of-type{border-top:0; margin-top:8px; padding-top:0}
+.pnum{display:inline-block; font-family:var(--f-display); font-size:1.5rem; color:var(--accent); margin-bottom:4px}
+.pnum small{font-family:var(--f-body); font-size:.78rem; color:var(--ink-soft); margin-left:8px; letter-spacing:.04em}
+.bpage .para{font-size:1.08rem; line-height:1.75; margin:0 0 10px}
+.vchips{display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 0}
+.vchip{font-size:.82rem; padding:3px 10px; border-radius:999px; background:var(--paper); border:1px solid var(--line)}
+.vchip b{font-family:var(--f-mono); font-weight:600; color:var(--accent)}
+.chosen{margin:12px 0 0; color:var(--ink-soft); font-size:.92rem}
+.chosen b{color:var(--ink)}
+.choices{display:grid; gap:10px; margin-top:12px}
+.choice{display:flex; flex-direction:column; gap:4px; text-align:left; font:inherit; padding:12px 14px; border-radius:10px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer}
+.choice:hover{border-color:var(--accent); background:var(--accent-soft)}
+.choice .ct{font-size:1.05rem; font-family:var(--f-display)}
+.choice .cg{font-size:.82rem; font-weight:700; color:var(--accent)}
+.choice .ctr{font-size:.85rem; color:var(--ink-soft)}
+.theend{text-align:center; margin:22px 0 6px}
+.theend .fine{font-family:var(--f-display); font-size:2rem; letter-spacing:.2em}
+.theend.good .msg{color:var(--ok); font-weight:700} .theend.bad .msg{color:var(--pen); font-weight:700}
 .pdfbtn::before{content:"⤓ "}
 .no-print-ui .pdfbtn{display:none!important}
 #print-area{font-family:var(--f-body); color:#111; background:#fff}
@@ -290,6 +310,7 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
       <button id="tab-trans" role="tab" aria-selected="false" data-i18n="tab.trans">Fordítás</button>
       <button id="tab-chat" role="tab" aria-selected="false" data-i18n="tab.chat">Beszélgetés</button>
       <button id="tab-read" role="tab" aria-selected="false" data-i18n="tab.read">Olvasás</button>
+      <button id="tab-adv" role="tab" aria-selected="false" data-i18n="tab.adv">Kaland</button>
       <button id="tab-browse" role="tab" aria-selected="false" data-i18n="tab.browse">Igetár</button>
     </nav>
   </header>
@@ -518,6 +539,49 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
         <div class="card">
           <h3 data-i18n="recent.reads"></h3>
           <ul class="mist" id="r-recent"></ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="view-adv" hidden>
+    <div class="layout">
+      <div class="card" id="acard"></div>
+      <aside class="side" id="advside">
+        <div class="card">
+          <h3 data-i18n="res.adv"></h3>
+          <div class="stats">
+            <div class="stat"><b id="a-a">0</b><span data-i18n="st.advs"></span></div>
+            <div class="stat"><b id="a-b">0</b><span data-i18n="st.good"></span></div>
+            <div class="stat"><b id="a-c">0</b><span data-i18n="st.pages"></span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="settings"></h3>
+          <div class="opt">
+            <span class="lbl" data-i18n="opt.genre"></span>
+            <div class="checks" id="a-genre"></div>
+          </div>
+          <div class="opt">
+            <span class="lbl" data-i18n="opt.cefr"></span>
+            <div class="checks" id="a-level"></div>
+          </div>
+          <div class="opt">
+            <span class="lbl" data-i18n="opt.len"></span>
+            <div class="checks" id="a-len"></div>
+          </div>
+          <div class="opt">
+            <span class="lbl" data-i18n="r.tenses"></span>
+            <div class="checks" id="a-tenses"></div>
+          </div>
+          <div class="opt">
+            <label class="lbl" for="a-hero" data-i18n="opt.hero"></label>
+            <input class="search" id="a-hero" maxlength="40" autocomplete="off" data-i18n-ph="hero.ph">
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="recent.advs"></h3>
+          <ul class="mist" id="a-recent"></ul>
         </div>
       </aside>
     </div>
@@ -2992,6 +3056,50 @@ const I18N = {
   'pdf.key': ['Megoldások','Odpowiedzi','Answer key'],
   'pdf.you': ['Te','Ty','You'],
   'pdf.tr': ['Fordítás','Tłumaczenie','Translation'],
+  'tab.adv': ['Kaland','Przygoda','Adventure'],
+  'res.adv': ['Eredmény · kaland','Wyniki · przygoda','Results · adventure'],
+  'st.advs': ['befejezett kaland','ukończone','finished'],
+  'st.good': ['jó befejezés','dobre zakończenia','happy endings'],
+  'st.pages': ['elolvasott oldal','przeczytane strony','pages read'],
+  'opt.genre': ['Műfaj','Gatunek','Genre'],
+  'opt.len': ['Hossz','Długość','Length'],
+  'len.short': ['rövid (6 oldal)','krótka (6 stron)','short (6 pages)'],
+  'len.mid': ['közepes (10 oldal)','średnia (10 stron)','medium (10 pages)'],
+  'len.long': ['hosszú (15 oldal)','długa (15 stron)','long (15 pages)'],
+  'opt.hero': ['A főszereplő neve (nem kötelező)','Imię bohatera (opcjonalnie)','Hero’s name (optional)'],
+  'hero.ph': ['pl. Luca','np. Luca','e.g. Luca'],
+  'recent.advs': ['Legutóbbi kalandok','Ostatnie przygody','Recent adventures'],
+  'genre.fantasy': ['Fantasy','Fantasy','Fantasy'],
+  'genre.scifi': ['Sci-fi','Science fiction','Sci-fi'],
+  'genre.mystery': ['Krimi','Kryminał','Mystery'],
+  'genre.horror': ['Rémtörténet','Opowieść grozy','Spooky story'],
+  'genre.romance': ['Romantikus','Romans','Romance'],
+  'genre.history': ['Történelmi','Historyczna','Historical'],
+  'genre.fairy': ['Mese','Baśń','Fairy tale'],
+  'genre.travel': ['Utazás Itáliában','Podróż po Włoszech','Travels in Italy'],
+  'a.label': ['Lapozgatós kaland','Gra paragrafowa','Gamebook adventure'],
+  'a.title': ['Te döntöd el, mi történjen!','Ty decydujesz, co się wydarzy!','You decide what happens!'],
+  'a.extra': ['Az AI olaszul írja a történetet, oldalanként. Minden oldal végén döntened kell, és aszerint lapozol tovább, mint egy lapozgatós könyvben.','AI pisze historię po włosku, strona po stronie. Na końcu każdej strony podejmujesz decyzję i przechodzisz do wskazanego paragrafu, jak w grze paragrafowej.','The AI writes the story in Italian, page by page. At the end of each page you make a choice and turn to the page it points to, just like a gamebook.'],
+  'a.start': ['Új kaland indítása','Rozpocznij nową przygodę','Start a new adventure'],
+  'a.new': ['Új kaland','Nowa przygoda','New adventure'],
+  'a.confirmNew': ['Biztosan újat kezdesz? A mostani kaland elvész.','Na pewno zacząć nową? Obecna przygoda przepadnie.','Start a new one? The current adventure will be lost.'],
+  'a.yes': ['Igen, újat kezdek','Tak, zacznij nową','Yes, start a new one'],
+  'a.of': ['{n}/{m}. oldal','strona {n}/{m}','page {n} of {m}'],
+  'a.pages': ['{n} oldal','{n} stron','{n} pages'],
+  'a.goto': ['→ lapozz a {n}. oldalra','→ idź do paragrafu {n}','→ turn to page {n}'],
+  'a.choose': ['Mit teszel?','Co robisz?','What do you do?'],
+  'a.choiceTr': ['döntések fordítása','tłumaczenie wyborów','translate the choices'],
+  'a.vocab': ['Szavak','Słówka','Words'],
+  'a.writing': ['Az AI írja a következő oldalt…','AI pisze następną stronę…','The AI is writing the next page…'],
+  'a.end': ['VÉGE','KONIEC','THE END'],
+  'a.good': ['Jó befejezés!','Dobre zakończenie!','A happy ending!'],
+  'a.bad': ['Rossz vég… Próbáld újra másképp!','Złe zakończenie… Spróbuj inną drogą!','A bad ending… Try a different path!'],
+  'a.youchose': ['Ezt választottad:','Wybrałeś:','You chose:'],
+  't.genre': ['Műfaj','Gatunek','Genre'],
+  't.ending': ['Befejezés','Zakończenie','Ending'],
+  't.pagesCol': ['Oldal','Stron','Pages'],
+  't.noadv': ['Még nincs befejezett kaland.','Brak ukończonych przygód.','No finished adventures yet.'],
+  't.asummary': ['{n} befejezett kaland · jó befejezés: {g}','{n} ukończonych przygód · dobre zakończenia: {g}','{n} finished adventures · happy endings: {g}'],
   'cefr.B2': ['B2 · középfelső','B2 · średnio zaawansowany','B2 · upper intermediate'],
   'cefr.C1': ['C1 · felsőfok','C1 · zaawansowany','C1 · advanced'],
   'c.label': ['Beszélgetés az AI-val','Rozmowa z AI','Chat with the AI'],
@@ -3138,7 +3246,7 @@ async function saveCloud(){
   if (!cloudRef) return;
   if (cloudBusy){ cloudDirty = true; return; }
   cloudBusy = true;
-  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
+  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), astats: JSON.parse(JSON.stringify(AST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
   catch(e){ setWho(null, t('who.saveerr')); }
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
@@ -3177,6 +3285,8 @@ function applyData(d){
   RST = Object.assign({total:0,q:0,ok:0,recent:[]}, d.rstats ? JSON.parse(JSON.stringify(d.rstats)) : {});
   renderOptionsC(); renderStatsC(); renderC();
   renderOptionsR(); renderStatsR(); renderR();
+  AST = Object.assign({total:0,good:0,pages:0,recent:[]}, d.astats ? JSON.parse(JSON.stringify(d.astats)) : {});
+  renderOptionsA(); renderStatsA(); renderA();
 }
 /* ref: {get(): Promise<{exists, data()}>, set(obj): Promise} */
 async function attachCloud(ref, me){
@@ -3184,11 +3294,11 @@ async function attachCloud(ref, me){
   if (snap.exists) applyData(snap.data());
   cloudRef = ref;
   setWho(me);
-  if (snap.exists || ST.total || VST.total || MST.total || XST.total || CST.total || RST.total || Object.keys(cloudExtra).length) saveCloud();
+  if (snap.exists || ST.total || VST.total || MST.total || XST.total || CST.total || RST.total || AST.total || Object.keys(cloudExtra).length) saveCloud();
 }
 function detachCloud(){
   cloudRef = null; clearTimeout(cloudTimer);
-  applyData({stats: store.get('stats', {}), vstats: store.get('vstats', {}), mstats: store.get('mstats', {}), xstats: store.get('xstats', {}), cstats: store.get('cstats', {}), rstats: store.get('rstats', {}), settings: store.get('settings', {})});
+  applyData({stats: store.get('stats', {}), vstats: store.get('vstats', {}), mstats: store.get('mstats', {}), xstats: store.get('xstats', {}), cstats: store.get('cstats', {}), rstats: store.get('rstats', {}), astats: store.get('astats', {}), settings: store.get('settings', {})});
   setWho(null);
 }
 /* AI a Claude-on belül: a néző saját Claude-fiókjával (sample képesség) */
@@ -3220,7 +3330,7 @@ async function initCloud(){
     await attachCloud(db.collection('data/users/' + me.id).doc('coniuga'), me);
   }catch(e){ /* marad a böngészős mentés */ }
 }
-const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
+const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', agenre:'fantasy', alevel:'A2', alen:10, atenses:['pres','pp','imp'], ahero:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
 let S = Object.assign({}, DEF, store.get('settings', {}));
 let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
 let VST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('vstats', {}));
@@ -3228,6 +3338,7 @@ let MST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.
 let XST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[],sum:0}, store.get('xstats', {}));
 let CST = Object.assign({total:0,sum:0,best:0,recent:[]}, store.get('cstats', {}));
 let RST = Object.assign({total:0,q:0,ok:0,recent:[]}, store.get('rstats', {}));
+let AST = Object.assign({total:0,good:0,pages:0,recent:[]}, store.get('astats', {}));
 let cur = null;
 let lastInput = null;
 const byInf = Object.fromEntries(VERBS.map(v=>[v.inf, v]));
@@ -3483,7 +3594,7 @@ function renderDetail(){
 /* ---- fülek ---- */
 function showTab(name){
   if (typeof hideBubble === 'function') hideBubble();
-  ['practice','vocab','sent','trans','chat','read','browse','teacher'].forEach(n=>{
+  ['practice','vocab','sent','trans','chat','read','adv','browse','teacher'].forEach(n=>{
     const tab = $('tab-'+n), view = $('view-'+n);
     if (tab) tab.setAttribute('aria-selected', n===name);
     if (view) view.hidden = n!==name;
@@ -3496,6 +3607,7 @@ $('tab-sent').onclick = ()=>showTab('sent');
 $('tab-trans').onclick = ()=>showTab('trans');
 $('tab-chat').onclick = ()=>showTab('chat');
 $('tab-read').onclick = ()=>showTab('read');
+$('tab-adv').onclick = ()=>showTab('adv');
 
 /* ---- Szójelentés: 4 lehetőség közül a jó ---- */
 const DIRS = {get it2hu(){ return t('dir.it2x'); }, get hu2it(){ return t('dir.x2it'); }};
@@ -3691,6 +3803,16 @@ const SCENARIOS = {
   meet: 'You are a friendly Italian person the learner has just met at a language exchange evening. Chat about where they are from, family, work, hobbies and plans.',
   free: 'Have a friendly everyday conversation with the learner about the topic they chose.'
 };
+const GENRES = {
+  fantasy: 'fantasy (magic, quests, mythical creatures)',
+  scifi: 'science fiction (space, robots, the future)',
+  mystery: 'mystery / detective story (a giallo)',
+  horror: 'light spooky story (suspenseful but not gory)',
+  romance: 'romantic comedy',
+  history: 'historical adventure set in Italy (ancient Rome, the Renaissance, etc.)',
+  fairy: 'fairy tale for all ages',
+  travel: 'travel adventure across Italy (cities, food, people)'
+};
 const TENSE_EN = { pres: 'presente', pp: 'passato prossimo', imp: 'imperfetto', trp: 'trapassato prossimo', rem: 'passato remoto', trr: 'trapassato remoto', fut: 'futuro semplice', futa: 'futuro anteriore', cond: 'condizionale presente', condp: 'condizionale passato', cong: 'congiuntivo presente', congp: 'congiuntivo passato', congi: 'congiuntivo imperfetto', congt: 'congiuntivo trapassato', impv: 'imperativo' };
 
 const str = (v, n) => String(v == null ? '' : v).slice(0, n).trim();
@@ -3716,6 +3838,14 @@ function sanitize(body) {
     const level = CEFR.includes(body.level) ? body.level : 'A2';
     const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
     return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100) };
+  }
+  if (type === 'adv') {
+    const level = CEFR.includes(body.level) ? body.level : 'A2';
+    const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
+    const steps = Math.max(4, Math.min(20, Math.round(Number(body.steps) || 8)));
+    const step = Math.max(1, Math.min(steps, Math.round(Number(body.step) || 1)));
+    return { type, lang, level, tenses: tenses.length ? tenses : ['pres', 'pp', 'imp'], genre: GENRES[body.genre] ? body.genre : 'fantasy',
+      steps, step, hero: str(body.hero, 40), title: str(body.title, 120), summary: str(body.summary, 1500), last: str(body.last, 2000), choice: str(body.choice, 300) };
   }
   // alapeset: fordítás javítása
   const hu = str(body && body.hu, 600), given = str(body && body.given, 600);
@@ -3769,6 +3899,28 @@ Return:
 - "translation": a faithful translation of the text into ${LN},
 - "questions": exactly 3 multiple-choice comprehension questions in Italian, each with 4 short options in Italian, "answer" = index (0-3) of the correct option, and "explanation" = one short sentence in ${LN}.`;
   }
+  if (p.type === 'adv') {
+    const len = { A1: '50-70', A2: '70-100', B1: '100-130', B2: '120-160', C1: '140-180' }[p.level];
+    const final = p.step >= p.steps;
+    const first = p.step === 1;
+    return `You are writing an interactive "choose your own adventure" gamebook in Italian for a language learner whose native language is ${LN}. Level ${p.level} (${CEFR_HINT[p.level]}).
+Genre: ${GENRES[p.genre]}. ${p.hero ? `The main character (the reader, addressed as "tu") is called ${JSON.stringify(p.hero)}.` : 'The main character is the reader, addressed as "tu".'}
+Use mainly these tenses, naturally: ${p.tenses.map((x) => TENSE_EN[x]).join(', ')}.
+This is page ${p.step} of about ${p.steps}.
+${first ? 'Start the adventure: introduce the hero, the place and a first problem or mystery. Also give the whole adventure a short Italian "title".'
+  : `Story so far (summary): ${JSON.stringify(p.summary)}
+${p.title ? `Title: ${JSON.stringify(p.title)}
+` : ''}Previous page: ${JSON.stringify(p.last)}
+The reader chose: ${JSON.stringify(p.choice)}
+Continue directly from this choice, consistently with the story so far.`}
+Write "text": the next page in Italian, ${len} words, vivid but at level ${p.level}, second person ("tu").
+${final ? 'This is the LAST page: bring the story to a satisfying ending (good or bad, depending on the choices made). "choices" must be empty and "ending" must be "good" or "bad".'
+  : `Then give 2 or 3 different "choices" for what to do next: short Italian phrases (max 12 words, "tu" form, e.g. "Entri nella grotta buia"), each with its translation into ${LN}. ${p.step >= 3 ? 'Only if the last choice was clearly reckless, you may end the story here with a bad ending (then choices must be empty and ending "bad"); otherwise ending is "none".' : 'ending is "none".'}`}
+Also return:
+- "translation": a faithful translation of "text" into ${LN},
+- "vocab": 3 to 5 useful or difficult Italian words or phrases from this page with their meaning in ${LN},
+- "summary": an updated summary in English (max 100 words) of the whole story so far including this page, so the story can continue consistently.`;
+  }
   // check
   return `You are an Italian teacher helping learners whose native language is ${LN}.
 The learner translated the following ${LN} text into Italian. Evaluate the translation. Write ALL explanations, error types and the comment in ${LN}.
@@ -3795,6 +3947,7 @@ const SCHEMAS = {
   gloss: OBJ({ translations: S('ARRAY', { items: S('STRING') }) }),
   chat: OBJ({ reply: S('STRING'), translation: S('STRING'), correction: OBJ({ ok: S('BOOLEAN'), corrected: S('STRING'), explanation: S('STRING') }, ['ok']) }),
   chatsum: OBJ({ score: S('INTEGER'), summary: S('STRING'), errors: S('ARRAY', { items: ERR }), tips: S('ARRAY', { items: S('STRING') }) }),
+  adv: OBJ({ title: S('STRING'), text: S('STRING'), translation: S('STRING'), choices: S('ARRAY', { items: OBJ({ text: S('STRING'), translation: S('STRING') }) }), vocab: S('ARRAY', { items: OBJ({ it: S('STRING'), tr: S('STRING') }) }), summary: S('STRING'), ending: S('STRING') }, ['text', 'translation', 'choices', 'vocab', 'summary', 'ending']),
   story: OBJ({ title: S('STRING'), text: S('STRING'), translation: S('STRING'), questions: S('ARRAY', { items: OBJ({ q: S('STRING'), options: S('ARRAY', { items: S('STRING') }), answer: S('INTEGER'), explanation: S('STRING') }) }) })
 };
 /* ugyanez szövegesen, olyan AI-nak, amelyik nem kap sémát (Claude) */
@@ -3803,6 +3956,7 @@ const JSON_SPEC = {
   gloss: '{"translations": ["...", "..."]}  (exactly as many items as words)',
   chat: '{"reply": "...", "translation": "...", "correction": {"ok": true/false, "corrected": "...", "explanation": "..."}}',
   chatsum: '{"score": 0-10, "summary": "...", "errors": [{"wrong": "...", "fix": "...", "explanation": "..."}], "tips": ["..."]}',
+  adv: '{"title": "...", "text": "...", "translation": "...", "choices": [{"text": "...", "translation": "..."}], "vocab": [{"it": "...", "tr": "..."}], "summary": "...", "ending": "none|good|bad"}',
   story: '{"title": "...", "text": "...", "translation": "...", "questions": [{"q": "...", "options": ["...", "...", "...", "..."], "answer": 0-3, "explanation": "..."}]}'
 };
 
@@ -3810,7 +3964,7 @@ const JSON_SPEC = {
 const ODD = /[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]/u;
 function looksBroken(type, r) {
   if (!r) return true;
-  if (type === 'story') return ODD.test(String(r.text || '') + String(r.title || '')) || !r.text;
+  if (type === 'story' || type === 'adv') return ODD.test(String(r.text || '') + String(r.title || '')) || !r.text;
   if (type === 'chat') return ODD.test(String(r.reply || '')) || !r.reply;
   return false;
 }
@@ -3824,6 +3978,15 @@ function normalize(type, r, p) {
   if (type === 'gloss') { const t = Array.isArray(r.translations) ? r.translations : []; return { translations: p.words.map((_, i) => str(t[i], 80)) }; }
   if (type === 'chat') { const c = r.correction || {}; return { reply: str(clean(r.reply), 1200), translation: str(r.translation, 1200), correction: { ok: c.ok !== false || !str(c.corrected, 10), corrected: str(c.corrected, 600), explanation: str(c.explanation, 600) } }; }
   if (type === 'chatsum') return { score: score(r.score), summary: str(r.summary, 1200), errors: errs(r.errors).slice(0, 6), tips: (Array.isArray(r.tips) ? r.tips : []).slice(0, 3).map((x) => str(x, 300)) };
+  if (type === 'adv') {
+    const ending = ['good', 'bad'].includes(r.ending) ? r.ending : 'none';
+    const final = p && p.step >= p.steps;
+    let choices = (Array.isArray(r.choices) ? r.choices : []).slice(0, 3).map((c) => ({ text: str(clean(c && c.text), 200), translation: str(c && c.translation, 200) })).filter((c) => c.text);
+    const end = final ? (ending === 'none' ? 'good' : ending) : (choices.length ? 'none' : (ending === 'none' ? 'bad' : ending));
+    if (end !== 'none') choices = [];
+    return { title: str(clean(r.title), 120), text: str(clean(r.text), 3000), translation: str(r.translation, 3500), choices,
+      vocab: (Array.isArray(r.vocab) ? r.vocab : []).slice(0, 6).map((v) => ({ it: str(v && v.it, 80), tr: str(v && v.tr, 120) })).filter((v) => v.it), summary: str(r.summary, 1500), ending: end };
+  }
   if (type === 'story') {
     const qs = (Array.isArray(r.questions) ? r.questions : []).slice(0, 3).map((q) => {
       const options = (Array.isArray(q && q.options) ? q.options : []).slice(0, 4).map((o) => str(o, 200));
@@ -3835,7 +3998,7 @@ function normalize(type, r, p) {
   return { score: score(r.score), correct: !!r.correct, corrected: str(r.corrected, 600), errors: errs(r.errors), comment: str(r.comment, 600) };
 }
 
-return { PROMPT_LANG, CEFR, SCENARIOS, sanitize, buildPrompt, SCHEMAS, JSON_SPEC, looksBroken, normalize };
+return { PROMPT_LANG, CEFR, SCENARIOS, GENRES, sanitize, buildPrompt, SCHEMAS, JSON_SPEC, looksBroken, normalize };
 })();
 /*AI-PROMPTS-END*/
 const normAI = r => AIP.normalize('check', r);
@@ -4205,6 +4368,131 @@ function answerR(i, k){
   renderR();
 }
 
+/* ---- Kaland: lapozgatós könyv az AI-val ---- */
+const GENRE_IDS = ['fantasy','scifi','mystery','horror','romance','history','fairy','travel'];
+const ADV_LENS = [6, 10, 15];
+let ADV = null;     // {genre, level, tenses, steps, hero, title, pages:[{n, text, tr, vocab, choices:[{text, translation, n}], chosen, ending}], summary, done, ending, busy, err, showTr:{}, showCtr}
+try{ ADV = JSON.parse(localStorage.getItem('coniuga:adv') || 'null'); if (ADV){ ADV.busy = false; ADV.err = null; } }catch(e){ ADV = null; }
+const saveAdv = () => { try{ localStorage.setItem('coniuga:adv', JSON.stringify(ADV ? Object.assign({}, ADV, {busy:false, err:null}) : null)); }catch(e){} };
+let advConfirm = false;
+function renderOptionsA(){
+  $('a-genre').innerHTML = GENRE_IDS.map(g => chk('radio','agenre',g,S.agenre===g,t('genre.'+g))).join('');
+  $('a-level').innerHTML = AIP.CEFR.map(l => chk('radio','alevel',l,S.alevel===l,t('cefr.'+l))).join('');
+  $('a-len').innerHTML = ADV_LENS.map((n,i) => chk('radio','alen',n,+S.alen===n,t(['len.short','len.mid','len.long'][i]))).join('');
+  $('a-tenses').innerHTML = TENSES.map(x => chk('checkbox','atense',x.id,S.atenses.includes(x.id),x.it)).join('');
+  $('a-hero').value = S.ahero || '';
+}
+$('advside').addEventListener('change', e => {
+  const el = e.target;
+  if (el.name==='agenre') S.agenre = el.value;
+  else if (el.name==='alevel') S.alevel = el.value;
+  else if (el.name==='alen') S.alen = +el.value;
+  else if (el.name==='atense'){ const sel=[...document.querySelectorAll('input[name=atense]:checked')].map(x=>x.value); if(!sel.length){ el.checked=true; return; } S.atenses = sel; }
+  else if (el.id==='a-hero') S.ahero = el.value.trim();
+  else return;
+  store.set('settings', S);
+});
+function renderStatsA(){
+  $('a-a').textContent = AST.total; $('a-b').textContent = AST.good; $('a-c').textContent = AST.pages;
+  $('a-recent').innerHTML = AST.recent.length ? AST.recent.map(r =>
+    `<li><span><b>${esc(r.title)}</b><br><span class="muted">${esc(t('genre.'+r.genre))} · ${esc(r.level)} · ${t('a.pages', {n: r.pages})}</span></span><span class="c">${r.ending==='good' ? '★' : '✗'}</span></li>`).join('')
+    : `<li class="muted">${t('recent.none')}</li>`;
+}
+function pageNo(){
+  const used = new Set((ADV.pages||[]).flatMap(pg => [pg.n, ...(pg.choices||[]).map(c => c.n)]));
+  let n; do { n = 2 + Math.floor(Math.random()*298); } while (used.has(n));
+  return n;
+}
+function renderA(){
+  hideBubble();
+  const box = $('acard');
+  const head = `<div class="task"><span class="task-lbl">${t('a.label')}</span><span class="task-tense">${t('a.title')}</span><span class="task-extra">${t('a.extra')}</span></div>`;
+  if (!ADV){
+    box.innerHTML = head + `<div class="actions"><button class="btn" type="button" id="a-start">${t('a.start')}</button></div>${noteHtml()}`;
+    $('a-start').onclick = startAdv; return;
+  }
+  const pages = ADV.pages, last = pages[pages.length-1];
+  let html = head + `<div class="book">${ADV.title ? `<h2>${esc(ADV.title)}</h2>` : ''}
+    <p class="muted" style="margin:0 0 6px">${esc(t('genre.'+ADV.genre))} · ${esc(ADV.level)}${ADV.hero ? ' · ' + esc(ADV.hero) : ''}</p>`;
+  pages.forEach((pg, i) => {
+    const isLast = i === pages.length-1;
+    html += `<div class="bpage" id="apage${i}"><span class="pnum">§ ${pg.n}<small>${t('a.of', {n: i+1, m: ADV.steps})}</small></span>
+      ${pg.text.split(/\n\s*\n/).filter(x => x.trim()).map(pp => `<p class="para">${glossText(pp)}</p>`).join('')}
+      <div class="mtools">${sayBtn(pg.text)}${pg.tr ? `<button type="button" class="linkbtn2" data-atr="${i}">${t('c.tr')}</button>` : ''}</div>
+      ${pg.tr && ADV.showTr && ADV.showTr[i] ? `<p class="trbox" style="margin-top:10px">${esc(pg.tr)}</p>` : ''}
+      ${pg.vocab && pg.vocab.length ? `<div class="vchips" aria-label="${t('a.vocab')}">${pg.vocab.map(v => `<span class="vchip"><b>${esc(v.it)}</b> ${esc(v.tr)}</span>`).join('')}</div>` : ''}
+      ${pg.chosen != null && pg.choices[pg.chosen] ? `<p class="chosen">${t('a.youchose')} <b>${esc(pg.choices[pg.chosen].text)}</b> → § ${pg.choices[pg.chosen].n}</p>` : ''}
+      ${isLast && pg.choices.length && pg.chosen == null && !ADV.busy ? `<h3 class="xlbl" style="margin-top:16px">${t('a.choose')}</h3>
+        <div class="choices">${pg.choices.map((c, k) => `<button type="button" class="choice" data-achoice="${k}"><span class="ct">${esc(c.text)}</span><span class="cg">${t('a.goto', {n: c.n})}</span>${ADV.showCtr && c.translation ? `<span class="ctr">${esc(c.translation)}</span>` : ''}</button>`).join('')}</div>
+        <button type="button" class="linkbtn2" id="a-ctr" style="margin-top:8px">${t('a.choiceTr')}</button>` : ''}
+    </div>`;
+  });
+  if (ADV.busy) html += `<p class="loading" style="margin-top:16px">${t('a.writing')}</p>`;
+  if (ADV.err) html += `<div class="feedback bad"><p>${esc(ADV.err)}</p><div class="actions" style="margin-top:8px"><button class="btn ghost" type="button" id="a-retry">${t('c.retry')}</button></div></div>`;
+  if (ADV.done) html += `<div class="theend ${ADV.ending}"><div class="fine">${t('a.end')}</div><p class="msg">${ADV.ending==='good' ? t('a.good') : t('a.bad')}</p></div>`;
+  html += `</div><div class="actions">${ADV.done ? `<button class="btn" type="button" id="a-new">${t('a.new')}</button>` : `<button class="btn quiet" type="button" id="a-new">${t('a.new')}</button>`}${pages.length ? pdfBtn('adv') : ''}</div>
+    ${advConfirm ? `<p class="hint">${t('a.confirmNew')} <button class="btn quiet" type="button" id="a-yes" style="padding:3px 10px">${t('a.yes')}</button></p>` : ''}`;
+  box.innerHTML = html;
+  box.querySelectorAll('[data-atr]').forEach(b => b.onclick = () => { ADV.showTr = ADV.showTr || {}; ADV.showTr[b.dataset.atr] = !ADV.showTr[b.dataset.atr]; saveAdv(); renderA(); });
+  box.querySelectorAll('[data-achoice]').forEach(b => b.onclick = () => chooseAdv(+b.dataset.achoice));
+  const ct = $('a-ctr'); if (ct) ct.onclick = () => { ADV.showCtr = !ADV.showCtr; saveAdv(); renderA(); };
+  const rt = $('a-retry'); if (rt) rt.onclick = () => requestPage();
+  $('a-new').onclick = () => { if (ADV.done || !pages.length){ ADV = null; advConfirm = false; saveAdv(); startAdv(); } else { advConfirm = true; renderA(); } };
+  const ys = $('a-yes'); if (ys) ys.onclick = () => { advConfirm = false; ADV = null; saveAdv(); startAdv(); };
+}
+function startAdv(){
+  if (!aiBackend){ renderA(); const n = $('acard').querySelector('.ainote'); if (n) n.style.color = 'var(--pen)'; return; }
+  ADV = {genre: S.agenre, level: S.alevel, tenses: S.atenses.slice(), steps: +S.alen || 10, hero: S.ahero || '', title: '', pages: [], summary: '', done: false, showTr: {}};
+  requestPage();
+}
+function chooseAdv(k){
+  const last = ADV.pages[ADV.pages.length-1];
+  if (!last || last.chosen != null || ADV.busy) return;
+  last.chosen = k; saveAdv();
+  requestPage();
+}
+async function requestPage(){
+  const me = ADV;
+  const last = me.pages[me.pages.length-1];
+  const choice = last && last.chosen != null ? last.choices[last.chosen] : null;
+  me.busy = true; me.err = null; renderA();
+  const nextEl = $('acard').querySelector('.loading'); if (nextEl) nextEl.scrollIntoView({block:'nearest'});
+  try{
+    const res = await aiBackend({type:'adv', lang: LANG, genre: me.genre, level: me.level, tenses: me.tenses, steps: me.steps, step: me.pages.length+1,
+      hero: me.hero, title: me.title, summary: me.summary, last: last ? last.text : '', choice: choice ? choice.text : ''});
+    if (ADV !== me) return;
+    const r = res.result;
+    if (!r.text) throw new Error(t('ai.noreply'));
+    if (!me.title) me.title = r.title || t('a.label');
+    const pg = {n: choice ? choice.n : 1, text: r.text, tr: r.translation, vocab: r.vocab, choices: [], chosen: null, ending: r.ending};
+    me.pages.push(pg);
+    pg.choices = r.choices.map(c => Object.assign({}, c, {n: pageNo()}));
+    me.summary = r.summary || me.summary;
+    if (r.ending !== 'none'){ me.done = true; me.ending = r.ending; recordAdv(me); }
+  }catch(e){ if (ADV === me) me.err = (e && e.message) || t('ai.unavail'); }
+  if (ADV === me){
+    me.busy = false; saveAdv(); renderA();
+    const el = $('apage' + (me.pages.length-1)); if (el && me.pages.length > 1) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+function recordAdv(a){
+  if (answerHook){ try{ answerHook({kind:'adv', lang: LANG, title: a.title, genre: a.genre, level: a.level, pages: a.pages.length, ending: a.ending, ok: a.ending === 'good', at: Date.now()}); }catch(e){} }
+  AST.total++; AST.pages += a.pages.length; if (a.ending === 'good') AST.good++;
+  AST.recent.unshift({title: a.title, genre: a.genre, level: a.level, pages: a.pages.length, ending: a.ending});
+  AST.recent = AST.recent.slice(0, 8);
+  store.set('astats', AST); renderStatsA();
+}
+PDF.adv = () => {
+  if (!ADV || !ADV.pages.length) return;
+  printDoc(ADV.title || t('a.label'), `<p class="pmeta">${esc(t('a.label'))} · ${esc(t('genre.'+ADV.genre))} · ${esc(ADV.level)}${ADV.hero ? ' · ' + esc(ADV.hero) : ''}</p>
+    ${ADV.pages.map(pg => `<h2>§ ${pg.n}</h2>${pg.text.split(/\n\s*\n/).filter(x => x.trim()).map(pp => `<p class="pit">${esc(pp)}</p>`).join('')}
+      ${pg.tr ? `<p class="ptr">${esc(pg.tr)}</p>` : ''}
+      ${pg.vocab && pg.vocab.length ? `<p class="pmeta">${pg.vocab.map(v => `${esc(v.it)}: ${esc(v.tr)}`).join(' · ')}</p>` : ''}
+      ${pg.chosen != null && pg.choices[pg.chosen] ? `<p>${esc(t('a.youchose'))} <b>${esc(pg.choices[pg.chosen].text)}</b> → § ${pg.choices[pg.chosen].n}</p>`
+        : pg.choices.length ? `<ul>${pg.choices.map(c => `<li>${esc(c.text)} → § ${c.n}</li>`).join('')}</ul>` : ''}`).join('')}
+    ${ADV.done ? `<h2>${esc(t('a.end'))}</h2><p>${esc(ADV.ending==='good' ? t('a.good') : t('a.bad'))}</p>` : ''}`);
+};
+
 /* ---- Mondatok: a hiányzó ige beírása ---- */
 let curM = null;
 function mpool(){ return SENTS.filter(x => S.mtenses.includes(x.t) && S.mlevels.includes(VBY[x.inf].lvl)); }
@@ -4324,6 +4612,7 @@ function setLang(l, opts){
   renderOptionsX(); renderStatsX(); nextX();
   renderOptionsC(); renderStatsC(); renderC();
   renderOptionsR(); renderStatsR(); renderR();
+  renderOptionsA(); renderStatsA(); renderA();
   renderBrowseKind(); renderList(); renderDetail();
   setAINote(aiNote);
   if (typeof window.onLangChange === 'function') window.onLangChange();
@@ -4341,5 +4630,6 @@ renderOptionsM(); renderStatsM(); nextM();
 renderOptionsX(); renderStatsX(); nextX();
 renderOptionsC(); renderStatsC(); renderC();
 renderOptionsR(); renderStatsR(); renderR();
+renderOptionsA(); renderStatsA(); renderA();
 initCloud(); initAI();
 </script>

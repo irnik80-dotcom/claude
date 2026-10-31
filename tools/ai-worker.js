@@ -70,10 +70,10 @@ export default {
 
     // 4) Gemini
     try {
-      const temp = { chat: 0.7, story: 0.8 }[p.type] ?? 0.2;
-      let out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], p.type === 'story' ? 30000 : 15000, temp);
+      const temp = { chat: 0.7, story: 0.8, adv: 0.9 }[p.type] ?? 0.2;
+      let out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], ['story', 'adv'].includes(p.type) ? 30000 : 15000, temp);
       // ritka modellhiba (idegen írásjelek a szövegben): egyszer újrakérjük
-      if (looksBroken(p.type, out)) { try { out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], p.type === 'story' ? 30000 : 15000, temp); } catch (e) {} }
+      if (looksBroken(p.type, out)) { try { out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], ['story', 'adv'].includes(p.type) ? 30000 : 15000, temp); } catch (e) {} }
       return reply(200, { result: normalize(p.type, out, p) });
     } catch (e) {
       usage.set(key, used); // a sikertelen kérés ne számítson bele
