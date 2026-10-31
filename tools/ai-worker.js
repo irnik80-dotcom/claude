@@ -49,6 +49,23 @@ export default {
     // 3) bemenet
     let body;
     try { body = await request.json(); } catch (e) { return reply(400, { error: 'json' }); }
+    // szófordítás (buborék): a mondat szavainak jelentése szövegkörnyezetben
+    if (body.type === 'gloss') {
+      const text = String(body.text || '').slice(0, 400).trim();
+      const from = body.from === 'it' ? 'it' : 'hu';
+      const gref = String(body.ref || '').slice(0, MAX_LEN).trim();
+      const words = Array.isArray(body.words) ? body.words.slice(0, 50).map((w) => String(w).slice(0, 40)) : [];
+      if (!text || !words.length) return reply(400, { error: 'input' });
+      usage.set(key, used + 1);
+      try {
+        const translations = await askGeminiGloss(env, text, from, gref, words);
+        return reply(200, { result: { translations } });
+      } catch (e) {
+        usage.set(key, used);
+        return reply(e.status === 429 ? 429 : 502, { error: 'ai', detail: e.detail || '', message: 'A szófordítás most nem érhető el. Próbáld újra.' });
+      }
+    }
+
     const hu = String(body.hu || '').slice(0, MAX_LEN).trim();
     const ref = String(body.ref || '').slice(0, MAX_LEN).trim();
     const given = String(body.given || '').slice(0, MAX_LEN).trim();
@@ -110,6 +127,51 @@ const SCHEMA = {
   },
   required: ['score', 'correct', 'corrected', 'errors', 'comment']
 };
+
+function glossPrompt(text, from, ref, words) {
+  const list = JSON.stringify(words);
+  if (from === 'hu') return `Egy magyar anyanyelvű olasztanuló ezt a magyar mondatot fordítja olaszra: ${JSON.stringify(text)}
+${ref ? `A mondat helyes olasz fordítása: ${JSON.stringify(ref)}\n` : ''}Az alábbi magyar szavakhoz (sorrendben, pontosan ugyanennyi elemmel) add meg az olasz megfelelőt, ahogy ebben a mondatban értendő${ref ? ', lehetőleg a fenti fordításból véve' : ''}.
+Igéknél a ragozott olasz alakot add, zárójelben az alapalakkal (pl. "mentünk" -> "siamo andati (andare)"). Legyen tömör (1-4 szó). Ha egy szónak nincs külön olasz megfelelője, írd le röviden a szerepét magyarul (pl. "névelő").
+Szavak: ${list}`;
+  return `Egy magyar anyanyelvű olasztanuló ezt az olasz mondatot olvassa: ${JSON.stringify(text)}
+Az alábbi olasz szavakhoz (sorrendben, pontosan ugyanennyi elemmel) add meg a magyar jelentést, ahogy ebben a mondatban értendő.
+Igéknél zárójelben add meg az olasz alapalakot is (pl. "siamo" -> "vagyunk (essere)", "andati" -> "mentünk (andare)"). Névelőknél, elöljárószóknál röviden a szerepét (pl. "a (hímnemű névelő)"). Legyen tömör (1-5 szó).
+Szavak: ${list}`;
+}
+
+async function callGemini(env, prompt, schema) {
+  const models = [env.MODEL || 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-flash-latest'];
+  let lastErr;
+  for (const model of models) {
+    const generationConfig = { temperature: 0.2, responseMimeType: 'application/json', responseSchema: schema };
+    if (model.startsWith('gemini-2.5')) generationConfig.thinkingConfig = { thinkingBudget: 0 };
+    let r;
+    try {
+      r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        signal: AbortSignal.timeout(12000), method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
+        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig })
+      });
+    } catch (e) { lastErr = Object.assign(new Error('timeout'), { status: 503, detail: model + ' timeout' }); continue; }
+    if (!r.ok) {
+      lastErr = Object.assign(new Error('gemini ' + r.status), { status: r.status, detail: model + ' ' + r.status });
+      if ([404, 429, 500, 503].includes(r.status)) continue;
+      throw lastErr;
+    }
+    const data = await r.json();
+    return JSON.parse(data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '{}');
+  }
+  throw lastErr || new Error('no model');
+}
+
+async function askGeminiGloss(env, text, from, ref, words) {
+  const out = await callGemini(env, glossPrompt(text, from, ref, words), {
+    type: 'OBJECT', properties: { translations: { type: 'ARRAY', items: { type: 'STRING' } } }, required: ['translations']
+  });
+  const t = Array.isArray(out.translations) ? out.translations.map((x) => String(x).slice(0, 80)) : [];
+  return words.map((_, i) => t[i] || '');
+}
 
 async function askGemini(env, hu, ref, given, form) {
   // ha egy modell túlterhelt vagy nem létezik, a következővel próbálkozik

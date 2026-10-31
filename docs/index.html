@@ -84,6 +84,12 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .errs .ty{font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); margin-left:6px}
 .errs p{margin:4px 0 0; font-size:.92rem}
 .ainote{margin:12px 0 0; font-size:.88rem; color:var(--ink-soft)}
+.wd{font:inherit; color:inherit; background:none; border:0; margin:0; padding:0 1px; cursor:pointer; border-bottom:1.5px dotted var(--ink-soft); border-radius:3px 3px 0 0; line-height:inherit; text-align:inherit}
+.wd:hover,.wd.on{background:var(--accent-soft); border-bottom-color:var(--accent); color:var(--accent)}
+.bubble{position:absolute; z-index:60; max-width:min(300px, calc(100vw - 32px)); background:var(--card); color:var(--ink); border:1.5px solid var(--accent); border-radius:10px; padding:10px 12px; box-shadow:0 8px 24px rgba(10,14,25,.18); font-size:.95rem; display:flex; gap:10px; align-items:center}
+.bubble .bw{font-weight:700} .bubble .bt{display:block; font-family:var(--f-mono); color:var(--accent); margin-top:2px}
+.bubble .bt.muted{font-family:var(--f-body); color:var(--ink-soft)}
+.taphint{font-size:.8rem; color:var(--ink-soft); margin:-2px 0 8px}
 .loading{display:inline-flex; gap:8px; align-items:center; color:var(--ink-soft)}
 @media (prefers-reduced-motion: no-preference){ .loading::before{content:""; width:14px; height:14px; border-radius:50%; border:2px solid var(--line); border-top-color:var(--accent); animation:spin .8s linear infinite} @keyframes spin{to{transform:rotate(360deg)}} }
 .opts{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px}
@@ -1335,6 +1341,11 @@ async function initAI(){
     if (!sample) return;
     aiBackend = async (p) => {
       try{
+        if (p.type === 'gloss'){
+          const out = await sample.json(glossPromptClient(p.text, p.from, p.ref, p.words) + '\n\nCsak egy JSON objektummal válaszolj: {"translations": ["...", ...]} (pontosan annyi elem, ahány szó).', {modelTier:'quick'});
+          const t = out && Array.isArray(out.translations) ? out.translations : [];
+          return {result: {translations: p.words.map((_, i) => String(t[i] || ''))}};
+        }
         const result = await sample.json(aiPrompt(p.hu, p.ref, p.given, p.form) + AI_JSON_SPEC, {modelTier:'quick'});
         return {result: normAI(result)};
       }catch(e){
@@ -1604,6 +1615,7 @@ function renderDetail(){
 
 /* ---- fülek ---- */
 function showTab(name){
+  if (typeof hideBubble === 'function') hideBubble();
   ['practice','vocab','sent','trans','browse','teacher'].forEach(n=>{
     const tab = $('tab-'+n), view = $('view-'+n);
     if (tab) tab.setAttribute('aria-selected', n===name);
@@ -1710,6 +1722,90 @@ function recordV(vb, dir, chosen, ok){
   }
   store.set('vstats', VST); renderStatsV();
 }
+/* ---- Szófordítás buborékban (koppintható szavak) ---- */
+const GL = [];                       // regisztrált szövegek: {text, from, ref, words}
+const glossCache = new Map();        // from|text -> Promise<string[]>
+let glossStore = {};
+try{ glossStore = JSON.parse(localStorage.getItem('coniuga:gloss') || '{}') || {}; }catch(e){ glossStore = {}; }
+const WORD_RE = /[\p{L}\p{M}]+(?:['’][\p{L}\p{M}]+)*/gu;
+function glossPromptClient(text, from, ref, words){
+  const list = JSON.stringify(words);
+  if (from === 'hu') return `Egy magyar anyanyelvű olasztanuló ezt a magyar mondatot fordítja olaszra: ${JSON.stringify(text)}
+${ref ? `A mondat helyes olasz fordítása: ${JSON.stringify(ref)}\n` : ''}Az alábbi magyar szavakhoz (sorrendben, pontosan ugyanennyi elemmel) add meg az olasz megfelelőt, ahogy ebben a mondatban értendő${ref ? ', lehetőleg a fenti fordításból véve' : ''}.
+Igéknél a ragozott olasz alakot add, zárójelben az alapalakkal (pl. "mentünk" -> "siamo andati (andare)"). Legyen tömör (1-4 szó). Ha egy szónak nincs külön olasz megfelelője, írd le röviden a szerepét magyarul (pl. "névelő").
+Szavak: ${list}`;
+  return `Egy magyar anyanyelvű olasztanuló ezt az olasz mondatot olvassa: ${JSON.stringify(text)}
+Az alábbi olasz szavakhoz (sorrendben, pontosan ugyanennyi elemmel) add meg a magyar jelentést, ahogy ebben a mondatban értendő.
+Igéknél zárójelben add meg az olasz alapalakot is (pl. "siamo" -> "vagyunk (essere)", "andati" -> "mentünk (andare)"). Névelőknél, elöljárószóknál röviden a szerepét (pl. "a (hímnemű névelő)"). Legyen tömör (1-5 szó).
+Szavak: ${list}`;
+}
+/* szöveg -> HTML, minden szó koppintható gomb */
+function glossify(text, from, ref){
+  text = String(text || '');
+  const words = [], parts = [];
+  let last = 0, m;
+  WORD_RE.lastIndex = 0;
+  while ((m = WORD_RE.exec(text))){
+    parts.push(esc(text.slice(last, m.index)));
+    parts.push(`<button type="button" class="wd" data-g="${GL.length}" data-i="${words.length}">${esc(m[0])}</button>`);
+    words.push(m[0]); last = m.index + m[0].length;
+  }
+  parts.push(esc(text.slice(last)));
+  GL.push({text, from, ref: ref || '', words});
+  return parts.join('');
+}
+function getGloss(e){
+  const key = e.from + '|' + e.text;
+  if (glossStore[key] && glossStore[key].length === e.words.length) return Promise.resolve(glossStore[key]);
+  if (glossCache.has(key)) return glossCache.get(key);
+  if (!aiBackend) return Promise.reject(new Error(aiNote.includes('jelentkezz') ? 'A szavak fordításához jelentkezz be.' : 'A szófordítás itt nem érhető el.'));
+  const pr = aiBackend({type:'gloss', text: e.text, from: e.from, ref: e.ref, words: e.words}).then(res => {
+    const t = (res && res.result && res.result.translations) || [];
+    glossStore[key] = t;
+    const keys = Object.keys(glossStore); if (keys.length > 400) delete glossStore[keys[0]];
+    try{ localStorage.setItem('coniuga:gloss', JSON.stringify(glossStore)); }catch(err){}
+    return t;
+  });
+  pr.catch(() => glossCache.delete(key));
+  glossCache.set(key, pr);
+  return pr;
+}
+let bubble = null, bubbleFor = null;
+function hideBubble(){ if (bubble){ bubble.remove(); bubble = null; } if (bubbleFor){ bubbleFor.classList.remove('on'); bubbleFor = null; } }
+function placeBubble(btn){
+  const r = btn.getBoundingClientRect(), bw = bubble.offsetWidth, vw = document.documentElement.clientWidth;
+  let left = r.left + window.scrollX + r.width/2 - bw/2;
+  left = Math.max(window.scrollX + 12, Math.min(left, window.scrollX + vw - bw - 12));
+  bubble.style.left = left + 'px';
+  bubble.style.top = (r.bottom + window.scrollY + 8) + 'px';
+}
+function showBubble(btn){
+  if (bubbleFor === btn){ hideBubble(); return; }
+  hideBubble();
+  const e = GL[+btn.dataset.g], i = +btn.dataset.i; if (!e) return;
+  const word = e.words[i];
+  bubbleFor = btn; btn.classList.add('on');
+  bubble = document.createElement('div'); bubble.className = 'bubble'; bubble.setAttribute('role','status');
+  const fill = (tr, cls) => {
+    if (!bubble || bubbleFor !== btn) return;
+    const itText = e.from === 'it' ? word : String(tr||'').replace(/\s*\([^)]*\)/g,'');
+    bubble.innerHTML = `<span><span class="bw"></span><span class="bt ${cls||''}"></span></span>${(!cls && itText) ? sayBtn(itText) : ''}`;
+    bubble.querySelector('.bw').textContent = word;
+    bubble.querySelector('.bt').textContent = tr || '—';
+    placeBubble(btn);
+  };
+  document.body.appendChild(bubble);
+  fill('…', 'muted');
+  getGloss(e).then(t => fill(t[i] || '—')).catch(err => fill(err.message || 'Most nem érhető el.', 'muted'));
+}
+document.addEventListener('click', ev => {
+  const w = ev.target.closest && ev.target.closest('.wd');
+  if (w){ ev.preventDefault(); showBubble(w); return; }
+  if (bubble && !bubble.contains(ev.target)) hideBubble();
+});
+window.addEventListener('resize', () => { if (bubble && bubbleFor) placeBubble(bubbleFor); });
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') hideBubble(); });
+
 /* ---- Fordítás: AI-javítással ---- */
 function aiPrompt(hu, ref, given, form){
   return `Olasz nyelvtanár vagy, magyar anyanyelvű tanulóknak segítesz.
@@ -1768,11 +1864,12 @@ function nextX(){
   renderX();
 }
 function renderX(){
+  hideBubble();
   const own = curX.own;
   $('xcard').innerHTML = `
     <div class="task"><span class="task-lbl">Fordítás · AI-javítással</span><span class="task-tense">Fordítsd olaszra</span><span class="task-extra">${own?'Írj be egy magyar szöveget és a saját olasz fordításodat. Az AI megmutatja, hol hibáztál.':'Írd le olaszul. Az AI megmutatja, hol hibáztál és mit javíts.'}</span></div>
     ${own ? `<label class="xlbl" for="x-hu">Magyar szöveg</label><textarea class="xarea" id="x-hu" rows="2" maxlength="600" placeholder="pl. Tegnap a barátaimmal moziba mentem."></textarea>`
-          : `<p class="msent" style="font-family:var(--f-display)">${esc(curX.x.hu)}</p>`}
+          : `<p class="msent" style="font-family:var(--f-display)">${glossify(curX.x.hu, 'hu', curX.ref)}</p><p class="taphint">Koppints egy szóra, és megmutatom a jelentését.</p>`}
     <form id="xform" autocomplete="off">
       <label class="xlbl" for="x-ans">Olasz fordításod</label>
       <textarea class="xarea" id="x-ans" rows="3" maxlength="600" autocapitalize="off" spellcheck="false" placeholder="Scrivi qui…"></textarea>
@@ -1794,7 +1891,7 @@ function showRef(){
   if (!curX.ref) return;
   const box = $('x-fb');
   if (box.querySelector('.example')) return;
-  box.insertAdjacentHTML('afterbegin', `<div class="example"><span class="ex-lbl">Egy lehetséges fordítás</span><p class="ex-it"><span>${esc(curX.ref)}</span>${sayBtn(curX.ref)}</p></div>`);
+  box.insertAdjacentHTML('afterbegin', `<div class="example"><span class="ex-lbl">Egy lehetséges fordítás</span><p class="ex-it"><span>${glossify(curX.ref, 'it')}</span>${sayBtn(curX.ref)}</p></div>`);
 }
 async function askAI(){
   const given = $('x-ans').value.trim();
@@ -1817,9 +1914,9 @@ async function askAI(){
   $('x-fb').innerHTML = `<div class="feedback ${fbCls}">
     <p style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="score ${cls}">${r.score}<small>/10</small></span><span class="verdict">${r.errors.length ? (r.errors.length===1?'Egy dolgot javíts:':`${r.errors.length} dolgot javíts:`) : 'Hibátlan fordítás!'}</span></p>
     ${r.errors.length ? `<ul class="errs">${r.errors.map(e=>`<li><span class="w">${esc(e.wrong)}</span> → <span class="f">${esc(e.fix)}</span>${e.type?`<span class="ty">${esc(e.type)}</span>`:''}<p>${esc(e.explanation)}</p></li>`).join('')}</ul>` : ''}
-    ${r.corrected && r.errors.length ? `<div class="example"><span class="ex-lbl">Javított változat</span><p class="ex-it"><span>${esc(r.corrected)}</span>${sayBtn(r.corrected)}</p></div>` : ''}
+    ${r.corrected && r.errors.length ? `<div class="example"><span class="ex-lbl">Javított változat</span><p class="ex-it"><span>${glossify(r.corrected, 'it')}</span>${sayBtn(r.corrected)}</p></div>` : ''}
     ${r.comment ? `<p style="margin-top:10px">${esc(r.comment)}</p>` : ''}
-    ${curX.ref ? `<div class="example"><span class="ex-lbl">Mintafordítás</span><p class="ex-it"><span>${esc(curX.ref)}</span>${sayBtn(curX.ref)}</p></div>` : ''}
+    ${curX.ref ? `<div class="example"><span class="ex-lbl">Mintafordítás</span><p class="ex-it"><span>${glossify(curX.ref, 'it')}</span>${sayBtn(curX.ref)}</p></div>` : ''}
   </div>`;
   go.focus({preventScroll:true});
 }

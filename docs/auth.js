@@ -53,7 +53,7 @@ async function start() {
   };
 
   $('auth').hidden = false;
-  const AI_OFF = AI_URL ? 'Az AI-javításhoz jelentkezz be (fent jobbra: Bejelentkezés).' : 'Az AI-javítás még nincs beállítva.';
+  const AI_OFF = AI_URL ? 'Az AI-javításhoz és a szófordításhoz jelentkezz be (fent: Bejelentkezés).' : 'Az AI-javítás még nincs beállítva.';
   setAINote(AI_OFF);
   $('login-open').onclick = () => { err.textContent = ''; dlg.showModal(); };
   $('login-close').onclick = () => dlg.close();
