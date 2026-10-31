@@ -71,6 +71,21 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .gap{display:inline-block; border-bottom:2px solid var(--accent); min-width:4em; padding:0 4px; color:var(--accent)}
 .gap-inf{font-family:var(--f-mono); font-size:.8em}
 .hint{margin:10px 0 0; font-size:.9rem; color:var(--ink)}
+.xarea{width:100%; font-family:var(--f-mono); font-size:1.05rem; padding:10px 12px; border-radius:8px; border:1.5px solid var(--line); background:var(--paper); color:var(--ink); resize:vertical; min-height:84px; line-height:1.5}
+.xarea:focus{border-color:var(--accent); outline:none; box-shadow:0 0 0 3px var(--accent-soft)}
+.xlbl{display:block; font-size:.8rem; font-weight:700; color:var(--ink-soft); margin:14px 0 6px}
+.score{display:inline-flex; align-items:baseline; gap:2px; font-family:var(--f-display); font-size:1.6rem; padding:2px 12px; border-radius:999px; background:var(--card); border:1.5px solid currentColor}
+.score small{font-size:.8rem; font-family:var(--f-body)}
+.sc-hi{color:var(--ok)} .sc-mid{color:var(--warn)} .sc-lo{color:var(--pen)}
+.errs{list-style:none; margin:10px 0 0; padding:0; display:grid; gap:10px}
+.errs li{padding:10px 12px; border-radius:8px; background:var(--card); border:1px solid var(--line)}
+.errs .w{color:var(--pen); text-decoration:line-through; font-family:var(--f-mono)}
+.errs .f{color:var(--ok); font-weight:700; font-family:var(--f-mono)}
+.errs .ty{font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); margin-left:6px}
+.errs p{margin:4px 0 0; font-size:.92rem}
+.ainote{margin:12px 0 0; font-size:.88rem; color:var(--ink-soft)}
+.loading{display:inline-flex; gap:8px; align-items:center; color:var(--ink-soft)}
+@media (prefers-reduced-motion: no-preference){ .loading::before{content:""; width:14px; height:14px; border-radius:50%; border:2px solid var(--line); border-top-color:var(--accent); animation:spin .8s linear infinite} @keyframes spin{to{transform:rotate(360deg)}} }
 .opts{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px}
 @media (max-width:560px){.opts{grid-template-columns:1fr}}
 .optbtn{display:flex; gap:12px; align-items:baseline; text-align:left; font:inherit; font-size:1.05rem; padding:14px 16px; border-radius:10px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; min-width:0}
@@ -248,6 +263,7 @@ dialog.login .row .btn{flex:1 1 140px}
       <button id="tab-practice" role="tab" aria-selected="true">Ragozás</button>
       <button id="tab-vocab" role="tab" aria-selected="false">Szójelentés</button>
       <button id="tab-sent" role="tab" aria-selected="false">Mondatok</button>
+      <button id="tab-trans" role="tab" aria-selected="false">Fordítás</button>
       <button id="tab-browse" role="tab" aria-selected="false">Igetár</button>
       <button id="tab-teacher" role="tab" aria-selected="false" hidden>Tanári nézet</button>
     </nav>
@@ -374,6 +390,39 @@ dialog.login .row .btn{flex:1 1 140px}
           <ul class="mist" id="m-mistakes"></ul>
           <div class="actions" style="margin-top:12px"><button class="btn quiet" id="m-reset">Eredmények törlése</button></div>
           <p class="muted" id="m-reset-confirm" hidden style="margin:8px 0 0">Biztosan? <button class="btn quiet" id="m-reset-yes" style="padding:3px 10px">Igen, törlöm</button></p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="view-trans" hidden>
+    <div class="layout">
+      <div class="card" id="xcard"></div>
+      <aside class="side" id="xside">
+        <div class="card">
+          <h3>Eredmény · fordítás</h3>
+          <div class="stats">
+            <div class="stat"><b id="x-avg">–</b><span>átlag pont</span></div>
+            <div class="stat"><b id="x-perfect">–</b><span>hibátlan</span></div>
+            <div class="stat"><b id="x-count">0</b><span>javítás</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Beállítások</h3>
+          <div class="opt">
+            <span class="lbl">Mit fordítasz?</span>
+            <div class="checks" id="x-src"></div>
+          </div>
+          <div class="opt">
+            <span class="lbl">Szint (mondattárnál)</span>
+            <div class="checks" id="x-levels"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Legutóbbi hibás fordítások</h3>
+          <ul class="mist" id="x-mistakes"></ul>
+          <div class="actions" style="margin-top:12px"><button class="btn quiet" id="x-reset">Eredmények törlése</button></div>
+          <p class="muted" id="x-reset-confirm" hidden style="margin:8px 0 0">Biztosan? <button class="btn quiet" id="x-reset-yes" style="padding:3px 10px">Igen, törlöm</button></p>
         </div>
       </aside>
     </div>
@@ -1220,6 +1269,9 @@ const store = {
 let cloudRef = null, cloudBusy = false, cloudDirty = false, cloudTimer = null;
 let cloudExtra = {};      // a profilhoz mentett további mezők (pl. név, e-mail a webes változatban)
 let answerHook = null;    // ha be van állítva, minden válasz naplózásra kerül
+let aiBackend = null;     // AI-javítás: async ({hu, ref, given}) => ({result, left?})
+let aiNote = 'Az AI-javítás ebben a nézetben nem érhető el.';
+function setAINote(msg){ aiNote = msg; const n = document.getElementById('x-note'); if (n){ n.textContent = msg; n.style.color = ''; } }
 function scheduleCloud(){
   if (!cloudRef) return;
   clearTimeout(cloudTimer);
@@ -1229,7 +1281,7 @@ async function saveCloud(){
   if (!cloudRef) return;
   if (cloudBusy){ cloudDirty = true; return; }
   cloudBusy = true;
-  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
+  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
   catch(e){ setWho(null, 'Most nem sikerült menteni a fiókodba; a böngészőben megvan.'); }
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
@@ -1258,7 +1310,9 @@ function applyData(d){
   renderOptions(); renderStats(); next();
   MST = Object.assign(BLANK_STATS(), d.mstats ? JSON.parse(JSON.stringify(d.mstats)) : {});
   renderOptionsV(); renderStatsV(); nextV();
+  XST = Object.assign(BLANK_STATS(), {sum:0}, d.xstats ? JSON.parse(JSON.stringify(d.xstats)) : {});
   renderOptionsM(); renderStatsM(); nextM();
+  renderOptionsX(); renderStatsX(); nextX();
 }
 /* ref: {get(): Promise<{exists, data()}>, set(obj): Promise} */
 async function attachCloud(ref, me){
@@ -1266,12 +1320,29 @@ async function attachCloud(ref, me){
   if (snap.exists) applyData(snap.data());
   cloudRef = ref;
   setWho(me);
-  if (snap.exists || ST.total || VST.total || MST.total || Object.keys(cloudExtra).length) saveCloud();
+  if (snap.exists || ST.total || VST.total || MST.total || XST.total || Object.keys(cloudExtra).length) saveCloud();
 }
 function detachCloud(){
   cloudRef = null; clearTimeout(cloudTimer);
-  applyData({stats: store.get('stats', {}), vstats: store.get('vstats', {}), mstats: store.get('mstats', {}), settings: store.get('settings', {})});
+  applyData({stats: store.get('stats', {}), vstats: store.get('vstats', {}), mstats: store.get('mstats', {}), xstats: store.get('xstats', {}), settings: store.get('settings', {})});
   setWho(null);
+}
+/* AI a Claude-on belül: a néző saját Claude-fiókjával (sample képesség) */
+async function initAI(){
+  if (!window.claude || typeof window.claude.use !== 'function') return;
+  try{
+    const sample = await window.claude.use('sample');
+    if (!sample) return;
+    aiBackend = async (p) => {
+      try{
+        const result = await sample.json(aiPrompt(p.hu, p.ref, p.given) + AI_JSON_SPEC, {modelTier:'quick'});
+        return {result: normAI(result)};
+      }catch(e){
+        throw new Error(e && e.code==='rate_limited' ? 'Most túl sok kérés érkezett. Próbáld újra egy kicsit később.' : e && e.code==='not_granted' ? 'Az AI-javításhoz engedélyezned kell a Claude használatát ennek az oldalnak.' : 'Az AI most nem válaszolt. Próbáld újra.');
+      }
+    };
+    setAINote('Az AI-javítást a Claude végzi, a saját Claude-fiókod keretéből.');
+  }catch(e){}
 }
 async function initCloud(){
   if (!window.claude || typeof window.claude.use !== 'function') return;
@@ -1283,11 +1354,12 @@ async function initCloud(){
     await attachCloud(db.collection('data/users/' + me.id).doc('coniuga'), me);
   }catch(e){ /* marad a böngészős mentés */ }
 }
-const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true};
+const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2]};
 let S = Object.assign({}, DEF, store.get('settings', {}));
 let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
 let VST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('vstats', {}));
 let MST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('mstats', {}));
+let XST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[],sum:0}, store.get('xstats', {}));
 let cur = null;
 let lastInput = null;
 const byInf = Object.fromEntries(VERBS.map(v=>[v.inf, v]));
@@ -1532,7 +1604,7 @@ function renderDetail(){
 
 /* ---- fülek ---- */
 function showTab(name){
-  ['practice','vocab','sent','browse','teacher'].forEach(n=>{
+  ['practice','vocab','sent','trans','browse','teacher'].forEach(n=>{
     const tab = $('tab-'+n), view = $('view-'+n);
     if (tab) tab.setAttribute('aria-selected', n===name);
     if (view) view.hidden = n!==name;
@@ -1542,6 +1614,7 @@ $('tab-practice').onclick = ()=>showTab('practice');
 $('tab-browse').onclick = ()=>showTab('browse');
 $('tab-vocab').onclick = ()=>showTab('vocab');
 $('tab-sent').onclick = ()=>showTab('sent');
+$('tab-trans').onclick = ()=>showTab('trans');
 
 /* ---- Szójelentés: 4 lehetőség közül a jó ---- */
 const DIRS = {it2hu:'olaszból magyarra', hu2it:'magyarból olaszra'};
@@ -1637,6 +1710,134 @@ function recordV(vb, dir, chosen, ok){
   }
   store.set('vstats', VST); renderStatsV();
 }
+/* ---- Fordítás: AI-javítással ---- */
+function aiPrompt(hu, ref, given){
+  return `Olasz nyelvtanár vagy, magyar anyanyelvű tanulóknak segítesz.
+A tanuló olaszra fordította a magyar szöveget. Értékeld a fordítást, és MAGYARUL válaszolj.
+
+Magyar szöveg: ${JSON.stringify(hu)}
+${ref ? `Egy helyes mintafordítás (más is lehet helyes): ${JSON.stringify(ref)}\n` : ''}A tanuló fordítása: ${JSON.stringify(given)}
+
+Szabályok:
+- Fogadd el a más szórendet, szinonimát, alany nélküli vagy alannyal írt változatot, ha nyelvtanilag helyes és ugyanazt jelenti.
+- A hibáknál nevezd meg a típusát (pl. igeidő, igeragozás, nem/szám egyeztetés, névelő, elöljárószó, szórend, szóválasztás, helyesírás/ékezet).
+- A magyarázat legyen rövid, érthető, egy-két mondat.
+- Ha nincs hiba, az errors lista legyen üres.
+- A "corrected" mező a tanuló fordításának javított változata legyen (a lehető legkevesebb változtatással).
+- A score 0-10 közötti egész szám (10 = hibátlan).`;
+}
+const AI_JSON_SPEC = `
+
+Csak egy JSON objektummal válaszolj, más szöveg nélkül, ebben a formában:
+{"score": 0-10, "correct": true/false, "corrected": "...", "errors": [{"wrong": "hibás rész", "fix": "javítás", "type": "hibatípus", "explanation": "magyarázat"}], "comment": "rövid összegzés"}`;
+function normAI(r){
+  r = r || {};
+  return {score: Math.max(0, Math.min(10, Math.round(Number(r.score)||0))), correct: !!r.correct, corrected: String(r.corrected||''),
+    errors: Array.isArray(r.errors) ? r.errors.slice(0,10).map(e=>({wrong:String(e.wrong||''), fix:String(e.fix||''), type:String(e.type||''), explanation:String(e.explanation||'')})) : [],
+    comment: String(r.comment||'')};
+}
+let curX = null;
+function renderOptionsX(){
+  $('x-src').innerHTML = chk('radio','xsrc','bank',S.xsrc==='bank','mondattárból') + chk('radio','xsrc','own','own'===S.xsrc,'saját szöveg');
+  $('x-levels').innerHTML = [1,2,3].map(l=>chk('checkbox','xlevel',l,S.xlevels.includes(l),LEVELS[l])).join('');
+}
+$('xside').addEventListener('change', e=>{
+  const el = e.target;
+  if (el.name==='xsrc') S.xsrc = el.value;
+  else if (el.name==='xlevel'){ const sel=[...document.querySelectorAll('input[name=xlevel]:checked')].map(x=>+x.value); if(!sel.length){ el.checked=true; return; } S.xlevels = sel; }
+  else return;
+  store.set('settings', S); renderOptionsX(); nextX();
+});
+function renderStatsX(){
+  $('x-avg').textContent = XST.total ? (XST.sum/XST.total).toFixed(1) : '–';
+  $('x-perfect').textContent = XST.total ? Math.round(100*XST.ok/XST.total)+'%' : '–';
+  $('x-count').textContent = XST.total;
+  $('x-mistakes').innerHTML = XST.recent.length ? XST.recent.map(m=>
+    `<li><span>${esc(m.hu)}<br><span class="w">${esc(m.given)}</span></span><span class="c">${esc(m.corrected)} <span class="muted">(${m.score}/10)</span></span></li>`).join('')
+    : '<li class="muted">Itt jelennek meg a hibás fordításaid.</li>';
+}
+$('x-reset').onclick = ()=>{ $('x-reset-confirm').hidden = false; };
+$('x-reset-yes').onclick = ()=>{ XST={ok:0,total:0,streak:0,best:0,miss:{},recent:[],sum:0}; store.set('xstats',XST); renderStatsX(); $('x-reset-confirm').hidden = true; };
+function nextX(){
+  if (S.xsrc==='own'){ curX = {own:true, done:false}; renderX(); return; }
+  const pl = SENTS.filter(x=>S.xlevels.includes(VBY[x.inf].lvl));
+  const x = pl[Math.floor(Math.random()*pl.length)];
+  curX = {x, ref: sentFill(x).full, done:false};
+  renderX();
+}
+function renderX(){
+  const own = curX.own;
+  $('xcard').innerHTML = `
+    <div class="task"><span class="task-lbl">Fordítás · AI-javítással</span><span class="task-tense">Fordítsd olaszra</span><span class="task-extra">${own?'Írj be egy magyar szöveget és a saját olasz fordításodat. Az AI megmutatja, hol hibáztál.':'Írd le olaszul. Az AI megmutatja, hol hibáztál és mit javíts.'}</span></div>
+    ${own ? `<label class="xlbl" for="x-hu">Magyar szöveg</label><textarea class="xarea" id="x-hu" rows="2" maxlength="600" placeholder="pl. Tegnap a barátaimmal moziba mentem."></textarea>`
+          : `<p class="msent" style="font-family:var(--f-display)">${esc(curX.x.hu)}</p>`}
+    <form id="xform" autocomplete="off">
+      <label class="xlbl" for="x-ans">Olasz fordításod</label>
+      <textarea class="xarea" id="x-ans" rows="3" maxlength="600" autocapitalize="off" spellcheck="false" placeholder="Scrivi qui…"></textarea>
+      ${keysHtml()}
+      <div class="actions">
+        <button class="btn" type="submit" id="x-go">Javíttatás AI-val</button>
+        ${own?'':'<button class="btn ghost" type="button" id="x-show">Mintamegoldás</button>'}
+        <button class="btn quiet" type="button" id="x-skip">${own?'Új szöveg':'Másik mondat'}</button>
+      </div>
+      <p class="ainote" id="x-note">${esc(aiNote)}</p>
+    </form><div id="x-fb"></div>`;
+  wireCommon($('xcard'));
+  $('x-skip').onclick = nextX;
+  const sh = $('x-show'); if (sh) sh.onclick = ()=>{ showRef(); };
+  $('xform').onsubmit = e=>{ e.preventDefault(); curX.done ? nextX() : askAI(); };
+  $('x-ans').addEventListener('keydown', e=>{ if (e.key==='Enter' && (e.ctrlKey||e.metaKey)){ e.preventDefault(); $('xform').requestSubmit(); } });
+}
+function showRef(){
+  if (!curX.ref) return;
+  const box = $('x-fb');
+  if (box.querySelector('.example')) return;
+  box.insertAdjacentHTML('afterbegin', `<div class="example"><span class="ex-lbl">Egy lehetséges fordítás</span><p class="ex-it"><span>${esc(curX.ref)}</span>${sayBtn(curX.ref)}</p></div>`);
+}
+async function askAI(){
+  const given = $('x-ans').value.trim();
+  const hu = curX.own ? ($('x-hu').value.trim()) : curX.x.hu;
+  if (!hu){ $('x-hu').focus(); return; }
+  if (!given){ $('x-ans').focus(); return; }
+  if (!aiBackend){ $('x-note').textContent = aiNote; $('x-note').style.color = 'var(--pen)'; return; }
+  const go = $('x-go'); go.disabled = true;
+  $('x-fb').innerHTML = '<p class="loading" style="margin-top:16px">Az AI javítja a fordításodat…</p>';
+  let res;
+  try{ res = await aiBackend({hu, ref: curX.ref || '', given}); }
+  catch(e){ go.disabled = false; $('x-fb').innerHTML = `<div class="feedback bad"><p>${esc(e.message || 'Az AI most nem érhető el.')}</p></div>`; if (curX.ref) showRef(); return; }
+  const r = normAI(res.result);
+  curX.done = true; go.disabled = false; go.textContent = curX.own ? 'Új szöveg →' : 'Következő →';
+  $('x-ans').readOnly = true; if (curX.own) $('x-hu').readOnly = true;
+  const sh = $('x-show'); if (sh) sh.hidden = true; $('x-skip').hidden = true;
+  recordX(hu, given, r);
+  const cls = r.score>=9 ? 'sc-hi' : r.score>=6 ? 'sc-mid' : 'sc-lo';
+  const fbCls = r.score>=9 ? 'ok' : r.score>=6 ? 'acc' : 'bad';
+  $('x-fb').innerHTML = `<div class="feedback ${fbCls}">
+    <p style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="score ${cls}">${r.score}<small>/10</small></span><span class="verdict">${r.errors.length ? (r.errors.length===1?'Egy dolgot javíts:':`${r.errors.length} dolgot javíts:`) : 'Hibátlan fordítás!'}</span></p>
+    ${r.errors.length ? `<ul class="errs">${r.errors.map(e=>`<li><span class="w">${esc(e.wrong)}</span> → <span class="f">${esc(e.fix)}</span>${e.type?`<span class="ty">${esc(e.type)}</span>`:''}<p>${esc(e.explanation)}</p></li>`).join('')}</ul>` : ''}
+    ${r.corrected && r.errors.length ? `<div class="example"><span class="ex-lbl">Javított változat</span><p class="ex-it"><span>${esc(r.corrected)}</span>${sayBtn(r.corrected)}</p></div>` : ''}
+    ${r.comment ? `<p style="margin-top:10px">${esc(r.comment)}</p>` : ''}
+    ${curX.ref ? `<div class="example"><span class="ex-lbl">Mintafordítás</span><p class="ex-it"><span>${esc(curX.ref)}</span>${sayBtn(curX.ref)}</p></div>` : ''}
+    ${typeof res.left==='number' ? `<p class="muted" style="margin-top:8px">Mára még ${res.left} AI-javítás van hátra.</p>` : ''}
+    <p class="muted" style="margin-top:8px">Az AI tévedhet; ha bizonytalan vagy, kérdezd meg a tanárod.</p>
+  </div>`;
+  go.focus({preventScroll:true});
+}
+function recordX(hu, given, r){
+  const ok = r.score >= 9;
+  if (answerHook){
+    try{ answerHook({kind:'trans', inf: curX.x ? curX.x.inf : '', hu, given, corrected: r.corrected, score: r.score, errors: r.errors.length, ok, at: Date.now()}); }catch(e){}
+  }
+  XST.total++; XST.sum = (XST.sum||0) + r.score;
+  if (ok){ XST.ok++; XST.streak++; XST.best=Math.max(XST.best,XST.streak); }
+  else {
+    XST.streak = 0;
+    XST.recent.unshift({hu, given, corrected: r.corrected, score: r.score});
+    XST.recent = XST.recent.slice(0,8);
+  }
+  store.set('xstats', XST); renderStatsX();
+}
+
 /* ---- Mondatok: a hiányzó ige beírása ---- */
 let curM = null;
 function mpool(){ return SENTS.filter(x => S.mtenses.includes(x.t) && S.mlevels.includes(VBY[x.inf].lvl)); }
@@ -1744,6 +1945,7 @@ document.addEventListener('keydown', e=>{
 renderOptions(); renderStats(); renderBrowseKind(); renderList(); renderDetail(); next();
 renderOptionsV(); renderStatsV(); nextV();
 renderOptionsM(); renderStatsM(); nextM();
+renderOptionsX(); renderStatsX(); nextX(); initAI();
 </script>
 
 <dialog class="login" id="login">
@@ -1762,7 +1964,7 @@ renderOptionsM(); renderStatsM(); nextM();
     <button class="linkbtn" type="button" id="login-reset">Elfelejtettem a jelszavam</button>
     <button class="btn quiet" type="button" id="login-close">Mégse</button>
   </form>
-  <p class="privacy">Bejelentkezve a neved, az e-mail-címed és a gyakorlási válaszaid mentésre kerülnek, és ezeket az oldal üzemeltetője (a tanár) is láthatja.</p>
+  <p class="privacy">Bejelentkezve a neved, az e-mail-címed és a gyakorlási válaszaid mentésre kerülnek, és ezeket az oldal üzemeltetője (a tanár) is láthatja. Az AI-javításhoz a fordításod a Google Gemini szolgáltatásához kerül.</p>
 </dialog>
 <script type="module" src="auth.js"></script>
 </body>

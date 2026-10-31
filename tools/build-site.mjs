@@ -81,7 +81,7 @@ const dialog = `
     <button class="linkbtn" type="button" id="login-reset">Elfelejtettem a jelszavam</button>
     <button class="btn quiet" type="button" id="login-close">Mégse</button>
   </form>
-  <p class="privacy">Bejelentkezve a neved, az e-mail-címed és a gyakorlási válaszaid mentésre kerülnek, és ezeket az oldal üzemeltetője (a tanár) is láthatja.</p>
+  <p class="privacy">Bejelentkezve a neved, az e-mail-címed és a gyakorlási válaszaid mentésre kerülnek, és ezeket az oldal üzemeltetője (a tanár) is láthatja. Az AI-javításhoz a fordításod a Google Gemini szolgáltatásához kerül.</p>
 </dialog>
 <script type="module" src="auth.js"></script>
 `;
