@@ -111,15 +111,16 @@ const SCHEMA = {
 
 async function askGemini(env, hu, ref, given) {
   // ha egy modell túlterhelt vagy nem létezik, a következővel próbálkozik
-  const models = [env.MODEL || 'gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.5-flash-lite', 'gemini-flash-lite-latest'];
+  const models = [env.MODEL || 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+  const tries = [];
   let lastErr;
   for (const model of [...new Set(models)]) {
     const generationConfig = { temperature: 0.2, responseMimeType: 'application/json', responseSchema: SCHEMA };
     if (model.startsWith('gemini-2.5')) generationConfig.thinkingConfig = { thinkingBudget: 0 }; // gyorsabb válasz
-    let r;
+    let r; const t0 = Date.now();
     try {
       r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-      signal: AbortSignal.timeout(20000),
+      signal: AbortSignal.timeout(12000),
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
       body: JSON.stringify({
@@ -127,7 +128,8 @@ async function askGemini(env, hu, ref, given) {
         generationConfig
       })
     });
-    } catch (e) { lastErr = Object.assign(new Error('timeout ' + model), { status: 503, detail: model + ' timeout' }); continue; }
+    } catch (e) { tries.push(model + ':timeout'); lastErr = Object.assign(new Error('timeout ' + model), { status: 503, detail: tries.join(', ') }); continue; }
+    tries.push(model + ':' + r.status + ':' + (Date.now() - t0) + 'ms');
     if (r.status === 404) { lastErr = Object.assign(new Error('model ' + model), { status: 404, detail: 'model not found: ' + model }); continue; }
     if (!r.ok) {
       let detail = '';
@@ -141,7 +143,7 @@ async function askGemini(env, hu, ref, given) {
     const out = JSON.parse(text);
     out.score = Math.max(0, Math.min(10, Math.round(Number(out.score) || 0)));
     out.errors = Array.isArray(out.errors) ? out.errors.slice(0, 10) : [];
-    out.model = model;
+    out.model = model; out.tries = tries.join(', ');
     return out;
   }
   throw lastErr || new Error('no model');
