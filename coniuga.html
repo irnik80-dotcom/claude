@@ -101,6 +101,35 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .qblock h4{margin:0 0 8px; font-size:1rem}
 .qexp{font-size:.88rem; color:var(--ink-soft); margin:8px 0 0}
 .tiplist{margin:6px 0 0; padding-left:20px}
+.pdfbtn::before{content:"⤓ "}
+.no-print-ui .pdfbtn{display:none!important}
+#print-area{font-family:var(--f-body); color:#111; background:#fff}
+@media print{
+  @page{margin:14mm}
+  :root{color-scheme:light}
+  body.printing{background:#fff!important; background-image:none!important; color:#111}
+  body.printing > *:not(#print-area){display:none!important}
+  body.printing #print-area{display:block!important}
+  #print-area h1{font-family:var(--f-display); font-weight:400; font-size:22pt; margin:0 0 4pt; color:#111}
+  #print-area h2{font-size:13pt; margin:14pt 0 4pt; color:#111; font-family:var(--f-body)}
+  #print-area .pmeta{color:#555; font-size:9.5pt; margin:0 0 10pt}
+  #print-area p, #print-area li{font-size:11pt; line-height:1.5}
+  #print-area .pit{font-size:12pt}
+  #print-area .ptr{color:#444; font-style:italic}
+  #print-area .pbad{color:#b3261e; text-decoration:line-through}
+  #print-area .pgood{color:#1b6b3a; font-weight:700}
+  #print-area .pmsg{margin:0 0 8pt; padding:6pt 8pt; border:0.5pt solid #ccc; border-radius:4pt; break-inside:avoid}
+  #print-area .pmsg b{font-size:9pt; text-transform:uppercase; letter-spacing:.05em; color:#555}
+  #print-area .tgrid{display:grid; grid-template-columns:1fr 1fr; gap:10pt 14pt}
+  #print-area .tbox{break-inside:avoid}
+  #print-area .ttable td{border-bottom:0.5pt solid #ddd; font-size:10pt; padding:2pt 4pt}
+  #print-area .ttab{border-collapse:collapse; width:100%}
+  #print-area .ttab th, #print-area .ttab td{border-bottom:0.5pt solid #ddd; font-size:9pt; padding:3pt 4pt; text-align:left}
+  #print-area .irrf{color:#b3261e; text-decoration:underline}
+  #print-area .task{background:none; padding:0; margin:12pt 0 4pt}
+  #print-area .chip, #print-area .bar{display:none}
+  #print-area .pfoot{margin-top:18pt; color:#888; font-size:8.5pt; border-top:0.5pt solid #ccc; padding-top:4pt}
+}
 .wd{font:inherit; color:inherit; background:none; border:0; margin:0; padding:0 1px; cursor:pointer; border-bottom:1.5px dotted var(--ink-soft); border-radius:3px 3px 0 0; line-height:inherit; text-align:inherit}
 .wd:hover,.wd.on{background:var(--accent-soft); border-bottom-color:var(--accent); color:var(--accent)}
 .bubble{position:absolute; z-index:60; max-width:min(300px, calc(100vw - 32px)); background:var(--card); color:var(--ink); border:1.5px solid var(--accent); border-radius:10px; padding:10px 12px; box-shadow:0 8px 24px rgba(10,14,25,.18); font-size:.95rem; display:flex; gap:10px; align-items:center}
@@ -506,6 +535,7 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
     </div>
   </section>
 </div>
+<div id="print-area" hidden></div>
 
 <script id="engine">
 /* ---------- Ragozó motor ---------- */
@@ -911,10 +941,181 @@ v('favorire','kedvez, elősegít',3,{isc:1});
 v('colpire','megüt, eltalál',3,{isc:1});
 v('arrossire','elpirul',3,{isc:1, e:1});
 
+/*NEW-VERBS-START*/
+/* ===== 4. bővítés: további igék (tools/new-verbs.py) ===== */
+function venire2(pre, hu, lvl, ess){ v(pre+'venire', hu, lvl, Object.assign({pres:P('vengo vieni viene veniamo venite vengono').map(x=>pre+x), fut:pre+'verr', pp:pre+'venuto'}, ess?{e:1}:{})); }
+Object.assign(REM_STRONG, {'rifare': 'rifec', 'riconoscere': 'riconobb', 'rinascere': 'rinacqu', 'rimettere': 'rimis', 'scommettere': 'scommis', 'riscrivere': 'riscriss', 'accadere': 'accadd', 'ritenere': 'ritenn', 'trattenere': 'trattenn', 'appartenere': 'appartenn', 'convenire': 'convenn', 'intervenire': 'intervenn', 'divenire': 'divenn', 'svenire': 'svenn', 'prevenire': 'prevenn', 'sopravvivere': 'sopravviss', 'convivere': 'conviss', 'provvedere': 'provvid', 'intravedere': 'intravid', 'coinvolgere': 'coinvols', 'sconvolgere': 'sconvols', 'rivolgersi': 'rivols', 'disporre': 'dispos', 'opporsi': 'oppos', 'dedurre': 'deduss', 'sedurre': 'seduss', 'sottrarre': 'sottrass', 'estrarre': 'estrass', 'distinguere': 'distins', 'fingere': 'fins', 'costringere': 'costrins', 'dirigere': 'diress', 'eleggere': 'eless', 'rileggere': 'riless', 'friggere': 'friss', 'sconfiggere': 'sconfiss', 'scuotere': 'scoss', 'promuovere': 'promoss', 'commuovere': 'commoss', 'emergere': 'emers', 'immergere': 'immers', 'spargere': 'spars', 'persuadere': 'persuas', 'invadere': 'invas', 'radere': 'ras', 'condividere': 'condivis', 'esplodere': 'esplos', 'pretendere': 'pretes', 'intendere': 'intes', 'stendere': 'stes', 'appendere': 'appes', 'interrompere': 'interrupp', 'soccorrere': 'soccors', 'percorrere': 'percors', 'trascorrere': 'trascors', 'occorrere': 'occors', 'porgere': 'pors', 'sorgere': 'sors', 'scorgere': 'scors', 'torcere': 'tors', 'pungere': 'puns', 'tingere': 'tins', 'rimpiangere': 'rimpians', 'valere': 'vals', 'parere': 'parv', 'giacere': 'giacqu', 'perdersi': 'pers', 'muoversi': 'moss'});
+Object.assign(IMPV_TU, {'rifare': "rifai/rifa'"});
+v('rifare','újra megcsinál',2,{pres:P('rifaccio rifai rifà rifacciamo rifate rifanno'), imp:'rifac', fut:'rifar', pp:'rifatto'});
+v('riconoscere','felismer',2,{pp:'riconosciuto', ppReg:1});
+v('rinascere','újjászületik',3,{pp:'rinato', e:1});
+v('ripartire','újra elindul',2,{e:1});
+v('rimettere','visszatesz',3,{pp:'rimesso'});
+v('scommettere','fogad (tétre)',3,{pp:'scommesso'});
+v('riaprire','újra kinyit',2,{pp:'riaperto'});
+v('riscrivere','átír, újraír',3,{pp:'riscritto'});
+v('accadere','történik, megesik',3,{e:1, fut:'accadr'});
+tenere('ri','vél, tart vminek',3);
+tenere('trat','visszatart',3);
+tenere('appar','tartozik vkihez',3);
+venire2('con','megéri, jobb',3,1);
+venire2('inter','közbelép',3,1);
+venire2('di','válik vmivé',3,1);
+venire2('s','elájul',3,1);
+venire2('pre','megelőz',3,0);
+v('sopravvivere','túlél',3,{e:1, fut:'sopravvivr', pp:'sopravvissuto'});
+v('convivere','együtt él',3,{fut:'convivr', pp:'convissuto'});
+v('provvedere','gondoskodik',3,{});
+v('intravedere','megpillant',3,{fut:'intravedr', pp:'intravisto'});
+v('coinvolgere','bevon',3,{pp:'coinvolto'});
+v('sconvolgere','felkavar, megráz',3,{pp:'sconvolto'});
+v('rivolgersi','fordul vkihez',3,{pp:'rivolto'});
+porre('dis','elrendez',3);
+v('opporsi','ellenez, szembeszáll',3,{pres:P('oppongo opponi oppone opponiamo opponete oppongono'), imp:'oppon', fut:'opporr', pp:'opposto'});
+durre('de','következtet',3);
+durre('se','elcsábít, elbűvöl',3);
+trarre('sot','kivon, elvesz',3);
+trarre('es','kihúz',3);
+v('distinguere','megkülönböztet',3,{pp:'distinto'});
+v('fingere','tettet, színlel',2,{pp:'finto'});
+v('costringere','kényszerít',3,{pp:'costretto'});
+v('dirigere','irányít, vezényel',3,{pp:'diretto'});
+v('eleggere','megválaszt',3,{pp:'eletto'});
+v('rileggere','újraolvas',2,{pp:'riletto'});
+v('friggere','(olajban) kisüt',2,{pp:'fritto'});
+v('sconfiggere','legyőz',3,{pp:'sconfitto'});
+v('scuotere','ráz',3,{pp:'scosso'});
+v('promuovere','előléptet',3,{pp:'promosso'});
+v('commuovere','meghat',3,{pp:'commosso'});
+v('emergere','felbukkan, kiderül',3,{e:1, pp:'emerso'});
+v('immergere','belemárt, belemerít',3,{pp:'immerso'});
+v('spargere','szétszór',3,{pp:'sparso'});
+v('persuadere','rábeszél',3,{pp:'persuaso'});
+v('invadere','elözönöl, megszáll',3,{pp:'invaso'});
+v('radere','(le)borotvál',3,{pp:'raso'});
+v('condividere','megoszt, osztozik',2,{pp:'condiviso'});
+v('esplodere','felrobban',3,{e:1, pp:'esploso'});
+v('pretendere','elvár, követel',3,{pp:'preteso'});
+v('intendere','szándékozik; gondol vmire',3,{pp:'inteso'});
+v('stendere','kitereget, kiterít',3,{pp:'steso'});
+v('appendere','felakaszt',3,{pp:'appeso'});
+v('interrompere','félbeszakít',2,{pp:'interrotto'});
+v('soccorrere','segítségére siet',3,{pp:'soccorso'});
+v('percorrere','megtesz (utat), bejár',3,{pp:'percorso'});
+v('trascorrere','(időt) eltölt',2,{pp:'trascorso'});
+v('occorrere','szükséges, kell',3,{e:1, pp:'occorso'});
+v('porgere','odanyújt',3,{pp:'porto'});
+v('sorgere','felkel (nap), keletkezik',3,{e:1, pp:'sorto'});
+v('scorgere','megpillant',3,{pp:'scorto'});
+v('torcere','kicsavar, csavar',3,{pp:'torto'});
+v('pungere','megszúr, megcsíp',3,{pp:'punto'});
+v('tingere','fest (hajat, anyagot)',3,{pp:'tinto'});
+v('rimpiangere','visszasír',3,{pp:'rimpianto'});
+v('valere','ér (vmennyit)',3,{e:1, pres:P('valgo vali vale valiamo valete valgono'), fut:'varr', pp:'valso'});
+v('parere','tűnik vminek',3,{e:1, pres:P('paio pari pare paiamo parete paiono'), fut:'parr', pp:'parso'});
+v('giacere','fekszik, hever',3,{e:1, pres:P('giaccio giaci giace giacciamo giacete giacciono'), pp:'giaciuto'});
+v('cucire','varr',2,{pres:P('cucio cuci cuce cuciamo cucite cuciono')});
+v('udire','hall',3,{pres:P('odo odi ode udiamo udite odono')});
+v('riempire','megtölt, kitölt',2,{pres:P('riempio riempi riempie riempiamo riempite riempiono')});
+v('perdersi','eltéved',2,{pp:'perso/perduto'});
+v('muoversi','mozog, siet',2,{pp:'mosso'});
+v('accettare','elfogad',2,{});
+v('adorare','imád',2,{});
+v('affrontare','szembenéz, megbirkózik',3,{});
+v('allenarsi','edz',2,{});
+v('analizzare','elemez',3,{});
+v('annullare','lemond, töröl',3,{});
+v('apprezzare','értékel, nagyra tart',2,{});
+v('approvare','jóváhagy',3,{});
+v('aumentare','emel, növel',2,{});
+v('avvicinarsi','közeledik',2,{});
+v('bastare','elég',2,{e:1});
+v('bruciare','odaéget, ég',2,{});
+v('bussare','kopog',2,{});
+v('cancellare','töröl',2,{});
+v('caricare','feltölt, megrak',3,{});
+v('chiacchierare','beszélget, cseveg',2,{});
+v('collaborare','együttműködik',3,{});
+v('comunicare','közöl',3,{});
+v('confermare','megerősít, visszaigazol',2,{});
+v('consegnare','bead, kézbesít',3,{});
+v('conservare','megőriz',3,{});
+v('considerare','tart vminek, megfontol',3,{});
+v('contare','számol, számít',2,{});
+v('copiare','másol, puskáz',2,{});
+v('curare','gyógyít, gondoz',2,{});
+v('dedicare','szentel, ajánl',3,{});
+v('dimostrare','bebizonyít, megmutat',3,{});
+v('disturbare','zavar',2,{});
+v('dubitare','kételkedik, kétel',3,{});
+v('esagerare','túloz',2,{});
+v('fidarsi','megbízik vkiben',2,{});
+v('firmare','aláír',2,{});
+v('fotografare','fényképez',2,{});
+v('frequentare','jár (iskolába, tanfolyamra)',2,{});
+v('gettare','eldob, kidob',3,{});
+v('immaginare','elképzel',2,{});
+v('indossare','visel (ruhát)',2,{});
+v('invitare','meghív',1,{});
+v('legare','köt, megköt',3,{});
+v('litigare','veszekszik',2,{});
+v('meritare','megérdemel',3,{});
+v('misurare','mér',3,{});
+v('notare','észrevesz',3,{});
+v('occupare','elfoglal',3,{});
+v('pesare','nyom (súlyra), lemér',2,{});
+v('piantare','ültet',3,{});
+v('presentare','bemutat',2,{});
+v('pronunciare','kiejt',2,{});
+v('pubblicare','kiad, közzétesz',3,{});
+v('respirare','lélegzik',2,{});
+v('rifiutare','visszautasít',2,{});
+v('rinunciare','lemond vmiről',3,{});
+v('riparare','megjavít',2,{});
+v('rispettare','tisztel, betart',2,{});
+v('rubare','lop',2,{});
+v('salvare','ment, megment',2,{});
+v('saltare','ugrik, kihagy',2,{});
+v('scappare','elszalad, elszökik',2,{e:1});
+v('sopportare','elvisel',2,{});
+v('sottolineare','aláhúz, hangsúlyoz',3,{});
+v('spaventare','megijeszt',3,{});
+v('sprecare','pazarol',3,{});
+v('stampare','nyomtat',2,{});
+v('stancarsi','elfárad',2,{});
+v('svegliare','felébreszt',2,{});
+v('tentare','megpróbál, megkísérel',3,{});
+v('tirare','húz',2,{});
+v('urlare','ordít, üvölt',2,{});
+v('versare','önt, tölt',3,{});
+v('voltare','befordul, megfordít',3,{});
+v('alzare','felemel',2,{});
+v('abbassare','lehalkít, leenged',3,{});
+v('vergognarsi','szégyelli magát',3,{});
+v('abituarsi','hozzászokik',3,{});
+v('occuparsi','foglalkozik vmivel',3,{});
+v('interessarsi','érdeklődik',3,{});
+v('spogliarsi','levetkőzik',3,{});
+v('asciugarsi','megtörölközik',3,{});
+v('vestire','öltöztet',2,{});
+v('nutrire','táplál, etet',3,{});
+v('stupire','meglep, ámulatba ejt',3,{isc:1});
+v('fallire','csődbe megy, kudarcot vall',3,{isc:1, e:1});
+v('tossire','köhög',3,{isc:1});
+v('impazzire','megőrül',3,{isc:1, e:1});
+v('arricchire','gazdagít',3,{isc:1});
+v('diminuire','csökkent, csökken',3,{isc:1});
+v('combattere','harcol',3,{});
+v('riflettere','elgondolkodik',3,{});
+v('premere','megnyom',3,{});
+v('spremere','kifacsar',3,{});
+/*NEW-VERBS-END*/
+
 /* ---- ragozás kiszámítása ---- */
 function build(vb){
   vb.refl = vb.inf.endsWith('rsi');
-  const base = vb.refl ? vb.inf.slice(0,-3)+'re' : vb.inf;
+  let base = vb.refl ? vb.inf.slice(0,-3)+'re' : vb.inf;
+  if (vb.refl && !/[aei]re$/.test(base)) base = vb.inf.slice(0,-3)+'rre';   // opporsi -> opporre
   let conj = base.slice(-3); if (conj==='rre') conj='ere';
   const stem = base.slice(0,-3), cls = vb.isc ? 'isc' : conj, k = !!vb.keepI;
   const futS = s => FUT.map(e=>s+e), condS = s => COND.map(e=>s+e);
@@ -1340,6 +1541,169 @@ ferire|pp|5|Le sue parole mi ___.|A szavai megsebeztek.
 favorire|pres|2|Il clima mite ___ il turismo.|Az enyhe éghajlat kedvez a turizmusnak.
 colpire|pp|2|Il pallone ___ la finestra.|A labda eltalálta az ablakot.
 arrossire|imp|2|Quando parlava in pubblico, ___ sempre.|Amikor nyilvánosan beszélt, mindig elpirult.
+rifare|pp|0|Ho sbagliato, così ___ l'esercizio da capo.|Hibáztam, ezért elölről újracsináltam a feladatot.
+riconoscere|pp|0|Non ti ___ con gli occhiali!|Nem ismertelek fel a szemüvegben!
+rinascere|pres|2|Ogni primavera la natura ___.|Minden tavasszal újjászületik a természet.
+ripartire|fut|3|Dopo una breve sosta ___ per Napoli.|Rövid pihenő után továbbindulunk Nápolyba.
+rimettere|impv|1|___ il libro sullo scaffale, per favore.|Tedd vissza a könyvet a polcra, kérlek.
+scommettere|pres|0|___ che domani pioverà.|Fogadok, hogy holnap esni fog.
+riaprire|fut|5|I negozi ___ dopo le vacanze.|Az üzletek a szünet után újra kinyitnak.
+riscrivere|pp|0|___ la lettera tre volte.|Háromszor írtam át a levelet.
+accadere|pp|2|Che cosa ___ ieri sera?|Mi történt tegnap este?
+ritenere|pres|0|___ che sia la scelta migliore.|Úgy vélem, ez a legjobb választás.
+trattenere|pp|0|A fatica ___ le lacrime.|Nagy nehezen visszatartottam a könnyeimet.
+appartenere|imp|2|Questa casa ___ ai miei nonni.|Ez a ház a nagyszüleimé volt.
+convenire|pres|2|Ti ___ prendere il treno.|Jobban jársz, ha vonattal mész.
+intervenire|pp|2|La polizia ___ subito.|A rendőrség azonnal közbelépett.|f
+divenire|rem|2|Con gli anni ___ un grande pittore.|Az évek során nagy festővé vált.
+svenire|pp|2|Per il caldo Laura ___.|Laura elájult a hőségtől.|f
+prevenire|pres|2|Lo sport ___ molte malattie.|A sport sok betegséget megelőz.
+sopravvivere|pp|5|Per fortuna tutti ___ all'incidente.|Szerencsére mindenki túlélte a balesetet.
+convivere|pres|5|Marco e Anna ___ da due anni.|Marco és Anna két éve élnek együtt.
+provvedere|fut|0|Non preoccuparti, ___ io ai biglietti.|Ne aggódj, én gondoskodom a jegyekről.
+intravedere|rem|0|Tra la nebbia ___ una luce.|A ködben megpillantottam egy fényt.
+coinvolgere|pp|5|___ anche i bambini nel progetto.|A gyerekeket is bevonták a projektbe.
+sconvolgere|pp|2|La notizia mi ___.|A hír megrázott.
+rivolgersi|impv|2|Per informazioni ___ alla reception.|Információért forduljon a recepcióhoz.
+disporre|pp|0|___ le sedie in cerchio.|Körbe rendeztem a székeket.
+opporsi|pres|5|Molti cittadini ___ al nuovo progetto.|Sok polgár ellenzi az új tervet.
+dedurre|pres|0|Dal tuo sorriso ___ che è andato tutto bene.|A mosolyodból arra következtetek, hogy minden jól ment.
+sedurre|pp|2|La città mi ___ subito.|A város azonnal elbűvölt.
+sottrarre|impv|1|___ cinque da venti.|Vonj ki ötöt húszból.
+estrarre|pp|2|Il dentista mi ___ un dente.|A fogorvos kihúzta az egyik fogamat.
+distinguere|pres|0|Non ___ mai i due gemelli.|Sosem tudom megkülönböztetni a két ikret.
+fingere|imp|2|Il bambino ___ di dormire.|A gyerek úgy tett, mintha aludna.
+costringere|pp|2|La pioggia ci ___ a tornare indietro.|Az eső visszafordulásra kényszerített minket.
+dirigere|imp|2|Mio zio ___ un'orchestra.|A nagybátyám egy zenekart vezényelt.
+eleggere|pp|5|Gli studenti ___ Giulia come rappresentante.|A diákok Giuliát választották képviselőnek.
+rileggere|impv|1|___ il testo prima di consegnarlo.|Olvasd át újra a szöveget, mielőtt beadod.
+friggere|pres|2|La nonna ___ le patate nell'olio d'oliva.|A nagymama olívaolajban süti a krumplit.
+sconfiggere|pp|5|Gli azzurri ___ la Francia.|Az olasz válogatott legyőzte Franciaországot.
+scuotere|rem|2|Il vecchio ___ la testa senza parlare.|Az öreg szó nélkül megcsóválta a fejét.
+promuovere|pp|5|Mi ___ a direttore.|Igazgatóvá léptettek elő.
+commuovere|pp|2|Il film mi ___ molto.|A film nagyon meghatott.
+emergere|pp|5|Dall'indagine ___ nuovi dettagli.|A nyomozásból új részletek derültek ki.
+immergere|impv|1|___ i biscotti nel latte.|Mártsd a kekszet a tejbe.
+spargere|pp|2|Il vento ___ le foglie dappertutto.|A szél mindenfelé szétszórta a leveleket.
+persuadere|rem|0|Alla fine lo ___ a restare.|Végül rábeszéltem, hogy maradjon.
+invadere|pres|5|D'estate i turisti ___ la città.|Nyáron a turisták elözönlik a várost.
+radere|pp|2|Il barbiere mi ___ la barba.|A borbély leborotválta a szakállamat.
+condividere|pres|0|___ un appartamento con due amici.|Két barátommal osztozom egy lakáson.
+esplodere|pp|2|Una bomba ___ vicino alla stazione.|Egy bomba robbant az állomás közelében.|f
+pretendere|pres|2|Il capo ___ troppo da noi.|A főnök túl sokat vár el tőlünk.
+intendere|pres|1|Che cosa ___ dire?|Mire gondolsz?
+stendere|pp|0|___ il bucato in giardino.|Kiteregettem a ruhákat a kertben.
+appendere|impv|1|___ il cappotto all'attaccapanni.|Akaszd a kabátot a fogasra.
+interrompere|pp|1|Perché mi ___?|Miért szakítottál félbe?
+soccorrere|pp|5|I passanti ___ il ciclista ferito.|A járókelők a sérült biciklis segítségére siettek.
+percorrere|pp|3|___ cinquanta chilometri in bicicletta.|Ötven kilométert tettünk meg biciklivel.
+trascorrere|fut|3|___ il Natale in montagna.|A karácsonyt a hegyekben töltjük.
+occorrere|pres|5|Per questa ricetta ___ tre uova.|Ehhez a recepthez három tojás kell.
+porgere|rem|2|Il cameriere mi ___ il menù.|A pincér átnyújtotta nekem az étlapot.
+sorgere|pres|2|D'estate il sole ___ presto.|Nyáron korán kel a nap.
+scorgere|pp|0|Da lontano ___ il campanile.|Messziről megpillantottam a harangtornyot.
+torcere|pp|0|___ i panni bagnati.|Kicsavartam a vizes ruhákat.
+pungere|pp|2|Un'ape mi ___ sul braccio.|Egy méh megcsípett a karomon.
+tingere|pp|2|Sara ___ i capelli di rosso.|Sara vörösre festette a haját.
+rimpiangere|pres|0|A volte ___ la vita in campagna.|Néha visszasírom a vidéki életet.
+valere|pres|2|Questo quadro ___ una fortuna.|Ez a festmény egy vagyont ér.
+parere|pres|2|Mi ___ una buona idea.|Jó ötletnek tűnik.
+giacere|imp|2|Il libro ___ sul tavolo da giorni.|A könyv napok óta az asztalon hevert.
+cucire|imp|2|La nonna ___ i nostri vestiti.|A nagymama varrta a ruháinkat.
+udire|rem|0|All'improvviso ___ un grido.|Hirtelen kiáltást hallottam.
+riempire|impv|1|___ il modulo, per favore.|Töltsd ki az űrlapot, kérlek.
+perdersi|pp|3|Senza mappa ___ nel centro storico.|Térkép nélkül eltévedtünk az óvárosban.
+muoversi|impv|1|___! Siamo in ritardo!|Mozogj már! Késésben vagyunk!
+accettare|pres|0|___ volentieri il tuo invito.|Szívesen elfogadom a meghívásodat.
+adorare|pres|0|___ la cucina italiana.|Imádom az olasz konyhát.
+affrontare|fut|3|___ insieme ogni difficoltà.|Együtt nézünk szembe minden nehézséggel.
+allenarsi|imp|0|Da ragazzo ___ ogni giorno in palestra.|Fiatalon minden nap edzettem a konditeremben.
+analizzare|pp|5|Gli esperti ___ i dati.|A szakértők elemezték az adatokat.
+annullare|pp|5|___ il concerto per la pioggia.|Az eső miatt lemondták a koncertet.
+apprezzare|pres|0|___ molto il tuo aiuto.|Nagyon értékelem a segítségedet.
+approvare|pp|2|Il consiglio ___ il nuovo progetto.|A tanács jóváhagyta az új tervet.
+aumentare|pp|5|___ di nuovo i prezzi.|Megint emelték az árakat.
+avvicinarsi|pres|5|Le vacanze ___.|Közeleg a szünidő.
+bastare|pres|2|Mi ___ un caffè.|Nekem elég egy kávé.
+bruciare|pp|0|___ la torta nel forno.|Odaégettem a tortát a sütőben.
+bussare|pp|2|Qualcuno ___ alla porta.|Valaki kopogott az ajtón.
+cancellare|pp|0|Per sbaglio ___ tutte le foto.|Véletlenül kitöröltem az összes fényképet.
+caricare|impv|1|___ il telefono prima di partire.|Töltsd fel a telefont, mielőtt elindulsz.
+chiacchierare|imp|3|___ per ore al bar.|Órákig beszélgettünk a kávézóban.
+collaborare|pres|3|___ con un'azienda tedesca.|Egy német céggel működünk együtt.
+comunicare|fut|0|Vi ___ i risultati domani.|Holnap közlöm veletek az eredményeket.
+confermare|impv|2|___ la prenotazione entro venerdì.|Kérem, péntekig erősítse meg a foglalást.
+consegnare|pp|0|___ i compiti in ritardo.|Késve adtam be a házi feladatot.
+conservare|pres|0|___ tutte le lettere di mia madre.|Megőrzöm anyám összes levelét.
+considerare|pres|5|Tutti lo ___ un genio.|Mindenki zseninek tartja.
+contare|impv|1|___ fino a dieci!|Számolj tízig!
+copiare|pp|2|Luca ___ il compito dal compagno.|Luca lemásolta a házit az osztálytársától.
+curare|pres|2|Questo medico ___ i bambini.|Ez az orvos gyerekeket gyógyít.
+dedicare|pres|0|___ questa canzone a mia moglie.|Ezt a dalt a feleségemnek ajánlom.
+dimostrare|pp|1|___ di essere molto coraggioso.|Bebizonyítottad, hogy nagyon bátor vagy.
+disturbare|pres|0|Scusi se la ___.|Elnézést, hogy zavarom.
+dubitare|pres|0|___ che arrivi in tempo.|Kétlem, hogy időben megérkezik.
+esagerare|pres|1|Secondo me ___ sempre!|Szerintem mindig túlzol!
+fidarsi|pres|0|Non ___ di lui.|Nem bízom benne.
+firmare|impv|2|___ qui, per favore.|Kérem, írja alá itt.
+fotografare|pp|3|___ il tramonto dalla terrazza.|A teraszról lefényképeztük a naplementét.
+frequentare|imp|0|Da ragazzo ___ il liceo classico.|Fiatalon klasszikus gimnáziumba jártam.
+gettare|pp|2|Qualcuno ___ i rifiuti nel fiume.|Valaki a folyóba dobta a szemetet.
+immaginare|pres|0|___ che tu sia stanco.|Gondolom, fáradt vagy.
+indossare|imp|2|La sposa ___ un abito bianco.|A menyasszony fehér ruhát viselt.
+invitare|pp|5|I miei amici mi ___ a cena.|A barátaim meghívtak vacsorára.
+legare|pp|0|___ la barca al molo.|Kikötöttem a csónakot a mólóhoz.
+litigare|imp|5|I miei fratelli ___ sempre.|A testvéreim mindig veszekedtek.
+meritare|pres|1|Dopo tanto lavoro, ___ una vacanza.|Ennyi munka után megérdemelsz egy szabadságot.
+misurare|pp|2|L'infermiera mi ___ la pressione.|Az ápolónő megmérte a vérnyomásomat.
+notare|pp|1|___ che Marco era triste?|Észrevetted, hogy Marco szomorú volt?
+occupare|pres|2|Questo armadio ___ troppo spazio.|Ez a szekrény túl sok helyet foglal.
+pesare|pres|2|La valigia ___ venti chili.|A bőrönd húsz kilót nyom.
+piantare|fut|3|In primavera ___ dei pomodori.|Tavasszal paradicsomot fogunk ültetni.
+presentare|pres|0|Ti ___ mia sorella.|Bemutatom a húgomat.
+pronunciare|cond|1|Come ___ questa parola?|Hogyan ejtenéd ki ezt a szót?
+pubblicare|pp|2|La scrittrice ___ un nuovo romanzo.|Az írónő új regényt adott ki.
+respirare|impv|1|___ profondamente e rilassati.|Lélegezz mélyeket, és lazíts.
+rifiutare|pp|2|Anna ___ l'offerta di lavoro.|Anna visszautasította az állásajánlatot.
+rinunciare|pp|0|___ al viaggio per motivi di lavoro.|Munkahelyi okokból lemondtam az utazásról.
+riparare|pp|2|Il meccanico ___ la macchina.|A szerelő megjavította az autót.
+rispettare|impv|4|___ le regole del gioco!|Tartsátok be a játékszabályokat!
+rubare|pp|5|Mi ___ il portafoglio in metro.|Ellopták a pénztárcámat a metrón.
+salvare|impv|1|___ il file prima di chiudere.|Mentsd el a fájlt, mielőtt bezárod.
+saltare|pp|0|Stamattina ___ la colazione.|Ma reggel kihagytam a reggelit.
+scappare|pp|2|Il cane ___ dal giardino.|A kutya elszökött a kertből.
+sopportare|pres|0|Non ___ il rumore del traffico.|Nem bírom a forgalom zaját.
+sottolineare|impv|4|___ i verbi irregolari.|Húzzátok alá a rendhagyó igéket.
+spaventare|pp|1|Mi ___!|Megijesztettél!
+sprecare|pres|5|Molte famiglie ___ troppo cibo.|Sok család túl sok ételt pazarol.
+stampare|cond|1|Mi ___ il biglietto?|Kinyomtatnád nekem a jegyet?
+stancarsi|pres|0|Quando cammino in salita ___ subito.|Ha emelkedőn gyalogolok, hamar elfáradok.
+svegliare|pp|2|Il telefono mi ___ alle tre di notte.|A telefon hajnali háromkor felébresztett.
+tentare|congi|1|Se ___ di nuovo, ci riusciresti.|Ha újra megpróbálnád, sikerülne.
+tirare|impv|1|___ la porta, non spingere!|Húzd az ajtót, ne told!
+urlare|imp|5|I bambini ___ in cortile.|A gyerekek üvöltöztek az udvaron.
+versare|impv|2|Mi ___ un bicchiere d'acqua, per favore.|Kérem, töltsön nekem egy pohár vizet.
+voltare|impv|2|Al secondo incrocio ___ a sinistra.|A második kereszteződésnél forduljon balra.
+alzare|impv|4|___ la mano se avete domande.|Tegyétek fel a kezeteket, ha kérdésetek van.
+abbassare|cond|1|___ il volume, per favore?|Lehalkítanád, kérlek?
+vergognarsi|pres|0|___ di quello che ho detto.|Szégyellem, amit mondtam.
+abituarsi|pp|0|___ al clima italiano.|Hozzászoktam az olasz éghajlathoz.
+occuparsi|pres|2|Mia sorella ___ di marketing.|A húgom marketinggel foglalkozik.
+interessarsi|pres|0|___ di storia antica.|Az ókori történelem érdekel.
+spogliarsi|impv|2|___ dietro il paravento, per favore.|Kérem, vetkőzzön le a paraván mögött.
+asciugarsi|impv|1|___ le mani con questo asciugamano.|Töröld meg a kezed ezzel a törölközővel.
+vestire|pres|2|La mamma ___ la bambina.|Az anya felöltözteti a kislányt.
+nutrire|pres|5|Gli uccelli ___ i piccoli con gli insetti.|A madarak rovarokkal etetik a fiókáikat.
+stupire|pp|2|La sua risposta mi ___.|A válasza meglepett.
+fallire|pp|2|L'azienda ___ dopo vent'anni.|A cég húsz év után csődbe ment.|f
+tossire|imp|2|Il bambino ___ tutta la notte.|A gyerek egész éjjel köhögött.
+impazzire|fut|0|Con questo rumore ___!|Ebben a zajban megőrülök!
+arricchire|pres|2|Viaggiare ___ la mente.|Az utazás gazdagítja a szellemet.
+diminuire|pp|2|Il governo ___ le tasse.|A kormány csökkentette az adókat.
+combattere|rem|5|I soldati ___ con coraggio.|A katonák bátran harcoltak.
+riflettere|impv|1|___ bene prima di rispondere.|Gondold át jól, mielőtt válaszolsz.
+premere|impv|2|___ il pulsante verde.|Nyomja meg a zöld gombot.
+spremere|pp|0|___ due arance per il succo.|Kifacsartam két narancsot a léhez.
 `;
 const VBY = Object.fromEntries(VERBS.map(v=>[v.inf, v]));
 const SENTS = SENT_RAW.trim().split('\n').map(l=>{ const [inf,t,p,it,hu,f]=l.split('|'); return {inf, t, p:+p, it, hu, f: f==='f'}; }).filter(x=>VBY[x.inf]);
@@ -1673,6 +2037,169 @@ vivere|żyć|to live
 volare|latać|to fly
 volere|chcieć|to want
 votare|głosować|to vote
+rifare|przerabiać, robić ponownie|to redo
+riconoscere|rozpoznawać|to recognize
+rinascere|odradzać się|to be reborn
+ripartire|ponownie wyruszać|to set off again
+rimettere|odkładać na miejsce|to put back
+scommettere|zakładać się|to bet
+riaprire|ponownie otwierać|to reopen
+riscrivere|przepisywać|to rewrite
+accadere|zdarzać się|to happen
+ritenere|uważać (za)|to believe, to consider
+trattenere|powstrzymywać|to hold back
+appartenere|należeć|to belong
+convenire|opłacać się|to be better, to be worth it
+intervenire|interweniować|to intervene
+divenire|stawać się|to become
+svenire|mdleć|to faint
+prevenire|zapobiegać|to prevent
+sopravvivere|przeżyć|to survive
+convivere|mieszkać razem|to live together
+provvedere|zadbać, zająć się|to see to, to provide
+intravedere|dostrzegać|to glimpse
+coinvolgere|angażować|to involve
+sconvolgere|wstrząsać|to shock, to upset
+rivolgersi|zwracać się|to turn to, to ask
+disporre|rozmieszczać, ustawiać|to arrange
+opporsi|sprzeciwiać się|to oppose
+dedurre|wnioskować|to deduce
+sedurre|uwodzić, oczarować|to seduce, to charm
+sottrarre|odejmować|to subtract
+estrarre|wyrywać, wyciągać|to extract, to pull out
+distinguere|odróżniać|to distinguish
+fingere|udawać|to pretend
+costringere|zmuszać|to force
+dirigere|kierować, dyrygować|to direct, to conduct
+eleggere|wybierać (w głosowaniu)|to elect
+rileggere|czytać ponownie|to reread
+friggere|smażyć|to fry
+sconfiggere|pokonać|to defeat
+scuotere|potrząsać, kręcić (głową)|to shake
+promuovere|awansować (kogoś)|to promote
+commuovere|wzruszać|to move (emotionally)
+emergere|wyłaniać się, wychodzić na jaw|to emerge
+immergere|zanurzać|to dip, to immerse
+spargere|rozrzucać|to scatter
+persuadere|namawiać, przekonywać|to persuade
+invadere|najeżdżać, zalewać|to invade
+radere|golić|to shave
+condividere|dzielić (się), udostępniać|to share
+esplodere|wybuchać|to explode
+pretendere|wymagać, żądać|to demand, to expect
+intendere|zamierzać; mieć na myśli|to intend; to mean
+stendere|rozwieszać, rozkładać|to hang out, to spread
+appendere|wieszać|to hang (up)
+interrompere|przerywać|to interrupt
+soccorrere|udzielać pomocy, ratować|to rescue, to help
+percorrere|przemierzać, pokonywać|to cover, to travel
+trascorrere|spędzać (czas)|to spend (time)
+occorrere|być potrzebnym|to be needed
+porgere|podawać|to hand
+sorgere|wschodzić, powstawać|to rise
+scorgere|dostrzegać|to make out, to spot
+torcere|wykręcać|to wring, to twist
+pungere|żądlić, kłuć|to sting, to prick
+tingere|farbować|to dye
+rimpiangere|tęsknić za, żałować|to miss, to regret
+valere|być wartym|to be worth
+parere|wydawać się|to seem
+giacere|leżeć|to lie (be lying)
+cucire|szyć|to sew
+udire|słyszeć|to hear
+riempire|napełniać, wypełniać|to fill (in)
+perdersi|zgubić się|to get lost
+muoversi|ruszać się|to move, to hurry up
+accettare|przyjmować, akceptować|to accept
+adorare|uwielbiać|to adore
+affrontare|stawiać czoła|to face, to tackle
+allenarsi|trenować|to train
+analizzare|analizować|to analyse
+annullare|odwoływać|to cancel
+apprezzare|doceniać|to appreciate
+approvare|zatwierdzać|to approve
+aumentare|podnosić, zwiększać|to raise, to increase
+avvicinarsi|zbliżać się|to approach
+bastare|wystarczać|to be enough
+bruciare|przypalać, palić się|to burn
+bussare|pukać|to knock
+cancellare|usuwać, kasować|to delete
+caricare|ładować|to charge, to load
+chiacchierare|gawędzić|to chat
+collaborare|współpracować|to work together
+comunicare|przekazywać, informować|to communicate, to let know
+confermare|potwierdzać|to confirm
+consegnare|oddawać, dostarczać|to hand in, to deliver
+conservare|przechowywać|to keep, to preserve
+considerare|uważać za, rozważać|to consider
+contare|liczyć|to count
+copiare|kopiować, ściągać|to copy
+curare|leczyć, dbać o|to treat, to look after
+dedicare|dedykować, poświęcać|to dedicate
+dimostrare|udowadniać, pokazywać|to prove, to show
+disturbare|przeszkadzać|to disturb
+dubitare|wątpić|to doubt
+esagerare|przesadzać|to exaggerate
+fidarsi|ufać|to trust
+firmare|podpisywać|to sign
+fotografare|fotografować|to photograph
+frequentare|uczęszczać, chodzić do|to attend
+gettare|wyrzucać|to throw (away)
+immaginare|wyobrażać sobie|to imagine
+indossare|mieć na sobie, nosić|to wear
+invitare|zapraszać|to invite
+legare|wiązać|to tie
+litigare|kłócić się|to argue, to quarrel
+meritare|zasługiwać|to deserve
+misurare|mierzyć|to measure
+notare|zauważać|to notice
+occupare|zajmować|to occupy, to take up
+pesare|ważyć|to weigh
+piantare|sadzić|to plant
+presentare|przedstawiać|to introduce, to present
+pronunciare|wymawiać|to pronounce
+pubblicare|publikować, wydawać|to publish
+respirare|oddychać|to breathe
+rifiutare|odrzucać, odmawiać|to refuse, to turn down
+rinunciare|rezygnować|to give up
+riparare|naprawiać|to repair
+rispettare|szanować, przestrzegać|to respect
+rubare|kraść|to steal
+salvare|zapisywać, ratować|to save
+saltare|skakać, opuszczać|to jump, to skip
+scappare|uciekać|to run away
+sopportare|znosić|to stand, to bear
+sottolineare|podkreślać|to underline
+spaventare|straszyć|to frighten
+sprecare|marnować|to waste
+stampare|drukować|to print
+stancarsi|męczyć się|to get tired
+svegliare|budzić|to wake (someone) up
+tentare|próbować|to try, to attempt
+tirare|ciągnąć|to pull
+urlare|wrzeszczeć|to yell
+versare|nalewać|to pour
+voltare|skręcać, odwracać|to turn
+alzare|podnosić|to raise, to lift
+abbassare|ściszać, obniżać|to turn down, to lower
+vergognarsi|wstydzić się|to be ashamed
+abituarsi|przyzwyczajać się|to get used to
+occuparsi|zajmować się|to deal with, to work in
+interessarsi|interesować się|to be interested
+spogliarsi|rozbierać się|to undress
+asciugarsi|wycierać się|to dry oneself
+vestire|ubierać (kogoś)|to dress (someone)
+nutrire|karmić, żywić|to feed, to nourish
+stupire|zdumiewać|to amaze
+fallire|bankrutować, ponieść porażkę|to fail, to go bankrupt
+tossire|kaszleć|to cough
+impazzire|wariować|to go mad
+arricchire|wzbogacać|to enrich
+diminuire|obniżać, zmniejszać|to reduce, to decrease
+combattere|walczyć|to fight
+riflettere|zastanawiać się|to think over, to reflect
+premere|naciskać|to press
+spremere|wyciskać|to squeeze
 `;
 const SENT_TR = `
 essere|Jako dziecko byłem bardzo nieśmiały.|As a child I was very shy.
@@ -1994,6 +2521,169 @@ ferire|Jego słowa mnie zraniły.|His words hurt me.
 favorire|Łagodny klimat sprzyja turystyce.|The mild climate favours tourism.
 colpire|Piłka trafiła w okno.|The ball hit the window.
 arrossire|Kiedy przemawiał publicznie, zawsze się rumienił.|When he spoke in public, he always blushed.
+rifare|Pomyliłem się, więc zrobiłem ćwiczenie od nowa.|I made a mistake, so I redid the exercise from scratch.
+riconoscere|Nie poznałem cię w okularach!|I didn't recognise you with your glasses on!
+rinascere|Każdej wiosny przyroda się odradza.|Every spring nature is reborn.
+ripartire|Po krótkim postoju ruszymy dalej do Neapolu.|After a short stop we'll set off again for Naples.
+rimettere|Odłóż książkę na półkę, proszę.|Put the book back on the shelf, please.
+scommettere|Założę się, że jutro będzie padać.|I bet it will rain tomorrow.
+riaprire|Sklepy zostaną ponownie otwarte po wakacjach.|The shops will reopen after the holidays.
+riscrivere|Trzy razy przepisałem list.|I rewrote the letter three times.
+accadere|Co się stało wczoraj wieczorem?|What happened last night?
+ritenere|Uważam, że to najlepszy wybór.|I believe it's the best choice.
+trattenere|Z trudem powstrzymałem łzy.|I could barely hold back my tears.
+appartenere|Ten dom należał do moich dziadków.|This house belonged to my grandparents.
+convenire|Opłaca ci się pojechać pociągiem.|You'd better take the train.
+intervenire|Policja natychmiast interweniowała.|The police intervened immediately.
+divenire|Z biegiem lat stał się wielkim malarzem.|Over the years he became a great painter.
+svenire|Laura zemdlała z gorąca.|Laura fainted from the heat.
+prevenire|Sport zapobiega wielu chorobom.|Sport prevents many illnesses.
+sopravvivere|Na szczęście wszyscy przeżyli wypadek.|Luckily everyone survived the accident.
+convivere|Marco i Anna mieszkają razem od dwóch lat.|Marco and Anna have been living together for two years.
+provvedere|Nie martw się, ja zajmę się biletami.|Don't worry, I'll see to the tickets.
+intravedere|We mgle dostrzegłem światło.|Through the fog I glimpsed a light.
+coinvolgere|W projekt zaangażowano także dzieci.|They also involved the children in the project.
+sconvolgere|Ta wiadomość mną wstrząsnęła.|The news shocked me.
+rivolgersi|W sprawie informacji proszę zwrócić się do recepcji.|For information, please ask at reception.
+disporre|Ustawiłem krzesła w kole.|I arranged the chairs in a circle.
+opporsi|Wielu mieszkańców sprzeciwia się nowemu projektowi.|Many citizens oppose the new project.
+dedurre|Z twojego uśmiechu wnioskuję, że wszystko poszło dobrze.|From your smile I gather everything went well.
+sedurre|Miasto od razu mnie oczarowało.|The city charmed me at once.
+sottrarre|Odejmij pięć od dwudziestu.|Subtract five from twenty.
+estrarre|Dentysta wyrwał mi ząb.|The dentist pulled one of my teeth.
+distinguere|Nigdy nie odróżniam tych dwóch bliźniaków.|I can never tell the two twins apart.
+fingere|Dziecko udawało, że śpi.|The child was pretending to sleep.
+costringere|Deszcz zmusił nas do powrotu.|The rain forced us to turn back.
+dirigere|Mój wujek dyrygował orkiestrą.|My uncle used to conduct an orchestra.
+eleggere|Uczniowie wybrali Giulię na przedstawicielkę.|The students elected Giulia as their representative.
+rileggere|Przeczytaj tekst jeszcze raz przed oddaniem.|Reread the text before handing it in.
+friggere|Babcia smaży ziemniaki na oliwie.|Grandma fries the potatoes in olive oil.
+sconfiggere|Włosi pokonali Francję.|The Italian team beat France.
+scuotere|Starzec bez słowa pokręcił głową.|The old man shook his head without speaking.
+promuovere|Awansowano mnie na dyrektora.|They promoted me to director.
+commuovere|Film bardzo mnie wzruszył.|The film moved me deeply.
+emergere|Ze śledztwa wyszły na jaw nowe szczegóły.|New details emerged from the investigation.
+immergere|Zanurz herbatniki w mleku.|Dip the biscuits in the milk.
+spargere|Wiatr rozrzucił liście wszędzie.|The wind scattered the leaves everywhere.
+persuadere|W końcu namówiłem go, żeby został.|In the end I persuaded him to stay.
+invadere|Latem turyści zalewają miasto.|In summer tourists invade the city.
+radere|Fryzjer zgolił mi brodę.|The barber shaved off my beard.
+condividere|Dzielę mieszkanie z dwójką przyjaciół.|I share a flat with two friends.
+esplodere|W pobliżu dworca wybuchła bomba.|A bomb exploded near the station.
+pretendere|Szef wymaga od nas za dużo.|The boss expects too much from us.
+intendere|Co masz na myśli?|What do you mean?
+stendere|Rozwiesiłem pranie w ogrodzie.|I hung the washing out in the garden.
+appendere|Powieś płaszcz na wieszaku.|Hang your coat on the coat rack.
+interrompere|Dlaczego mi przerwałeś?|Why did you interrupt me?
+soccorrere|Przechodnie udzielili pomocy rannemu rowerzyście.|Passers-by helped the injured cyclist.
+percorrere|Przejechaliśmy rowerem pięćdziesiąt kilometrów.|We covered fifty kilometres by bike.
+trascorrere|Święta spędzimy w górach.|We'll spend Christmas in the mountains.
+occorrere|Do tego przepisu potrzebne są trzy jajka.|This recipe needs three eggs.
+porgere|Kelner podał mi menu.|The waiter handed me the menu.
+sorgere|Latem słońce wschodzi wcześnie.|In summer the sun rises early.
+scorgere|Z daleka dostrzegłem dzwonnicę.|From afar I made out the bell tower.
+torcere|Wykręciłem mokre ubrania.|I wrung out the wet clothes.
+pungere|Pszczoła użądliła mnie w rękę.|A bee stung me on the arm.
+tingere|Sara ufarbowała włosy na rudo.|Sara dyed her hair red.
+rimpiangere|Czasem tęsknię za życiem na wsi.|Sometimes I miss life in the countryside.
+valere|Ten obraz jest wart fortunę.|This painting is worth a fortune.
+parere|Wydaje mi się to dobrym pomysłem.|It seems a good idea to me.
+giacere|Książka od kilku dni leżała na stole.|The book had been lying on the table for days.
+cucire|Babcia szyła nam ubrania.|Grandma used to sew our clothes.
+udire|Nagle usłyszałem krzyk.|Suddenly I heard a scream.
+riempire|Wypełnij formularz, proszę.|Fill in the form, please.
+perdersi|Bez mapy zgubiliśmy się na starówce.|Without a map we got lost in the old town.
+muoversi|Rusz się! Jesteśmy spóźnieni!|Get a move on! We're late!
+accettare|Chętnie przyjmuję twoje zaproszenie.|I gladly accept your invitation.
+adorare|Uwielbiam kuchnię włoską.|I love Italian food.
+affrontare|Razem stawimy czoła każdej trudności.|We'll face every difficulty together.
+allenarsi|Jako chłopak codziennie trenowałem na siłowni.|As a boy I trained at the gym every day.
+analizzare|Eksperci przeanalizowali dane.|The experts analysed the data.
+annullare|Z powodu deszczu odwołano koncert.|They cancelled the concert because of the rain.
+apprezzare|Bardzo doceniam twoją pomoc.|I really appreciate your help.
+approvare|Rada zatwierdziła nowy projekt.|The council approved the new project.
+aumentare|Znowu podnieśli ceny.|They've raised the prices again.
+avvicinarsi|Zbliżają się wakacje.|The holidays are getting closer.
+bastare|Wystarczy mi kawa.|A coffee is enough for me.
+bruciare|Przypaliłem ciasto w piekarniku.|I burnt the cake in the oven.
+bussare|Ktoś zapukał do drzwi.|Someone knocked at the door.
+cancellare|Przez pomyłkę usunąłem wszystkie zdjęcia.|I accidentally deleted all the photos.
+caricare|Naładuj telefon przed wyjazdem.|Charge your phone before you leave.
+chiacchierare|Godzinami gawędziliśmy w kawiarni.|We used to chat for hours at the café.
+collaborare|Współpracujemy z niemiecką firmą.|We work with a German company.
+comunicare|Jutro przekażę wam wyniki.|I'll let you know the results tomorrow.
+confermare|Proszę potwierdzić rezerwację do piątku.|Please confirm your booking by Friday.
+consegnare|Oddałem pracę domową z opóźnieniem.|I handed in my homework late.
+conservare|Przechowuję wszystkie listy mojej mamy.|I keep all my mother's letters.
+considerare|Wszyscy uważają go za geniusza.|Everyone considers him a genius.
+contare|Policz do dziesięciu!|Count to ten!
+copiare|Luca ściągnął zadanie od kolegi.|Luca copied his homework from a classmate.
+curare|Ten lekarz leczy dzieci.|This doctor treats children.
+dedicare|Dedykuję tę piosenkę mojej żonie.|I dedicate this song to my wife.
+dimostrare|Udowodniłeś, że jesteś bardzo odważny.|You've shown you are very brave.
+disturbare|Przepraszam, że przeszkadzam.|Sorry to disturb you.
+dubitare|Wątpię, żeby zdążył na czas.|I doubt he'll arrive on time.
+esagerare|Moim zdaniem zawsze przesadzasz!|I think you always exaggerate!
+fidarsi|Nie ufam mu.|I don't trust him.
+firmare|Proszę tu podpisać.|Sign here, please.
+fotografare|Sfotografowaliśmy zachód słońca z tarasu.|We photographed the sunset from the terrace.
+frequentare|Jako chłopak chodziłem do liceum klasycznego.|As a boy I attended a classical high school.
+gettare|Ktoś wyrzucił śmieci do rzeki.|Someone threw rubbish into the river.
+immaginare|Wyobrażam sobie, że jesteś zmęczony.|I imagine you're tired.
+indossare|Panna młoda miała na sobie białą suknię.|The bride was wearing a white dress.
+invitare|Przyjaciele zaprosili mnie na kolację.|My friends invited me to dinner.
+legare|Przywiązałem łódź do pomostu.|I tied the boat to the pier.
+litigare|Moi bracia ciągle się kłócili.|My brothers were always arguing.
+meritare|Po tak ciężkiej pracy zasługujesz na urlop.|After all that work, you deserve a holiday.
+misurare|Pielęgniarka zmierzyła mi ciśnienie.|The nurse took my blood pressure.
+notare|Zauważyłeś, że Marco był smutny?|Did you notice Marco was sad?
+occupare|Ta szafa zajmuje za dużo miejsca.|This wardrobe takes up too much space.
+pesare|Walizka waży dwadzieścia kilo.|The suitcase weighs twenty kilos.
+piantare|Wiosną posadzimy pomidory.|In spring we'll plant some tomatoes.
+presentare|Przedstawiam ci moją siostrę.|Let me introduce my sister.
+pronunciare|Jak wymówiłbyś to słowo?|How would you pronounce this word?
+pubblicare|Pisarka wydała nową powieść.|The writer has published a new novel.
+respirare|Oddychaj głęboko i się zrelaksuj.|Breathe deeply and relax.
+rifiutare|Anna odrzuciła ofertę pracy.|Anna turned down the job offer.
+rinunciare|Zrezygnowałem z podróży z powodów zawodowych.|I gave up the trip for work reasons.
+riparare|Mechanik naprawił samochód.|The mechanic repaired the car.
+rispettare|Przestrzegajcie zasad gry!|Respect the rules of the game!
+rubare|Ukradli mi portfel w metrze.|My wallet was stolen on the underground.
+salvare|Zapisz plik przed zamknięciem.|Save the file before closing.
+saltare|Dziś rano opuściłem śniadanie.|This morning I skipped breakfast.
+scappare|Pies uciekł z ogrodu.|The dog ran away from the garden.
+sopportare|Nie znoszę hałasu ulicznego.|I can't stand the traffic noise.
+sottolineare|Podkreślcie czasowniki nieregularne.|Underline the irregular verbs.
+spaventare|Przestraszyłeś mnie!|You scared me!
+sprecare|Wiele rodzin marnuje za dużo jedzenia.|Many families waste too much food.
+stampare|Wydrukowałbyś mi bilet?|Would you print the ticket for me?
+stancarsi|Kiedy idę pod górę, szybko się męczę.|When I walk uphill I get tired quickly.
+svegliare|Telefon obudził mnie o trzeciej w nocy.|The phone woke me up at three in the morning.
+tentare|Gdybyś spróbował jeszcze raz, udałoby ci się.|If you tried again, you'd succeed.
+tirare|Ciągnij drzwi, nie pchaj!|Pull the door, don't push!
+urlare|Dzieci wrzeszczały na podwórku.|The children were yelling in the courtyard.
+versare|Proszę nalać mi szklankę wody.|Please pour me a glass of water.
+voltare|Na drugim skrzyżowaniu proszę skręcić w lewo.|At the second crossroads turn left.
+alzare|Podnieście rękę, jeśli macie pytania.|Raise your hand if you have any questions.
+abbassare|Ściszyłbyś, proszę?|Would you turn the volume down, please?
+vergognarsi|Wstydzę się tego, co powiedziałem.|I'm ashamed of what I said.
+abituarsi|Przyzwyczaiłem się do włoskiego klimatu.|I've got used to the Italian climate.
+occuparsi|Moja siostra zajmuje się marketingiem.|My sister works in marketing.
+interessarsi|Interesuję się historią starożytną.|I'm interested in ancient history.
+spogliarsi|Proszę rozebrać się za parawanem.|Please undress behind the screen.
+asciugarsi|Wytrzyj ręce tym ręcznikiem.|Dry your hands with this towel.
+vestire|Mama ubiera córeczkę.|The mother dresses the little girl.
+nutrire|Ptaki karmią młode owadami.|Birds feed their young with insects.
+stupire|Jego odpowiedź mnie zdumiała.|His answer amazed me.
+fallire|Firma zbankrutowała po dwudziestu latach.|The company went bankrupt after twenty years.
+tossire|Dziecko kaszlało całą noc.|The child was coughing all night.
+impazzire|Przy tym hałasie zwariuję!|With this noise I'll go mad!
+arricchire|Podróżowanie wzbogaca umysł.|Travelling enriches the mind.
+diminuire|Rząd obniżył podatki.|The government lowered taxes.
+combattere|Żołnierze walczyli dzielnie.|The soldiers fought bravely.
+riflettere|Zastanów się dobrze, zanim odpowiesz.|Think carefully before answering.
+premere|Proszę nacisnąć zielony przycisk.|Press the green button.
+spremere|Wycisnąłem dwie pomarańcze na sok.|I squeezed two oranges for juice.
 `;
 VERBS.forEach(v => { v.mean = {hu: v.hu}; v.mhu = v.hu; });
 VERB_TR.trim().split('\n').forEach(l => { const [inf, pl, en] = l.split('|'); if (VBY[inf]) Object.assign(VBY[inf].mean, {pl, en}); });
@@ -2298,6 +2988,10 @@ const I18N = {
   'cefr.A1': ['A1 · kezdő','A1 · początkujący','A1 · beginner'],
   'cefr.A2': ['A2 · alapfok','A2 · podstawowy','A2 · elementary'],
   'cefr.B1': ['B1 · középfok','B1 · średni','B1 · intermediate'],
+  'pdf.btn': ['PDF / nyomtatás','PDF / drukuj','PDF / print'],
+  'pdf.key': ['Megoldások','Odpowiedzi','Answer key'],
+  'pdf.you': ['Te','Ty','You'],
+  'pdf.tr': ['Fordítás','Tłumaczenie','Translation'],
   'cefr.B2': ['B2 · középfelső','B2 · średnio zaawansowany','B2 · upper intermediate'],
   'cefr.C1': ['C1 · felsőfok','C1 · zaawansowany','C1 · advanced'],
   'c.label': ['Beszélgetés az AI-val','Rozmowa z AI','Chat with the AI'],
@@ -2385,6 +3079,34 @@ document.addEventListener('keydown', e=>{
   if (e.key!=='Enter' || !e.target.closest || !e.target.closest('[data-say]')) return;
   const card = e.target.closest('.card'); const go = card && card.querySelector('#go, #m-go, #v-next');
   if (go){ e.preventDefault(); go.click(); }
+});
+/* ---- PDF / nyomtatás: a böngésző nyomtatási ablakával (onnan menthető PDF-be) ---- */
+const CAN_PRINT = !(window.claude) && typeof window.print === 'function';
+if (!CAN_PRINT) document.documentElement.classList.add('no-print-ui');
+const pdfBtn = kind => CAN_PRINT ? `<button type="button" class="btn quiet pdfbtn" data-pdf="${kind}">${t('pdf.btn')}</button>` : '';
+function printDoc(title, html){
+  const area = document.getElementById('print-area');
+  const date = new Date().toLocaleDateString({hu:'hu-HU', pl:'pl-PL', en:'en-GB'}[LANG] || 'hu-HU');
+  area.innerHTML = `<h1>${esc(title)}</h1>${html}<p class="pfoot">Coniuga · ${esc(date)}</p>`;
+  const oldTitle = document.title;
+  document.title = 'Coniuga – ' + title;
+  document.body.classList.add('printing');
+  const done = () => { document.body.classList.remove('printing'); document.title = oldTitle; area.innerHTML = ''; window.removeEventListener('afterprint', done); };
+  window.addEventListener('afterprint', done);
+  setTimeout(() => { try{ window.print(); }catch(e){ done(); } }, 50);
+}
+/* képernyőn lévő tartalom tisztítása nyomtatáshoz: koppintható szavak -> szöveg, gombok, űrlapok el */
+function printableClone(el){
+  const c = el.cloneNode(true);
+  c.querySelectorAll('.wd').forEach(b => b.replaceWith(document.createTextNode(b.textContent)));
+  c.querySelectorAll('button, .actions, .keys, form, input, textarea, .say, .taphint').forEach(x => x.remove());
+  return c.innerHTML;
+}
+const PDF = {};   // a fülek ide regisztrálják a saját PDF-készítőjüket
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-pdf]');
+  if (!b) return;
+  const f = PDF[b.dataset.pdf]; if (f) f();
 });
 function exampleHtml(vb){
   const x = SENT_BY[vb.inf]; if (!x) return '';
@@ -2741,6 +3463,10 @@ $('b-list').addEventListener('click', e=>{
   B.sel = b.dataset.inf; renderList(); renderDetail();
   if (window.matchMedia('(max-width:860px)').matches) $('b-detail').scrollIntoView({behavior:'smooth', block:'start'});
 });
+PDF.verb = () => {
+  const vb = byInf[B.sel];
+  printDoc(`${vb.inf} – ${vb.hu}`, `<p class="pmeta">${esc(t('tab.browse'))}</p>` + printableClone($('b-detail')).replace(/<h2 class="inf">[\s\S]*?<\/h2>/, ''));
+};
 function renderDetail(){
   const vb = byInf[B.sel];
   const pp = vb.F.pp.split('/');
@@ -2749,7 +3475,7 @@ function renderDetail(){
     <div class="chips">${chips(vb)}</div>
     <p class="legend">Participio passato: <b style="font-family:var(--f-mono)">${vb.irrT.includes('pp')?`<span class="irrf">${esc(pp.join(' / '))}</span>`:esc(pp.join(' / '))}</b> · ${t('b.aux')}: <b>${vb.aux}</b>${vb.irr?` · <span class="irrf">${t('b.underlined')}</span> = ${t('irr.form')}`:''}</p>
     ${exampleHtml(vb)}
-    <div class="actions"><button class="btn ghost" id="practice-this">${t('b.practice')}</button></div>
+    <div class="actions"><button class="btn ghost" id="practice-this">${t('b.practice')}</button>${pdfBtn('verb')}</div>
     <div class="tgrid">${TENSES.map(t=>table(vb,t.id,-1)).join('')}</div>`;
   $('practice-this').onclick = ()=>{ S.focus = vb.inf; store.set('settings',S); updatePool(); showTab('practice'); next(); };
 }
@@ -3189,6 +3915,7 @@ async function askAI(){
   $('x-ans').readOnly = true; if (curX.own) $('x-hu').readOnly = true;
   const sh = $('x-show'); if (sh) sh.hidden = true; $('x-skip').hidden = true;
   recordX(hu, given, r);
+  curX.out = {hu, given, r};
   const cls = r.score>=9 ? 'sc-hi' : r.score>=6 ? 'sc-mid' : 'sc-lo';
   const fbCls = r.score>=9 ? 'ok' : r.score>=6 ? 'acc' : 'bad';
   $('x-fb').innerHTML = `<div class="feedback ${fbCls}">
@@ -3197,9 +3924,21 @@ async function askAI(){
     ${r.corrected && r.errors.length ? `<div class="example"><span class="ex-lbl">${t('x.corrected')}</span><p class="ex-it"><span>${glossify(r.corrected, 'it')}</span>${sayBtn(r.corrected)}</p></div>` : ''}
     ${r.comment ? `<p style="margin-top:10px">${esc(r.comment)}</p>` : ''}
     ${curX.ref ? `<div class="example"><span class="ex-lbl">${t('x.model')}</span><p class="ex-it"><span>${glossify(curX.ref, 'it')}</span>${sayBtn(curX.ref)}</p></div>` : ''}
+    ${CAN_PRINT ? `<div class="actions">${pdfBtn('trans')}</div>` : ''}
   </div>`;
   go.focus({preventScroll:true});
 }
+PDF.trans = () => {
+  if (!curX || !curX.out) return;
+  const {hu, given, r} = curX.out;
+  printDoc(t('tab.trans'), `<p class="pmeta">${esc(t('x.label'))} · ${r.score}/10</p>
+    <h2>${esc(t('t.source'))}</h2><p>${esc(hu)}</p>
+    <h2>${esc(t('x.yours'))}</h2><p class="pit">${esc(given)}</p>
+    ${r.errors.length ? `<h2>${esc(t('c.fixes'))}</h2><ul>${r.errors.map(e => `<li><span class="pbad">${esc(e.wrong)}</span> → <span class="pgood">${esc(e.fix)}</span>${e.type ? ` (${esc(e.type)})` : ''}<br>${esc(e.explanation)}</li>`).join('')}</ul>` : `<p class="pgood">${esc(t('x.perfect'))}</p>`}
+    ${r.corrected && r.errors.length ? `<h2>${esc(t('x.corrected'))}</h2><p class="pit">${esc(r.corrected)}</p>` : ''}
+    ${r.comment ? `<p>${esc(r.comment)}</p>` : ''}
+    ${curX.ref ? `<h2>${esc(t('x.model'))}</h2><p class="pit">${esc(curX.ref)}</p>` : ''}`);
+};
 function recordX(hu, given, r){
   const ok = r.score >= 9;
   if (answerHook){
@@ -3278,7 +4017,7 @@ function renderC(){
       <p style="margin-top:8px">${esc(r.summary)}</p>
       ${r.errors.length ? `<h4 style="margin:14px 0 0">${t('c.fixes')}</h4><ul class="errs">${r.errors.map(e=>`<li><span class="w">${esc(e.wrong)}</span> → <span class="f">${esc(e.fix)}</span><p>${esc(e.explanation)}</p></li>`).join('')}</ul>` : ''}
       ${r.tips.length ? `<h4 style="margin:14px 0 0">${t('c.tips')}</h4><ul class="tiplist">${r.tips.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : ''}
-      <div class="actions"><button class="btn" type="button" id="c-new">${t('c.new')}</button></div></div>`;
+      <div class="actions"><button class="btn" type="button" id="c-new">${t('c.new')}</button>${pdfBtn('chat')}</div></div>`;
   } else if (CHAT.summing){
     html += `<p class="loading">${t('c.loadingsum')}</p>`;
   } else {
@@ -3291,6 +4030,7 @@ function renderC(){
         <button class="btn" type="submit" id="c-send" ${CHAT.busy?'disabled':''}>${t('c.send')}</button>
         <button class="btn ghost" type="button" id="c-end" ${CHAT.busy?'disabled':''}>${t('c.end')}</button>
         <button class="btn quiet" type="button" id="c-new">${t('c.new')}</button>
+        ${CHAT.msgs.length > 1 ? pdfBtn('chat') : ''}
       </div></form>`;
   }
   box.innerHTML = html;
@@ -3310,6 +4050,17 @@ function renderC(){
   }
   const log = $('c-log'); if (log && CHAT.msgs.length > 2) log.lastElementChild && log.lastElementChild.scrollIntoView({block:'nearest'});
 }
+PDF.chat = () => {
+  if (!CHAT) return;
+  const r = CHAT.sum;
+  printDoc(`${t('tab.chat')}: ${t('scen.' + CHAT.scenario)}${CHAT.topic ? ' – ' + CHAT.topic : ''}`, `<p class="pmeta">${esc(CHAT.level)}${r ? ' · ' + r.score + '/10' : ''}</p>
+    ${CHAT.msgs.map(m => m.role === 'ai'
+      ? `<div class="pmsg"><b>AI</b><p class="pit">${esc(m.text)}</p>${m.tr ? `<p class="ptr">${esc(m.tr)}</p>` : ''}</div>`
+      : `<div class="pmsg"><b>${esc(t('pdf.you'))}</b><p class="pit">${esc(m.text)}</p>${m.corr && !m.corr.ok ? `<p>${esc(t('c.better'))} <span class="pgood">${esc(m.corr.corrected)}</span>${m.corr.explanation ? '<br>' + esc(m.corr.explanation) : ''}</p>` : ''}</div>`).join('')}
+    ${r ? `<h2>${esc(t('c.summary'))} · ${r.score}/10</h2><p>${esc(r.summary)}</p>
+      ${r.errors.length ? `<h2>${esc(t('c.fixes'))}</h2><ul>${r.errors.map(e => `<li><span class="pbad">${esc(e.wrong)}</span> → <span class="pgood">${esc(e.fix)}</span><br>${esc(e.explanation)}</li>`).join('')}</ul>` : ''}
+      ${r.tips.length ? `<h2>${esc(t('c.tips'))}</h2><ul>${r.tips.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}` : ''}`);
+};
 const chatPayload = type => ({type, lang: LANG, scenario: CHAT.scenario, level: CHAT.level, topic: CHAT.topic, history: CHAT.msgs.map(m => ({role: m.role, text: m.text}))});
 function startChat(){
   if (!aiBackend){ $('ccard').querySelector('.ainote').style.color = 'var(--pen)'; return; }
@@ -3403,6 +4154,7 @@ function renderR(){
       <button class="btn ghost" type="button" data-say="${esc(d.text)}">${t('r.listen')}</button>
       <button class="btn quiet" type="button" id="r-stop">${t('r.stop')}</button>
       ${d.translation ? `<button class="btn quiet" type="button" id="r-tr">${STORY.showTr ? t('r.hidetr') : t('r.showtr')}</button>` : ''}
+      ${pdfBtn('story')}
     </div>
     ${STORY.showTr ? `<p class="trbox" style="margin-top:12px">${esc(d.translation)}</p>` : ''}
     <h3 class="xlbl" style="margin-top:22px;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase">${t('r.questions')}</h3>
@@ -3416,6 +4168,15 @@ function renderR(){
   const tr = $('r-tr'); if (tr) tr.onclick = () => { STORY.showTr = !STORY.showTr; renderR(); };
   const nw = $('r-new'); if (nw) nw.onclick = newStory;
 }
+PDF.story = () => {
+  if (!STORY || !STORY.data) return;
+  const d = STORY.data;
+  printDoc(d.title, `<p class="pmeta">${esc(t('r.label'))} · ${esc(STORY.level)} · ${esc(STORY.tenses.map(x => tenseOf(x).it).join(', '))}${STORY.topic ? ' · ' + esc(STORY.topic) : ''}</p>
+    ${d.text.split(/\n\s*\n/).filter(x => x.trim()).map(pp => `<p class="pit">${esc(pp)}</p>`).join('')}
+    ${d.questions.length ? `<h2>${esc(t('r.questions'))}</h2><ol>${d.questions.map(q => `<li>${esc(q.q)}<br>${q.options.map((o, k) => `${'ABCD'[k]}) ${esc(o)}`).join('&nbsp;&nbsp; ')}</li>`).join('')}</ol>` : ''}
+    ${d.translation ? `<h2>${esc(t('pdf.tr'))}</h2>${d.translation.split(/\n\s*\n/).map(pp => `<p class="ptr">${esc(pp)}</p>`).join('')}` : ''}
+    ${d.questions.length ? `<h2>${esc(t('pdf.key'))}</h2><ol>${d.questions.map(q => `<li>${'ABCD'[q.answer]}) ${esc(q.options[q.answer] || '')}${q.explanation ? ' – ' + esc(q.explanation) : ''}</li>`).join('')}</ol>` : ''}`);
+};
 async function newStory(){
   if (!aiBackend){ const n = $('rcard').querySelector('.ainote'); if (n) n.style.color = 'var(--pen)'; return; }
   STORY = {level: S.rlevel, tenses: S.rtenses.slice(), topic: S.rtopic || '', answers: [], busy: true};
@@ -3503,7 +4264,7 @@ function renderM(){
   wireCommon($('mcard'));
   $('m-ans').focus({preventScroll:true});
   $('m-skip').onclick = nextM;
-  $('m-help').onclick = ()=>{ const T = tenseOf(x.t); const h = $('m-hint'); h.hidden = false; h.innerHTML = t('m.hint', {t: T.it, d: tdesc(x.t), p: PERS[x.p]}); $('m-ans').focus(); };
+  $('m-help').onclick = ()=>{ const T = tenseOf(x.t); const h = $('m-hint'); h.hidden = false; h.innerHTML = t('m.hint', {t: T.it, d: tdesc(x.t), p: personLabel(x.t, x.p)}); $('m-ans').focus(); };
   $('m-idk').onclick = ()=>{ if (!curM.done) answerM(true); };
   $('mform').onsubmit = e=>{ e.preventDefault(); curM.done ? nextM() : answerM(false); };
 }
@@ -3524,7 +4285,7 @@ function answerM(gaveUp){
     <p><span class="verdict">${verdict}</span></p>
     <p class="ex-it" style="font-size:1.1rem"><span>${esc(capFirst(f.before))}<b>${esc(f.shown)}</b>${esc(f.after)}</span>${sayBtn(f.full)}</p>
     <p class="ex-hu">${esc(x.hu)}</p>
-    <p style="margin-top:10px">${t('m.info', {t: T.it, d: tdesc(x.t), p: PERS[x.p], v: esc(vb.inf), m: esc(vb.hu)})}</p>
+    <p style="margin-top:10px">${t('m.info', {t: T.it, d: tdesc(x.t), p: personLabel(x.t, x.p), v: esc(vb.inf), m: esc(vb.hu)})}</p>
     ${f.irr?`<p><span class="irrf">${t('irr.this')}</span></p>`:''}${alts}
     <div class="after-table">${table(vb, x.t, x.p)}</div></div>`;
   $('m-go').focus({preventScroll:true});

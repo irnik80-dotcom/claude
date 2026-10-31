@@ -1,6 +1,6 @@
 # Coniuga
 
-Olasz igeragozás gyakorló: 319 ige három szinten, 15 igeidő/mód (minden olasz igeidő és a felszólító mód), a rendhagyó alakok jelölve. Nyelvek: magyar, lengyel, angol.
+Olasz igeragozás gyakorló: 482 ige három szinten, 15 igeidő/mód (minden olasz igeidő és a felszólító mód), a rendhagyó alakok jelölve. Nyelvek: magyar, lengyel, angol.
 
 - `coniuga.html`: a forrás (ez fut Claude artifactként is).
 - `docs/`: a nyilvános weboldal (GitHub Pages), saját bejelentkezéssel (Firebase). Fülek: Ragozás, Szójelentés (4 lehetőség közül), Mondatok (hiányzó ige), Fordítás (AI), Beszélgetés (AI), Olvasás (AI), Igetár, Tanári nézet. Kiejtés és példamondat minden igéhez.
@@ -30,3 +30,4 @@ Olasz igeragozás gyakorló: 319 ige három szinten, 15 igeidő/mód (minden ola
 - `tools/i18n-verbs.txt`, `tools/i18n-sentences.txt`: az igék jelentése és a példamondatok lengyelül és angolul (a `coniuga.html`-be ágyazva). A felület feliratai a `coniuga.html` `I18N` táblájában vannak.
 - `tools/ai-prompts.js`: az AI-feladatok promptjai (a Worker importálja; a `coniuga.html`-be a `node tools/embed-prompts.mjs` másolja be).
 - `tools/ai-worker.js` + `wrangler.toml`: a Cloudflare Worker (AI-közvetítő), a GitHubról automatikusan települ.
+- `tools/new-verbs.py`: a 2. bővítés igéi (adatok + mondatok); `tools/embed-data.mjs`: a `tools/*.txt` adatfájlokat másolja a `coniuga.html`-be.

@@ -56,9 +56,9 @@ src = src.replace('<nav class="tabs" role="tablist">',
 must('<button id="tab-browse" role="tab" aria-selected="false" data-i18n="tab.browse">Igetár</button>');
 src = src.replace('<button id="tab-browse" role="tab" aria-selected="false" data-i18n="tab.browse">Igetár</button>',
   '<button id="tab-browse" role="tab" aria-selected="false" data-i18n="tab.browse">Igetár</button>\n      <button id="tab-teacher" role="tab" aria-selected="false" hidden data-i18n="tab.teacher">Tanári nézet</button>');
-must('\n</div>\n\n<script id="engine">');
-src = src.replace('\n</div>\n\n<script id="engine">',
-  '\n  <section id="view-teacher" hidden><div class="card" id="teacher"></div></section>\n</div>\n\n<script id="engine">');
+must('\n</div>\n<div id="print-area" hidden></div>');
+src = src.replace('\n</div>\n<div id="print-area" hidden></div>',
+  '\n  <section id="view-teacher" hidden><div class="card" id="teacher"></div></section>\n</div>\n<div id="print-area" hidden></div>');
 
 // 4) a Claude-os profilkezelés helyett Firebase
 must('\ninitCloud();');

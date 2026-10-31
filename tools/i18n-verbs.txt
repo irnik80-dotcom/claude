@@ -317,3 +317,166 @@ vivere|żyć|to live
 volare|latać|to fly
 volere|chcieć|to want
 votare|głosować|to vote
+rifare|przerabiać, robić ponownie|to redo
+riconoscere|rozpoznawać|to recognize
+rinascere|odradzać się|to be reborn
+ripartire|ponownie wyruszać|to set off again
+rimettere|odkładać na miejsce|to put back
+scommettere|zakładać się|to bet
+riaprire|ponownie otwierać|to reopen
+riscrivere|przepisywać|to rewrite
+accadere|zdarzać się|to happen
+ritenere|uważać (za)|to believe, to consider
+trattenere|powstrzymywać|to hold back
+appartenere|należeć|to belong
+convenire|opłacać się|to be better, to be worth it
+intervenire|interweniować|to intervene
+divenire|stawać się|to become
+svenire|mdleć|to faint
+prevenire|zapobiegać|to prevent
+sopravvivere|przeżyć|to survive
+convivere|mieszkać razem|to live together
+provvedere|zadbać, zająć się|to see to, to provide
+intravedere|dostrzegać|to glimpse
+coinvolgere|angażować|to involve
+sconvolgere|wstrząsać|to shock, to upset
+rivolgersi|zwracać się|to turn to, to ask
+disporre|rozmieszczać, ustawiać|to arrange
+opporsi|sprzeciwiać się|to oppose
+dedurre|wnioskować|to deduce
+sedurre|uwodzić, oczarować|to seduce, to charm
+sottrarre|odejmować|to subtract
+estrarre|wyrywać, wyciągać|to extract, to pull out
+distinguere|odróżniać|to distinguish
+fingere|udawać|to pretend
+costringere|zmuszać|to force
+dirigere|kierować, dyrygować|to direct, to conduct
+eleggere|wybierać (w głosowaniu)|to elect
+rileggere|czytać ponownie|to reread
+friggere|smażyć|to fry
+sconfiggere|pokonać|to defeat
+scuotere|potrząsać, kręcić (głową)|to shake
+promuovere|awansować (kogoś)|to promote
+commuovere|wzruszać|to move (emotionally)
+emergere|wyłaniać się, wychodzić na jaw|to emerge
+immergere|zanurzać|to dip, to immerse
+spargere|rozrzucać|to scatter
+persuadere|namawiać, przekonywać|to persuade
+invadere|najeżdżać, zalewać|to invade
+radere|golić|to shave
+condividere|dzielić (się), udostępniać|to share
+esplodere|wybuchać|to explode
+pretendere|wymagać, żądać|to demand, to expect
+intendere|zamierzać; mieć na myśli|to intend; to mean
+stendere|rozwieszać, rozkładać|to hang out, to spread
+appendere|wieszać|to hang (up)
+interrompere|przerywać|to interrupt
+soccorrere|udzielać pomocy, ratować|to rescue, to help
+percorrere|przemierzać, pokonywać|to cover, to travel
+trascorrere|spędzać (czas)|to spend (time)
+occorrere|być potrzebnym|to be needed
+porgere|podawać|to hand
+sorgere|wschodzić, powstawać|to rise
+scorgere|dostrzegać|to make out, to spot
+torcere|wykręcać|to wring, to twist
+pungere|żądlić, kłuć|to sting, to prick
+tingere|farbować|to dye
+rimpiangere|tęsknić za, żałować|to miss, to regret
+valere|być wartym|to be worth
+parere|wydawać się|to seem
+giacere|leżeć|to lie (be lying)
+cucire|szyć|to sew
+udire|słyszeć|to hear
+riempire|napełniać, wypełniać|to fill (in)
+perdersi|zgubić się|to get lost
+muoversi|ruszać się|to move, to hurry up
+accettare|przyjmować, akceptować|to accept
+adorare|uwielbiać|to adore
+affrontare|stawiać czoła|to face, to tackle
+allenarsi|trenować|to train
+analizzare|analizować|to analyse
+annullare|odwoływać|to cancel
+apprezzare|doceniać|to appreciate
+approvare|zatwierdzać|to approve
+aumentare|podnosić, zwiększać|to raise, to increase
+avvicinarsi|zbliżać się|to approach
+bastare|wystarczać|to be enough
+bruciare|przypalać, palić się|to burn
+bussare|pukać|to knock
+cancellare|usuwać, kasować|to delete
+caricare|ładować|to charge, to load
+chiacchierare|gawędzić|to chat
+collaborare|współpracować|to work together
+comunicare|przekazywać, informować|to communicate, to let know
+confermare|potwierdzać|to confirm
+consegnare|oddawać, dostarczać|to hand in, to deliver
+conservare|przechowywać|to keep, to preserve
+considerare|uważać za, rozważać|to consider
+contare|liczyć|to count
+copiare|kopiować, ściągać|to copy
+curare|leczyć, dbać o|to treat, to look after
+dedicare|dedykować, poświęcać|to dedicate
+dimostrare|udowadniać, pokazywać|to prove, to show
+disturbare|przeszkadzać|to disturb
+dubitare|wątpić|to doubt
+esagerare|przesadzać|to exaggerate
+fidarsi|ufać|to trust
+firmare|podpisywać|to sign
+fotografare|fotografować|to photograph
+frequentare|uczęszczać, chodzić do|to attend
+gettare|wyrzucać|to throw (away)
+immaginare|wyobrażać sobie|to imagine
+indossare|mieć na sobie, nosić|to wear
+invitare|zapraszać|to invite
+legare|wiązać|to tie
+litigare|kłócić się|to argue, to quarrel
+meritare|zasługiwać|to deserve
+misurare|mierzyć|to measure
+notare|zauważać|to notice
+occupare|zajmować|to occupy, to take up
+pesare|ważyć|to weigh
+piantare|sadzić|to plant
+presentare|przedstawiać|to introduce, to present
+pronunciare|wymawiać|to pronounce
+pubblicare|publikować, wydawać|to publish
+respirare|oddychać|to breathe
+rifiutare|odrzucać, odmawiać|to refuse, to turn down
+rinunciare|rezygnować|to give up
+riparare|naprawiać|to repair
+rispettare|szanować, przestrzegać|to respect
+rubare|kraść|to steal
+salvare|zapisywać, ratować|to save
+saltare|skakać, opuszczać|to jump, to skip
+scappare|uciekać|to run away
+sopportare|znosić|to stand, to bear
+sottolineare|podkreślać|to underline
+spaventare|straszyć|to frighten
+sprecare|marnować|to waste
+stampare|drukować|to print
+stancarsi|męczyć się|to get tired
+svegliare|budzić|to wake (someone) up
+tentare|próbować|to try, to attempt
+tirare|ciągnąć|to pull
+urlare|wrzeszczeć|to yell
+versare|nalewać|to pour
+voltare|skręcać, odwracać|to turn
+alzare|podnosić|to raise, to lift
+abbassare|ściszać, obniżać|to turn down, to lower
+vergognarsi|wstydzić się|to be ashamed
+abituarsi|przyzwyczajać się|to get used to
+occuparsi|zajmować się|to deal with, to work in
+interessarsi|interesować się|to be interested
+spogliarsi|rozbierać się|to undress
+asciugarsi|wycierać się|to dry oneself
+vestire|ubierać (kogoś)|to dress (someone)
+nutrire|karmić, żywić|to feed, to nourish
+stupire|zdumiewać|to amaze
+fallire|bankrutować, ponieść porażkę|to fail, to go bankrupt
+tossire|kaszleć|to cough
+impazzire|wariować|to go mad
+arricchire|wzbogacać|to enrich
+diminuire|obniżać, zmniejszać|to reduce, to decrease
+combattere|walczyć|to fight
+riflettere|zastanawiać się|to think over, to reflect
+premere|naciskać|to press
+spremere|wyciskać|to squeeze

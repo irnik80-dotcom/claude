@@ -317,3 +317,166 @@ ferire|pp|5|Le sue parole mi ___.|A szavai megsebeztek.
 favorire|pres|2|Il clima mite ___ il turismo.|Az enyhe éghajlat kedvez a turizmusnak.
 colpire|pp|2|Il pallone ___ la finestra.|A labda eltalálta az ablakot.
 arrossire|imp|2|Quando parlava in pubblico, ___ sempre.|Amikor nyilvánosan beszélt, mindig elpirult.
+rifare|pp|0|Ho sbagliato, così ___ l'esercizio da capo.|Hibáztam, ezért elölről újracsináltam a feladatot.
+riconoscere|pp|0|Non ti ___ con gli occhiali!|Nem ismertelek fel a szemüvegben!
+rinascere|pres|2|Ogni primavera la natura ___.|Minden tavasszal újjászületik a természet.
+ripartire|fut|3|Dopo una breve sosta ___ per Napoli.|Rövid pihenő után továbbindulunk Nápolyba.
+rimettere|impv|1|___ il libro sullo scaffale, per favore.|Tedd vissza a könyvet a polcra, kérlek.
+scommettere|pres|0|___ che domani pioverà.|Fogadok, hogy holnap esni fog.
+riaprire|fut|5|I negozi ___ dopo le vacanze.|Az üzletek a szünet után újra kinyitnak.
+riscrivere|pp|0|___ la lettera tre volte.|Háromszor írtam át a levelet.
+accadere|pp|2|Che cosa ___ ieri sera?|Mi történt tegnap este?
+ritenere|pres|0|___ che sia la scelta migliore.|Úgy vélem, ez a legjobb választás.
+trattenere|pp|0|A fatica ___ le lacrime.|Nagy nehezen visszatartottam a könnyeimet.
+appartenere|imp|2|Questa casa ___ ai miei nonni.|Ez a ház a nagyszüleimé volt.
+convenire|pres|2|Ti ___ prendere il treno.|Jobban jársz, ha vonattal mész.
+intervenire|pp|2|La polizia ___ subito.|A rendőrség azonnal közbelépett.|f
+divenire|rem|2|Con gli anni ___ un grande pittore.|Az évek során nagy festővé vált.
+svenire|pp|2|Per il caldo Laura ___.|Laura elájult a hőségtől.|f
+prevenire|pres|2|Lo sport ___ molte malattie.|A sport sok betegséget megelőz.
+sopravvivere|pp|5|Per fortuna tutti ___ all'incidente.|Szerencsére mindenki túlélte a balesetet.
+convivere|pres|5|Marco e Anna ___ da due anni.|Marco és Anna két éve élnek együtt.
+provvedere|fut|0|Non preoccuparti, ___ io ai biglietti.|Ne aggódj, én gondoskodom a jegyekről.
+intravedere|rem|0|Tra la nebbia ___ una luce.|A ködben megpillantottam egy fényt.
+coinvolgere|pp|5|___ anche i bambini nel progetto.|A gyerekeket is bevonták a projektbe.
+sconvolgere|pp|2|La notizia mi ___.|A hír megrázott.
+rivolgersi|impv|2|Per informazioni ___ alla reception.|Információért forduljon a recepcióhoz.
+disporre|pp|0|___ le sedie in cerchio.|Körbe rendeztem a székeket.
+opporsi|pres|5|Molti cittadini ___ al nuovo progetto.|Sok polgár ellenzi az új tervet.
+dedurre|pres|0|Dal tuo sorriso ___ che è andato tutto bene.|A mosolyodból arra következtetek, hogy minden jól ment.
+sedurre|pp|2|La città mi ___ subito.|A város azonnal elbűvölt.
+sottrarre|impv|1|___ cinque da venti.|Vonj ki ötöt húszból.
+estrarre|pp|2|Il dentista mi ___ un dente.|A fogorvos kihúzta az egyik fogamat.
+distinguere|pres|0|Non ___ mai i due gemelli.|Sosem tudom megkülönböztetni a két ikret.
+fingere|imp|2|Il bambino ___ di dormire.|A gyerek úgy tett, mintha aludna.
+costringere|pp|2|La pioggia ci ___ a tornare indietro.|Az eső visszafordulásra kényszerített minket.
+dirigere|imp|2|Mio zio ___ un'orchestra.|A nagybátyám egy zenekart vezényelt.
+eleggere|pp|5|Gli studenti ___ Giulia come rappresentante.|A diákok Giuliát választották képviselőnek.
+rileggere|impv|1|___ il testo prima di consegnarlo.|Olvasd át újra a szöveget, mielőtt beadod.
+friggere|pres|2|La nonna ___ le patate nell'olio d'oliva.|A nagymama olívaolajban süti a krumplit.
+sconfiggere|pp|5|Gli azzurri ___ la Francia.|Az olasz válogatott legyőzte Franciaországot.
+scuotere|rem|2|Il vecchio ___ la testa senza parlare.|Az öreg szó nélkül megcsóválta a fejét.
+promuovere|pp|5|Mi ___ a direttore.|Igazgatóvá léptettek elő.
+commuovere|pp|2|Il film mi ___ molto.|A film nagyon meghatott.
+emergere|pp|5|Dall'indagine ___ nuovi dettagli.|A nyomozásból új részletek derültek ki.
+immergere|impv|1|___ i biscotti nel latte.|Mártsd a kekszet a tejbe.
+spargere|pp|2|Il vento ___ le foglie dappertutto.|A szél mindenfelé szétszórta a leveleket.
+persuadere|rem|0|Alla fine lo ___ a restare.|Végül rábeszéltem, hogy maradjon.
+invadere|pres|5|D'estate i turisti ___ la città.|Nyáron a turisták elözönlik a várost.
+radere|pp|2|Il barbiere mi ___ la barba.|A borbély leborotválta a szakállamat.
+condividere|pres|0|___ un appartamento con due amici.|Két barátommal osztozom egy lakáson.
+esplodere|pp|2|Una bomba ___ vicino alla stazione.|Egy bomba robbant az állomás közelében.|f
+pretendere|pres|2|Il capo ___ troppo da noi.|A főnök túl sokat vár el tőlünk.
+intendere|pres|1|Che cosa ___ dire?|Mire gondolsz?
+stendere|pp|0|___ il bucato in giardino.|Kiteregettem a ruhákat a kertben.
+appendere|impv|1|___ il cappotto all'attaccapanni.|Akaszd a kabátot a fogasra.
+interrompere|pp|1|Perché mi ___?|Miért szakítottál félbe?
+soccorrere|pp|5|I passanti ___ il ciclista ferito.|A járókelők a sérült biciklis segítségére siettek.
+percorrere|pp|3|___ cinquanta chilometri in bicicletta.|Ötven kilométert tettünk meg biciklivel.
+trascorrere|fut|3|___ il Natale in montagna.|A karácsonyt a hegyekben töltjük.
+occorrere|pres|5|Per questa ricetta ___ tre uova.|Ehhez a recepthez három tojás kell.
+porgere|rem|2|Il cameriere mi ___ il menù.|A pincér átnyújtotta nekem az étlapot.
+sorgere|pres|2|D'estate il sole ___ presto.|Nyáron korán kel a nap.
+scorgere|pp|0|Da lontano ___ il campanile.|Messziről megpillantottam a harangtornyot.
+torcere|pp|0|___ i panni bagnati.|Kicsavartam a vizes ruhákat.
+pungere|pp|2|Un'ape mi ___ sul braccio.|Egy méh megcsípett a karomon.
+tingere|pp|2|Sara ___ i capelli di rosso.|Sara vörösre festette a haját.
+rimpiangere|pres|0|A volte ___ la vita in campagna.|Néha visszasírom a vidéki életet.
+valere|pres|2|Questo quadro ___ una fortuna.|Ez a festmény egy vagyont ér.
+parere|pres|2|Mi ___ una buona idea.|Jó ötletnek tűnik.
+giacere|imp|2|Il libro ___ sul tavolo da giorni.|A könyv napok óta az asztalon hevert.
+cucire|imp|2|La nonna ___ i nostri vestiti.|A nagymama varrta a ruháinkat.
+udire|rem|0|All'improvviso ___ un grido.|Hirtelen kiáltást hallottam.
+riempire|impv|1|___ il modulo, per favore.|Töltsd ki az űrlapot, kérlek.
+perdersi|pp|3|Senza mappa ___ nel centro storico.|Térkép nélkül eltévedtünk az óvárosban.
+muoversi|impv|1|___! Siamo in ritardo!|Mozogj már! Késésben vagyunk!
+accettare|pres|0|___ volentieri il tuo invito.|Szívesen elfogadom a meghívásodat.
+adorare|pres|0|___ la cucina italiana.|Imádom az olasz konyhát.
+affrontare|fut|3|___ insieme ogni difficoltà.|Együtt nézünk szembe minden nehézséggel.
+allenarsi|imp|0|Da ragazzo ___ ogni giorno in palestra.|Fiatalon minden nap edzettem a konditeremben.
+analizzare|pp|5|Gli esperti ___ i dati.|A szakértők elemezték az adatokat.
+annullare|pp|5|___ il concerto per la pioggia.|Az eső miatt lemondták a koncertet.
+apprezzare|pres|0|___ molto il tuo aiuto.|Nagyon értékelem a segítségedet.
+approvare|pp|2|Il consiglio ___ il nuovo progetto.|A tanács jóváhagyta az új tervet.
+aumentare|pp|5|___ di nuovo i prezzi.|Megint emelték az árakat.
+avvicinarsi|pres|5|Le vacanze ___.|Közeleg a szünidő.
+bastare|pres|2|Mi ___ un caffè.|Nekem elég egy kávé.
+bruciare|pp|0|___ la torta nel forno.|Odaégettem a tortát a sütőben.
+bussare|pp|2|Qualcuno ___ alla porta.|Valaki kopogott az ajtón.
+cancellare|pp|0|Per sbaglio ___ tutte le foto.|Véletlenül kitöröltem az összes fényképet.
+caricare|impv|1|___ il telefono prima di partire.|Töltsd fel a telefont, mielőtt elindulsz.
+chiacchierare|imp|3|___ per ore al bar.|Órákig beszélgettünk a kávézóban.
+collaborare|pres|3|___ con un'azienda tedesca.|Egy német céggel működünk együtt.
+comunicare|fut|0|Vi ___ i risultati domani.|Holnap közlöm veletek az eredményeket.
+confermare|impv|2|___ la prenotazione entro venerdì.|Kérem, péntekig erősítse meg a foglalást.
+consegnare|pp|0|___ i compiti in ritardo.|Késve adtam be a házi feladatot.
+conservare|pres|0|___ tutte le lettere di mia madre.|Megőrzöm anyám összes levelét.
+considerare|pres|5|Tutti lo ___ un genio.|Mindenki zseninek tartja.
+contare|impv|1|___ fino a dieci!|Számolj tízig!
+copiare|pp|2|Luca ___ il compito dal compagno.|Luca lemásolta a házit az osztálytársától.
+curare|pres|2|Questo medico ___ i bambini.|Ez az orvos gyerekeket gyógyít.
+dedicare|pres|0|___ questa canzone a mia moglie.|Ezt a dalt a feleségemnek ajánlom.
+dimostrare|pp|1|___ di essere molto coraggioso.|Bebizonyítottad, hogy nagyon bátor vagy.
+disturbare|pres|0|Scusi se la ___.|Elnézést, hogy zavarom.
+dubitare|pres|0|___ che arrivi in tempo.|Kétlem, hogy időben megérkezik.
+esagerare|pres|1|Secondo me ___ sempre!|Szerintem mindig túlzol!
+fidarsi|pres|0|Non ___ di lui.|Nem bízom benne.
+firmare|impv|2|___ qui, per favore.|Kérem, írja alá itt.
+fotografare|pp|3|___ il tramonto dalla terrazza.|A teraszról lefényképeztük a naplementét.
+frequentare|imp|0|Da ragazzo ___ il liceo classico.|Fiatalon klasszikus gimnáziumba jártam.
+gettare|pp|2|Qualcuno ___ i rifiuti nel fiume.|Valaki a folyóba dobta a szemetet.
+immaginare|pres|0|___ che tu sia stanco.|Gondolom, fáradt vagy.
+indossare|imp|2|La sposa ___ un abito bianco.|A menyasszony fehér ruhát viselt.
+invitare|pp|5|I miei amici mi ___ a cena.|A barátaim meghívtak vacsorára.
+legare|pp|0|___ la barca al molo.|Kikötöttem a csónakot a mólóhoz.
+litigare|imp|5|I miei fratelli ___ sempre.|A testvéreim mindig veszekedtek.
+meritare|pres|1|Dopo tanto lavoro, ___ una vacanza.|Ennyi munka után megérdemelsz egy szabadságot.
+misurare|pp|2|L'infermiera mi ___ la pressione.|Az ápolónő megmérte a vérnyomásomat.
+notare|pp|1|___ che Marco era triste?|Észrevetted, hogy Marco szomorú volt?
+occupare|pres|2|Questo armadio ___ troppo spazio.|Ez a szekrény túl sok helyet foglal.
+pesare|pres|2|La valigia ___ venti chili.|A bőrönd húsz kilót nyom.
+piantare|fut|3|In primavera ___ dei pomodori.|Tavasszal paradicsomot fogunk ültetni.
+presentare|pres|0|Ti ___ mia sorella.|Bemutatom a húgomat.
+pronunciare|cond|1|Come ___ questa parola?|Hogyan ejtenéd ki ezt a szót?
+pubblicare|pp|2|La scrittrice ___ un nuovo romanzo.|Az írónő új regényt adott ki.
+respirare|impv|1|___ profondamente e rilassati.|Lélegezz mélyeket, és lazíts.
+rifiutare|pp|2|Anna ___ l'offerta di lavoro.|Anna visszautasította az állásajánlatot.
+rinunciare|pp|0|___ al viaggio per motivi di lavoro.|Munkahelyi okokból lemondtam az utazásról.
+riparare|pp|2|Il meccanico ___ la macchina.|A szerelő megjavította az autót.
+rispettare|impv|4|___ le regole del gioco!|Tartsátok be a játékszabályokat!
+rubare|pp|5|Mi ___ il portafoglio in metro.|Ellopták a pénztárcámat a metrón.
+salvare|impv|1|___ il file prima di chiudere.|Mentsd el a fájlt, mielőtt bezárod.
+saltare|pp|0|Stamattina ___ la colazione.|Ma reggel kihagytam a reggelit.
+scappare|pp|2|Il cane ___ dal giardino.|A kutya elszökött a kertből.
+sopportare|pres|0|Non ___ il rumore del traffico.|Nem bírom a forgalom zaját.
+sottolineare|impv|4|___ i verbi irregolari.|Húzzátok alá a rendhagyó igéket.
+spaventare|pp|1|Mi ___!|Megijesztettél!
+sprecare|pres|5|Molte famiglie ___ troppo cibo.|Sok család túl sok ételt pazarol.
+stampare|cond|1|Mi ___ il biglietto?|Kinyomtatnád nekem a jegyet?
+stancarsi|pres|0|Quando cammino in salita ___ subito.|Ha emelkedőn gyalogolok, hamar elfáradok.
+svegliare|pp|2|Il telefono mi ___ alle tre di notte.|A telefon hajnali háromkor felébresztett.
+tentare|congi|1|Se ___ di nuovo, ci riusciresti.|Ha újra megpróbálnád, sikerülne.
+tirare|impv|1|___ la porta, non spingere!|Húzd az ajtót, ne told!
+urlare|imp|5|I bambini ___ in cortile.|A gyerekek üvöltöztek az udvaron.
+versare|impv|2|Mi ___ un bicchiere d'acqua, per favore.|Kérem, töltsön nekem egy pohár vizet.
+voltare|impv|2|Al secondo incrocio ___ a sinistra.|A második kereszteződésnél forduljon balra.
+alzare|impv|4|___ la mano se avete domande.|Tegyétek fel a kezeteket, ha kérdésetek van.
+abbassare|cond|1|___ il volume, per favore?|Lehalkítanád, kérlek?
+vergognarsi|pres|0|___ di quello che ho detto.|Szégyellem, amit mondtam.
+abituarsi|pp|0|___ al clima italiano.|Hozzászoktam az olasz éghajlathoz.
+occuparsi|pres|2|Mia sorella ___ di marketing.|A húgom marketinggel foglalkozik.
+interessarsi|pres|0|___ di storia antica.|Az ókori történelem érdekel.
+spogliarsi|impv|2|___ dietro il paravento, per favore.|Kérem, vetkőzzön le a paraván mögött.
+asciugarsi|impv|1|___ le mani con questo asciugamano.|Töröld meg a kezed ezzel a törölközővel.
+vestire|pres|2|La mamma ___ la bambina.|Az anya felöltözteti a kislányt.
+nutrire|pres|5|Gli uccelli ___ i piccoli con gli insetti.|A madarak rovarokkal etetik a fiókáikat.
+stupire|pp|2|La sua risposta mi ___.|A válasza meglepett.
+fallire|pp|2|L'azienda ___ dopo vent'anni.|A cég húsz év után csődbe ment.|f
+tossire|imp|2|Il bambino ___ tutta la notte.|A gyerek egész éjjel köhögött.
+impazzire|fut|0|Con questo rumore ___!|Ebben a zajban megőrülök!
+arricchire|pres|2|Viaggiare ___ la mente.|Az utazás gazdagítja a szellemet.
+diminuire|pp|2|Il governo ___ le tasse.|A kormány csökkentette az adókat.
+combattere|rem|5|I soldati ___ con coraggio.|A katonák bátran harcoltak.
+riflettere|impv|1|___ bene prima di rispondere.|Gondold át jól, mielőtt válaszolsz.
+premere|impv|2|___ il pulsante verde.|Nyomja meg a zöld gombot.
+spremere|pp|0|___ due arance per il succo.|Kifacsartam két narancsot a léhez.

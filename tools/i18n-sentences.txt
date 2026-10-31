@@ -317,3 +317,166 @@ ferire|Jego słowa mnie zraniły.|His words hurt me.
 favorire|Łagodny klimat sprzyja turystyce.|The mild climate favours tourism.
 colpire|Piłka trafiła w okno.|The ball hit the window.
 arrossire|Kiedy przemawiał publicznie, zawsze się rumienił.|When he spoke in public, he always blushed.
+rifare|Pomyliłem się, więc zrobiłem ćwiczenie od nowa.|I made a mistake, so I redid the exercise from scratch.
+riconoscere|Nie poznałem cię w okularach!|I didn't recognise you with your glasses on!
+rinascere|Każdej wiosny przyroda się odradza.|Every spring nature is reborn.
+ripartire|Po krótkim postoju ruszymy dalej do Neapolu.|After a short stop we'll set off again for Naples.
+rimettere|Odłóż książkę na półkę, proszę.|Put the book back on the shelf, please.
+scommettere|Założę się, że jutro będzie padać.|I bet it will rain tomorrow.
+riaprire|Sklepy zostaną ponownie otwarte po wakacjach.|The shops will reopen after the holidays.
+riscrivere|Trzy razy przepisałem list.|I rewrote the letter three times.
+accadere|Co się stało wczoraj wieczorem?|What happened last night?
+ritenere|Uważam, że to najlepszy wybór.|I believe it's the best choice.
+trattenere|Z trudem powstrzymałem łzy.|I could barely hold back my tears.
+appartenere|Ten dom należał do moich dziadków.|This house belonged to my grandparents.
+convenire|Opłaca ci się pojechać pociągiem.|You'd better take the train.
+intervenire|Policja natychmiast interweniowała.|The police intervened immediately.
+divenire|Z biegiem lat stał się wielkim malarzem.|Over the years he became a great painter.
+svenire|Laura zemdlała z gorąca.|Laura fainted from the heat.
+prevenire|Sport zapobiega wielu chorobom.|Sport prevents many illnesses.
+sopravvivere|Na szczęście wszyscy przeżyli wypadek.|Luckily everyone survived the accident.
+convivere|Marco i Anna mieszkają razem od dwóch lat.|Marco and Anna have been living together for two years.
+provvedere|Nie martw się, ja zajmę się biletami.|Don't worry, I'll see to the tickets.
+intravedere|We mgle dostrzegłem światło.|Through the fog I glimpsed a light.
+coinvolgere|W projekt zaangażowano także dzieci.|They also involved the children in the project.
+sconvolgere|Ta wiadomość mną wstrząsnęła.|The news shocked me.
+rivolgersi|W sprawie informacji proszę zwrócić się do recepcji.|For information, please ask at reception.
+disporre|Ustawiłem krzesła w kole.|I arranged the chairs in a circle.
+opporsi|Wielu mieszkańców sprzeciwia się nowemu projektowi.|Many citizens oppose the new project.
+dedurre|Z twojego uśmiechu wnioskuję, że wszystko poszło dobrze.|From your smile I gather everything went well.
+sedurre|Miasto od razu mnie oczarowało.|The city charmed me at once.
+sottrarre|Odejmij pięć od dwudziestu.|Subtract five from twenty.
+estrarre|Dentysta wyrwał mi ząb.|The dentist pulled one of my teeth.
+distinguere|Nigdy nie odróżniam tych dwóch bliźniaków.|I can never tell the two twins apart.
+fingere|Dziecko udawało, że śpi.|The child was pretending to sleep.
+costringere|Deszcz zmusił nas do powrotu.|The rain forced us to turn back.
+dirigere|Mój wujek dyrygował orkiestrą.|My uncle used to conduct an orchestra.
+eleggere|Uczniowie wybrali Giulię na przedstawicielkę.|The students elected Giulia as their representative.
+rileggere|Przeczytaj tekst jeszcze raz przed oddaniem.|Reread the text before handing it in.
+friggere|Babcia smaży ziemniaki na oliwie.|Grandma fries the potatoes in olive oil.
+sconfiggere|Włosi pokonali Francję.|The Italian team beat France.
+scuotere|Starzec bez słowa pokręcił głową.|The old man shook his head without speaking.
+promuovere|Awansowano mnie na dyrektora.|They promoted me to director.
+commuovere|Film bardzo mnie wzruszył.|The film moved me deeply.
+emergere|Ze śledztwa wyszły na jaw nowe szczegóły.|New details emerged from the investigation.
+immergere|Zanurz herbatniki w mleku.|Dip the biscuits in the milk.
+spargere|Wiatr rozrzucił liście wszędzie.|The wind scattered the leaves everywhere.
+persuadere|W końcu namówiłem go, żeby został.|In the end I persuaded him to stay.
+invadere|Latem turyści zalewają miasto.|In summer tourists invade the city.
+radere|Fryzjer zgolił mi brodę.|The barber shaved off my beard.
+condividere|Dzielę mieszkanie z dwójką przyjaciół.|I share a flat with two friends.
+esplodere|W pobliżu dworca wybuchła bomba.|A bomb exploded near the station.
+pretendere|Szef wymaga od nas za dużo.|The boss expects too much from us.
+intendere|Co masz na myśli?|What do you mean?
+stendere|Rozwiesiłem pranie w ogrodzie.|I hung the washing out in the garden.
+appendere|Powieś płaszcz na wieszaku.|Hang your coat on the coat rack.
+interrompere|Dlaczego mi przerwałeś?|Why did you interrupt me?
+soccorrere|Przechodnie udzielili pomocy rannemu rowerzyście.|Passers-by helped the injured cyclist.
+percorrere|Przejechaliśmy rowerem pięćdziesiąt kilometrów.|We covered fifty kilometres by bike.
+trascorrere|Święta spędzimy w górach.|We'll spend Christmas in the mountains.
+occorrere|Do tego przepisu potrzebne są trzy jajka.|This recipe needs three eggs.
+porgere|Kelner podał mi menu.|The waiter handed me the menu.
+sorgere|Latem słońce wschodzi wcześnie.|In summer the sun rises early.
+scorgere|Z daleka dostrzegłem dzwonnicę.|From afar I made out the bell tower.
+torcere|Wykręciłem mokre ubrania.|I wrung out the wet clothes.
+pungere|Pszczoła użądliła mnie w rękę.|A bee stung me on the arm.
+tingere|Sara ufarbowała włosy na rudo.|Sara dyed her hair red.
+rimpiangere|Czasem tęsknię za życiem na wsi.|Sometimes I miss life in the countryside.
+valere|Ten obraz jest wart fortunę.|This painting is worth a fortune.
+parere|Wydaje mi się to dobrym pomysłem.|It seems a good idea to me.
+giacere|Książka od kilku dni leżała na stole.|The book had been lying on the table for days.
+cucire|Babcia szyła nam ubrania.|Grandma used to sew our clothes.
+udire|Nagle usłyszałem krzyk.|Suddenly I heard a scream.
+riempire|Wypełnij formularz, proszę.|Fill in the form, please.
+perdersi|Bez mapy zgubiliśmy się na starówce.|Without a map we got lost in the old town.
+muoversi|Rusz się! Jesteśmy spóźnieni!|Get a move on! We're late!
+accettare|Chętnie przyjmuję twoje zaproszenie.|I gladly accept your invitation.
+adorare|Uwielbiam kuchnię włoską.|I love Italian food.
+affrontare|Razem stawimy czoła każdej trudności.|We'll face every difficulty together.
+allenarsi|Jako chłopak codziennie trenowałem na siłowni.|As a boy I trained at the gym every day.
+analizzare|Eksperci przeanalizowali dane.|The experts analysed the data.
+annullare|Z powodu deszczu odwołano koncert.|They cancelled the concert because of the rain.
+apprezzare|Bardzo doceniam twoją pomoc.|I really appreciate your help.
+approvare|Rada zatwierdziła nowy projekt.|The council approved the new project.
+aumentare|Znowu podnieśli ceny.|They've raised the prices again.
+avvicinarsi|Zbliżają się wakacje.|The holidays are getting closer.
+bastare|Wystarczy mi kawa.|A coffee is enough for me.
+bruciare|Przypaliłem ciasto w piekarniku.|I burnt the cake in the oven.
+bussare|Ktoś zapukał do drzwi.|Someone knocked at the door.
+cancellare|Przez pomyłkę usunąłem wszystkie zdjęcia.|I accidentally deleted all the photos.
+caricare|Naładuj telefon przed wyjazdem.|Charge your phone before you leave.
+chiacchierare|Godzinami gawędziliśmy w kawiarni.|We used to chat for hours at the café.
+collaborare|Współpracujemy z niemiecką firmą.|We work with a German company.
+comunicare|Jutro przekażę wam wyniki.|I'll let you know the results tomorrow.
+confermare|Proszę potwierdzić rezerwację do piątku.|Please confirm your booking by Friday.
+consegnare|Oddałem pracę domową z opóźnieniem.|I handed in my homework late.
+conservare|Przechowuję wszystkie listy mojej mamy.|I keep all my mother's letters.
+considerare|Wszyscy uważają go za geniusza.|Everyone considers him a genius.
+contare|Policz do dziesięciu!|Count to ten!
+copiare|Luca ściągnął zadanie od kolegi.|Luca copied his homework from a classmate.
+curare|Ten lekarz leczy dzieci.|This doctor treats children.
+dedicare|Dedykuję tę piosenkę mojej żonie.|I dedicate this song to my wife.
+dimostrare|Udowodniłeś, że jesteś bardzo odważny.|You've shown you are very brave.
+disturbare|Przepraszam, że przeszkadzam.|Sorry to disturb you.
+dubitare|Wątpię, żeby zdążył na czas.|I doubt he'll arrive on time.
+esagerare|Moim zdaniem zawsze przesadzasz!|I think you always exaggerate!
+fidarsi|Nie ufam mu.|I don't trust him.
+firmare|Proszę tu podpisać.|Sign here, please.
+fotografare|Sfotografowaliśmy zachód słońca z tarasu.|We photographed the sunset from the terrace.
+frequentare|Jako chłopak chodziłem do liceum klasycznego.|As a boy I attended a classical high school.
+gettare|Ktoś wyrzucił śmieci do rzeki.|Someone threw rubbish into the river.
+immaginare|Wyobrażam sobie, że jesteś zmęczony.|I imagine you're tired.
+indossare|Panna młoda miała na sobie białą suknię.|The bride was wearing a white dress.
+invitare|Przyjaciele zaprosili mnie na kolację.|My friends invited me to dinner.
+legare|Przywiązałem łódź do pomostu.|I tied the boat to the pier.
+litigare|Moi bracia ciągle się kłócili.|My brothers were always arguing.
+meritare|Po tak ciężkiej pracy zasługujesz na urlop.|After all that work, you deserve a holiday.
+misurare|Pielęgniarka zmierzyła mi ciśnienie.|The nurse took my blood pressure.
+notare|Zauważyłeś, że Marco był smutny?|Did you notice Marco was sad?
+occupare|Ta szafa zajmuje za dużo miejsca.|This wardrobe takes up too much space.
+pesare|Walizka waży dwadzieścia kilo.|The suitcase weighs twenty kilos.
+piantare|Wiosną posadzimy pomidory.|In spring we'll plant some tomatoes.
+presentare|Przedstawiam ci moją siostrę.|Let me introduce my sister.
+pronunciare|Jak wymówiłbyś to słowo?|How would you pronounce this word?
+pubblicare|Pisarka wydała nową powieść.|The writer has published a new novel.
+respirare|Oddychaj głęboko i się zrelaksuj.|Breathe deeply and relax.
+rifiutare|Anna odrzuciła ofertę pracy.|Anna turned down the job offer.
+rinunciare|Zrezygnowałem z podróży z powodów zawodowych.|I gave up the trip for work reasons.
+riparare|Mechanik naprawił samochód.|The mechanic repaired the car.
+rispettare|Przestrzegajcie zasad gry!|Respect the rules of the game!
+rubare|Ukradli mi portfel w metrze.|My wallet was stolen on the underground.
+salvare|Zapisz plik przed zamknięciem.|Save the file before closing.
+saltare|Dziś rano opuściłem śniadanie.|This morning I skipped breakfast.
+scappare|Pies uciekł z ogrodu.|The dog ran away from the garden.
+sopportare|Nie znoszę hałasu ulicznego.|I can't stand the traffic noise.
+sottolineare|Podkreślcie czasowniki nieregularne.|Underline the irregular verbs.
+spaventare|Przestraszyłeś mnie!|You scared me!
+sprecare|Wiele rodzin marnuje za dużo jedzenia.|Many families waste too much food.
+stampare|Wydrukowałbyś mi bilet?|Would you print the ticket for me?
+stancarsi|Kiedy idę pod górę, szybko się męczę.|When I walk uphill I get tired quickly.
+svegliare|Telefon obudził mnie o trzeciej w nocy.|The phone woke me up at three in the morning.
+tentare|Gdybyś spróbował jeszcze raz, udałoby ci się.|If you tried again, you'd succeed.
+tirare|Ciągnij drzwi, nie pchaj!|Pull the door, don't push!
+urlare|Dzieci wrzeszczały na podwórku.|The children were yelling in the courtyard.
+versare|Proszę nalać mi szklankę wody.|Please pour me a glass of water.
+voltare|Na drugim skrzyżowaniu proszę skręcić w lewo.|At the second crossroads turn left.
+alzare|Podnieście rękę, jeśli macie pytania.|Raise your hand if you have any questions.
+abbassare|Ściszyłbyś, proszę?|Would you turn the volume down, please?
+vergognarsi|Wstydzę się tego, co powiedziałem.|I'm ashamed of what I said.
+abituarsi|Przyzwyczaiłem się do włoskiego klimatu.|I've got used to the Italian climate.
+occuparsi|Moja siostra zajmuje się marketingiem.|My sister works in marketing.
+interessarsi|Interesuję się historią starożytną.|I'm interested in ancient history.
+spogliarsi|Proszę rozebrać się za parawanem.|Please undress behind the screen.
+asciugarsi|Wytrzyj ręce tym ręcznikiem.|Dry your hands with this towel.
+vestire|Mama ubiera córeczkę.|The mother dresses the little girl.
+nutrire|Ptaki karmią młode owadami.|Birds feed their young with insects.
+stupire|Jego odpowiedź mnie zdumiała.|His answer amazed me.
+fallire|Firma zbankrutowała po dwudziestu latach.|The company went bankrupt after twenty years.
+tossire|Dziecko kaszlało całą noc.|The child was coughing all night.
+impazzire|Przy tym hałasie zwariuję!|With this noise I'll go mad!
+arricchire|Podróżowanie wzbogaca umysł.|Travelling enriches the mind.
+diminuire|Rząd obniżył podatki.|The government lowered taxes.
+combattere|Żołnierze walczyli dzielnie.|The soldiers fought bravely.
+riflettere|Zastanów się dobrze, zanim odpowiesz.|Think carefully before answering.
+premere|Proszę nacisnąć zielony przycisk.|Press the green button.
+spremere|Wycisnąłem dwie pomarańcze na sok.|I squeezed two oranges for juice.

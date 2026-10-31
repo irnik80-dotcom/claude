@@ -207,7 +207,7 @@ async function loadUser(u) {
   const noRow = (n) => `<tr><td colspan="${n}" class="muted">${t('t.nolog')}</td></tr>`;
 
   box.innerHTML = `
-    <div class="actions" style="margin-top:0"><button class="btn quiet" id="t-back" type="button">${t('t.back')}</button></div>
+    <div class="actions" style="margin-top:0"><button class="btn quiet" id="t-back" type="button">${t('t.back')}</button>${pdfBtn('teacher')}</div>
     <div class="verb-line" style="margin-top:12px"><h2 class="inf" style="font-size:2rem" id="t-name"></h2><span class="hu mono" id="t-mail"></span></div>
     <p class="muted" style="margin:6px 0 0">${t('t.lastseen', { d: fmt(u.updated) })}</p>
 
@@ -220,7 +220,7 @@ async function loadUser(u) {
     ${H3(t('t.recent', { n: conj.length }))}
     <div class="tscroll"><table class="ttab">
       <thead><tr><th>${t('t.time')}</th><th>${t('t.verb')}</th><th>${t('t.tense')}</th><th>${t('t.person')}</th><th>${t('t.typed')}</th><th>${t('t.right')}</th><th></th></tr></thead>
-      <tbody>${conj.slice(0, 200).map((a) => `<tr><td>${fmt(a.at)}</td><td><b>${esc(a.inf)}</b></td><td>${esc(tname(a.t))}</td><td>${esc(PERS[a.p] || '')}</td><td class="mono">${esc(a.given || '—')}</td><td class="mono">${esc(a.right)}</td><td>${okMark(a)}</td></tr>`).join('') || noRow(7)}</tbody>
+      <tbody>${conj.slice(0, 200).map((a) => `<tr><td>${fmt(a.at)}</td><td><b>${esc(a.inf)}</b></td><td>${esc(tname(a.t))}</td><td>${esc(personLabel(a.t, a.p) || '')}</td><td class="mono">${esc(a.given || '—')}</td><td class="mono">${esc(a.right)}</td><td>${okMark(a)}</td></tr>`).join('') || noRow(7)}</tbody>
     </table></div>
 
     ${section(t('tab.vocab'))}
@@ -271,4 +271,5 @@ async function loadUser(u) {
   $('t-name').textContent = u.name || t('t.noname');
   $('t-mail').textContent = u.email || '';
   $('t-back').onclick = loadList;
+  PDF.teacher = () => printDoc(`${u.name || u.email || t('t.noname')}`, `<p class="pmeta">${esc(u.email || '')} · ${esc(t('tab.teacher'))}</p>` + printableClone($('teacher')).replace(/<h2[^>]*id="t-name"[^>]*>[\s\S]*?<\/h2>/, ''));
 }
