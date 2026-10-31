@@ -3,11 +3,13 @@
 // (a tools/embed-prompts.mjs bemásolja az /*AI-PROMPTS*/ jelölők közé, az "export" szavak nélkül).
 
 export const PROMPT_LANG = { hu: 'Hungarian', pl: 'Polish', en: 'English' };
-export const CEFR = ['A1', 'A2', 'B1'];
+export const CEFR = ['A1', 'A2', 'B1', 'B2', 'C1'];
 const CEFR_HINT = {
   A1: 'very simple words, present tense mostly, short sentences',
   A2: 'simple everyday language, short sentences, common past and future forms',
-  B1: 'natural everyday language with some longer sentences'
+  B1: 'natural everyday language with some longer sentences',
+  B2: 'fluent, varied language with complex sentences and idiomatic expressions',
+  C1: 'rich, nuanced, near-native language, including idioms and sophisticated structures'
 };
 export const SCENARIOS = {
   cafe: 'You are a friendly barista in an Italian bar (café). The learner is a customer who wants to order coffee and something to eat, and pay.',
@@ -20,7 +22,7 @@ export const SCENARIOS = {
   meet: 'You are a friendly Italian person the learner has just met at a language exchange evening. Chat about where they are from, family, work, hobbies and plans.',
   free: 'Have a friendly everyday conversation with the learner about the topic they chose.'
 };
-const TENSE_EN = { pres: 'presente', pp: 'passato prossimo', imp: 'imperfetto', fut: 'futuro semplice', cond: 'condizionale presente', cong: 'congiuntivo presente' };
+const TENSE_EN = { pres: 'presente', pp: 'passato prossimo', imp: 'imperfetto', trp: 'trapassato prossimo', rem: 'passato remoto', trr: 'trapassato remoto', fut: 'futuro semplice', futa: 'futuro anteriore', cond: 'condizionale presente', condp: 'condizionale passato', cong: 'congiuntivo presente', congp: 'congiuntivo passato', congi: 'congiuntivo imperfetto', congt: 'congiuntivo trapassato', impv: 'imperativo' };
 
 const str = (v, n) => String(v == null ? '' : v).slice(0, n).trim();
 
@@ -43,7 +45,7 @@ export function sanitize(body) {
   }
   if (type === 'story') {
     const level = CEFR.includes(body.level) ? body.level : 'A2';
-    const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 6) : [];
+    const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
     return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100) };
   }
   // alapeset: fordítás javítása
@@ -88,7 +90,7 @@ Evaluate ONLY the learner's Italian. Write everything except the Italian example
 - "tips": up to 3 short, practical tips in ${LN}.`;
   }
   if (p.type === 'story') {
-    const len = { A1: '60-80', A2: '90-120', B1: '130-170' }[p.level];
+    const len = { A1: '60-80', A2: '90-120', B1: '130-170', B2: '170-220', C1: '220-280' }[p.level];
     return `Write a short, original Italian text for a language learner whose native language is ${LN}. Level ${p.level} (${CEFR_HINT[p.level]}). Length: ${len} words.
 Use mainly these tenses, naturally: ${p.tenses.map((x) => TENSE_EN[x]).join(', ')}.
 Topic: ${p.topic ? JSON.stringify(p.topic) : 'an everyday situation of your choice (family, travel, work, food, city life, a small adventure)'}.

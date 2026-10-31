@@ -514,14 +514,48 @@ const REFL = ['mi','ti','si','ci','vi','si'];
 const ESS = ['sono','sei','è','siamo','siete','sono'];
 const AVE = ['ho','hai','ha','abbiamo','avete','hanno'];
 const TENSES = [
-  {id:'pres', it:'Presente', hu:'jelen idő'},
-  {id:'pp',   it:'Passato prossimo', hu:'összetett múlt idő'},
-  {id:'imp',  it:'Imperfetto', hu:'folyamatos múlt idő'},
-  {id:'fut',  it:'Futuro semplice', hu:'jövő idő'},
-  {id:'cond', it:'Condizionale presente', hu:'feltételes mód'},
-  {id:'cong', it:'Congiuntivo presente', hu:'kötőmód, jelen'}
+  {id:'pres',  it:'Presente', hu:'jelen idő'},
+  {id:'pp',    it:'Passato prossimo', hu:'összetett múlt idő'},
+  {id:'imp',   it:'Imperfetto', hu:'folyamatos múlt idő'},
+  {id:'trp',   it:'Trapassato prossimo', hu:'régmúlt'},
+  {id:'rem',   it:'Passato remoto', hu:'befejezett (irodalmi) múlt'},
+  {id:'trr',   it:'Trapassato remoto', hu:'régmúlt (irodalmi)'},
+  {id:'fut',   it:'Futuro semplice', hu:'jövő idő'},
+  {id:'futa',  it:'Futuro anteriore', hu:'befejezett jövő'},
+  {id:'cond',  it:'Condizionale presente', hu:'feltételes mód'},
+  {id:'condp', it:'Condizionale passato', hu:'múlt idejű feltételes mód'},
+  {id:'cong',  it:'Congiuntivo presente', hu:'kötőmód, jelen'},
+  {id:'congp', it:'Congiuntivo passato', hu:'kötőmód, múlt'},
+  {id:'congi', it:'Congiuntivo imperfetto', hu:'kötőmód, folyamatos múlt'},
+  {id:'congt', it:'Congiuntivo trapassato', hu:'kötőmód, régmúlt'},
+  {id:'impv',  it:'Imperativo', hu:'felszólító mód'}
 ];
-const TNAME = {pres:'presente', pp:'participio', imp:'imperfetto', fut:'futuro', cond:'condizionale', cong:'congiuntivo'};
+const TNAME = {pres:'presente', pp:'participio', imp:'imperfetto', fut:'futuro', cond:'condizionale', cong:'congiuntivo', rem:'passato remoto', congi:'congiuntivo imperfetto', impv:'imperativo'};
+/* összetett idők: segédige ideje + participio */
+const COMPOUND = {pp:'pres', trp:'imp', trr:'rem', futa:'fut', condp:'cond', congp:'cong', congt:'congi'};
+const SIMPLE = ['pres','imp','rem','fut','cond','cong','congi','impv'];
+const PERS_IMPV = ['—','tu','Lei','noi','voi','Loro'];
+const personLabel = (t, i) => t === 'impv' ? PERS_IMPV[i] : PERS[i];
+const isIrrT = (vb, t) => COMPOUND[t] ? vb.irrT.includes('pp') : vb.irrT.includes(t);
+/* passato remoto végződések; az erős (rendhagyó) tövek: io, lui/lei, loro */
+const REM_END = {are:['ai','asti','ò','ammo','aste','arono'], ere:['ei/etti','esti','é/ette','emmo','este','erono/ettero'], ire:['ii','isti','ì','immo','iste','irono']};
+const REM_STRONG = {avere:'ebb', fare:'fec', dire:'diss', bere:'bevv', venire:'venn', tenere:'tenn', ottenere:'ottenn', mantenere:'mantenn', contenere:'contenn', sostenere:'sostenn',
+  volere:'voll', sapere:'sepp', conoscere:'conobb', vedere:'vid', prevedere:'previd', rivedere:'rivid', vivere:'viss', nascere:'nacqu', piacere:'piacqu', dispiacere:'dispiacqu', tacere:'tacqu',
+  rimanere:'rimas', scegliere:'scels', togliere:'tols', cogliere:'cols', raccogliere:'raccols', accogliere:'accols', leggere:'less', scrivere:'scriss', descrivere:'descriss', iscriversi:'iscriss',
+  prendere:'pres', comprendere:'compres', sorprendere:'sorpres', riprendere:'ripres', apprendere:'appres', mettere:'mis', mettersi:'mis', promettere:'promis', permettere:'permis', smettere:'smis', ammettere:'ammis', trasmettere:'trasmis',
+  chiudere:'chius', chiedere:'chies', rispondere:'rispos', perdere:'pers', decidere:'decis', ridere:'ris', sorridere:'sorris', piangere:'pians', vincere:'vins', convincere:'convins', spendere:'spes', accendere:'acces',
+  rompere:'rupp', muovere:'moss', discutere:'discuss', rendere:'res', nascondere:'nascos', aggiungere:'aggiuns', raggiungere:'raggiuns', giungere:'giuns', dipingere:'dipins', spingere:'spins', risolvere:'risols',
+  accorgersi:'accors', correre:'cors', scendere:'sces', cadere:'cadd', spegnere:'spens', crescere:'crebb', esprimere:'espress', correggere:'corress', proteggere:'protess', distruggere:'distruss', assumere:'assuns',
+  stringere:'strins', svolgere:'svols', includere:'inclus', concludere:'conclus', escludere:'esclus', deludere:'delus', uccidere:'uccis', dividere:'divis', difendere:'difes', offendere:'offes', attendere:'attes',
+  sospendere:'sospes', mordere:'mors', dipendere:'dipes', succedere:'success', apparire:'apparv', scomparire:'scomparv', cuocere:'coss',
+  porre:'pos', proporre:'propos', comporre:'compos', supporre:'suppos', esporre:'espos', imporre:'impos',
+  tradurre:'traduss', produrre:'produss', condurre:'conduss', ridurre:'riduss', introdurre:'introduss', trarre:'trass', attrarre:'attrass', distrarre:'distrass'};
+const REM_FULL = {essere:['fui','fosti','fu','fummo','foste','furono'], dare:['diedi/detti','desti','diede/dette','demmo','deste','diedero/dettero'], stare:['stetti','stesti','stette','stemmo','steste','stettero']};
+const CONGI_FULL = {essere:['fossi','fossi','fosse','fossimo','foste','fossero'], dare:['dessi','dessi','desse','dessimo','deste','dessero'], stare:['stessi','stessi','stesse','stessimo','steste','stessero']};
+const CONGI_END = ['ssi','ssi','sse','ssimo','ste','ssero'];
+const IMPV_TU = {andare:"va'/vai", fare:"fa'/fai", dare:"da'/dai", stare:"sta'/stai", dire:"di'", essere:'sii', avere:'abbi', sapere:'sappi', volere:'vogli'};
+const IMPV_VOI = {essere:'siate', avere:'abbiate', sapere:'sappiate', volere:'vogliate'};
+const NO_IMPV = new Set(['potere','dovere']);
 const ENDS = {
   are:{pres:['o','i','a','iamo','ate','ano'], cong:['i','i','i','iamo','iate','ino'], imp:'av', fut:'er', pp:'ato'},
   ere:{pres:['o','i','e','iamo','ete','ono'], cong:['a','a','a','iamo','iate','ano'], imp:'ev', fut:'er', pp:'uto'},
@@ -892,7 +926,10 @@ function build(vb){
     cong: ENDS[cls].cong.map(e=>join(stem,e,conj,k)),
     pp:   join(stem, ENDS[conj].pp, conj, k)
   };
-  const F = {pres:R.pres.slice(), imp:R.imp.slice(), fut:R.fut.slice(), cond:R.cond.slice(), cong:R.cong.slice(), pp:R.pp};
+  const vowel = {are:'a', ere:'e', ire:'i'}[conj];
+  R.rem = REM_END[conj].map(e=>e.split('/').map(x=>join(stem,x,conj,k)).join('/'));
+  R.congi = CONGI_END.map(e=>stem+vowel+e);
+  const F = {pres:R.pres.slice(), imp:R.imp.slice(), fut:R.fut.slice(), cond:R.cond.slice(), cong:R.cong.slice(), pp:R.pp, rem:R.rem.slice(), congi:R.congi.slice()};
   if (vb.pres){
     F.pres = vb.pres.slice();
     const io = F.pres[0].split('/')[0], noi = F.pres[3].split('/')[0];
@@ -903,9 +940,33 @@ function build(vb){
   if (vb.imp) F.imp = Array.isArray(vb.imp) ? vb.imp.slice() : IMPF.map(e=>vb.imp+'ev'+e);
   if (vb.fut){ F.fut = futS(vb.fut); F.cond = condS(vb.fut); }
   if (vb.pp){ F.pp = vb.pp; if (vb.ppReg) R.pp = vb.pp; }
+  /* passato remoto */
+  if (REM_FULL[vb.inf]) F.rem = REM_FULL[vb.inf].slice();
+  else if (REM_STRONG[vb.inf]){
+    const sS = REM_STRONG[vb.inf];
+    const oS = (typeof vb.imp === 'string') ? vb.imp : stem;          // fac-esti, dic-esti, pon-esti …
+    const oC = (typeof vb.imp === 'string') ? 'ere' : conj;
+    const e = REM_END[oC];
+    F.rem = [sS+'i', oS+e[1], sS+'e', oS+e[3], oS+e[4], sS+'ero'];
+  }
+  /* congiuntivo imperfetto */
+  if (CONGI_FULL[vb.inf]) F.congi = CONGI_FULL[vb.inf].slice();
+  else if (typeof vb.imp === 'string') F.congi = CONGI_END.map(e=>vb.imp+'e'+e);
+  /* imperativo (io nincs) */
+  const tuOf = (P, isReg) => conj==='are' && (isReg || !vb.pres) ? join(stem,'a',conj,k) : P.pres[1].split('/')[0];
+  const mkImpv = (P, isReg) => {
+    if (NO_IMPV.has(vb.inf)) return ['—','—','—','—','—','—'];
+    const tu = (!isReg && IMPV_TU[vb.inf]) || tuOf(P, isReg);
+    const voi = (!isReg && IMPV_VOI[vb.inf]) || P.pres[4].split('/')[0];
+    const lei = P.cong[2].split('/')[0], noi = P.pres[3].split('/')[0], loro = P.cong[5].split('/')[0];
+    if (vb.refl) return ['—', tu+'ti', 'si '+lei, noi+'ci', voi+'vi', 'si '+loro];
+    return ['—', tu, lei, noi, voi, loro];
+  };
+  R.impv = mkImpv(R, true); F.impv = mkImpv(F, false);
+  vb.noImpv = NO_IMPV.has(vb.inf);
   vb.R = R; vb.F = F;
   vb.irrT = [];
-  ['pres','imp','fut','cond','cong'].forEach(t=>{ if (F[t].some((x,i)=>x!==R[t][i])) vb.irrT.push(t); });
+  SIMPLE.forEach(t=>{ if (F[t].some((x,i)=>x!==R[t][i])) vb.irrT.push(t); });
   if (F.pp!==R.pp) vb.irrT.push('pp');
   vb.irr = vb.irrT.length>0;
   vb.aux = (vb.e || vb.refl) ? 'essere' : 'avere';
@@ -913,21 +974,29 @@ function build(vb){
 }
 VERBS.forEach(build);
 VERBS.sort((a,b)=>a.inf.localeCompare(b.inf,'it'));
+const VBY0 = Object.fromEntries(VERBS.map(v=>[v.inf, v]));
 
 /* egy alak: megjelenítés + elfogadható válaszok + rendhagyó-e */
 function cell(vb, t, i){
   const pron = vb.refl ? REFL[i]+' ' : '';
-  if (t==='pp'){
+  if (t==='impv'){
+    const raw = vb.F.impv[i];
+    if (i===0 || raw==='—') return {display:'—', accept:[], irr:false, na:true};
+    const alts = raw.split('/');
+    return {display: alts[0] + (alts.length>1 ? ' ('+alts.slice(1).join(', ')+')' : ''), accept: alts, irr: raw !== vb.R.impv[i]};
+  }
+  if (COMPOUND[t]){
     const pps = vb.F.pp.split('/');
     const irr = vb.F.pp !== vb.R.pp;
+    const auxV = VBY0[vb.aux].F[COMPOUND[t]][i].split('/')[0];
     if (vb.aux==='avere'){
-      const accept = pps.map(p=>pron+AVE[i]+' '+p);
+      const accept = pps.map(p=>pron+auxV+' '+p);
       return {display: accept[0] + (pps.length>1 ? ' ('+pps.slice(1).join(', ')+')' : ''), accept, irr};
     }
     const accept = [];
-    pps.forEach(p=>{ const s=p.slice(0,-1); (i<3?['o','a']:['i','e']).forEach(g=>accept.push(pron+ESS[i]+' '+s+g)); });
+    pps.forEach(p=>{ const s=p.slice(0,-1); (i<3?['o','a']:['i','e']).forEach(g=>accept.push(pron+auxV+' '+s+g)); });
     const s0 = pps[0].slice(0,-1);
-    return {display: pron+ESS[i]+' '+s0+(i<3?'o/a':'i/e'), accept, irr};
+    return {display: pron+auxV+' '+s0+(i<3?'o/a':'i/e'), accept, irr};
   }
   const raw = vb.F[t][i], alts = raw.split('/');
   return {display: pron+alts[0] + (alts.length>1 ? ' ('+alts.slice(1).map(a=>pron+a).join(', ')+')' : ''),
@@ -1935,7 +2004,7 @@ function setContentLang(l){
   VERBS.forEach(v => { v.hu = v.mean[l] || v.mean.hu; });
   SENTS.forEach(x => { x.hu = x.tr[l] || x.tr.hu; });
 }
-if (typeof module!=='undefined') module.exports = {VERBS, cell, check, TENSES, SENTS, sentFill, setContentLang};
+if (typeof module!=='undefined') module.exports = {VERBS, cell, check, TENSES, SENTS, sentFill, setContentLang, personLabel, isIrrT};
 </script>
 
 <script>
@@ -1997,6 +2066,18 @@ const I18N = {
   'td.fut': ['jövő idő','czas przyszły','future tense'],
   'td.cond': ['feltételes mód','tryb przypuszczający','conditional'],
   'td.cong': ['kötőmód, jelen','tryb łączący, teraźniejszy','present subjunctive'],
+  'td.trp': ['régmúlt (előidejű múlt)','czas zaprzeszły','past perfect'],
+  'td.rem': ['befejezett múlt (irodalmi)','czas przeszły dokonany (literacki)','simple past (literary)'],
+  'td.trr': ['régmúlt (irodalmi)','czas zaprzeszły (literacki)','past anterior (literary)'],
+  'td.futa': ['befejezett jövő','czas przyszły uprzedni','future perfect'],
+  'td.condp': ['múlt idejű feltételes mód','tryb przypuszczający przeszły','conditional perfect'],
+  'td.congp': ['kötőmód, múlt','tryb łączący, przeszły','perfect subjunctive'],
+  'td.congi': ['kötőmód, folyamatos múlt','tryb łączący, niedokonany','imperfect subjunctive'],
+  'td.congt': ['kötőmód, régmúlt','tryb łączący, zaprzeszły','pluperfect subjunctive'],
+  'td.impv': ['felszólító mód','tryb rozkazujący','imperative'],
+  'tin.rem': ['a passato remotóban','w passato remoto','in the passato remoto'],
+  'tin.congi': ['a kötőmód múlt idejében','w trybie łączącym niedokonanym','in the imperfect subjunctive'],
+  'tin.impv': ['felszólító módban','w trybie rozkazującym','in the imperative'],
   'tin.pres': ['jelen időben','w czasie teraźniejszym','in the present'],
   'tin.pp': ['a múlt idejű alakjában (participio)','w imiesłowie (participio)','in the past participle'],
   'tin.imp': ['folyamatos múltban','w czasie przeszłym niedokonanym','in the imperfect'],
@@ -2050,7 +2131,7 @@ const I18N = {
   'v.bad': ['Nem jó.','Źle.','Not quite.'],
   'aux.note': ['Essere segédigével a participio egyezik az alannyal (-o/-a, -i/-e).','Z essere imiesłów zgadza się z podmiotem (-o/-a, -i/-e).','With essere the participle agrees with the subject (-o/-a, -i/-e).'],
   'table.fill': ['Töltsd ki mind a hat személyt.','Uzupełnij wszystkie sześć osób.','Fill in all six persons.'],
-  'good6': ['{n}/6 helyes','{n}/6 poprawnie','{n}/6 correct'],
+  'good6': ['{n}/{m} helyes','{n}/{m} poprawnie','{n}/{m} correct'],
   'b.count': ['{n} ige · a piros pont rendhagyót jelöl','{n} czasowników · czerwona kropka = nieregularny','{n} verbs · red dot = irregular'],
   'b.none': ['Nincs találat.','Brak wyników.','No results.'],
   'b.aux': ['segédige','czasownik posiłkowy','auxiliary'],
@@ -2217,6 +2298,8 @@ const I18N = {
   'cefr.A1': ['A1 · kezdő','A1 · początkujący','A1 · beginner'],
   'cefr.A2': ['A2 · alapfok','A2 · podstawowy','A2 · elementary'],
   'cefr.B1': ['B1 · középfok','B1 · średni','B1 · intermediate'],
+  'cefr.B2': ['B2 · középfelső','B2 · średnio zaawansowany','B2 · upper intermediate'],
+  'cefr.C1': ['C1 · felsőfok','C1 · zaawansowany','C1 · advanced'],
   'c.label': ['Beszélgetés az AI-val','Rozmowa z AI','Chat with the AI'],
   'c.title': ['Válassz helyzetet és szintet a beállításoknál, aztán kezdjétek!','Wybierz sytuację i poziom w ustawieniach, a potem zaczynajcie!','Pick a situation and a level in the settings, then start!'],
   'c.extra': ['Az AI eljátssza a szerepét, és közben megmutatja, hol hibáztál. A végén értékelést kapsz.','AI odgrywa swoją rolę i przy okazji pokazuje twoje błędy. Na końcu dostaniesz ocenę.','The AI plays its role and points out your mistakes as you go. At the end you get feedback.'],
@@ -2447,9 +2530,10 @@ function table(vb, tn, hl){ const t_ = tn; return tableImpl(vb, t_, hl); }
 function tableImpl(vb, tn, hl){
   const rows = PERS.map((p,i)=>{
     const c = cell(vb,tn,i);
-    return `<tr class="${i===hl?'hl':''}"><td class="p">${p}</td><td>${c.irr?`<span class="irrf" title="${t('irr.form')}">${esc(c.display)}</span>`:esc(c.display)}${sayBtn(c.display)}</td></tr>`;
+    if (c.na) return tn==='impv' && i===0 ? '' : `<tr><td class="p">${personLabel(tn,i)}</td><td class="muted">—</td></tr>`;
+    return `<tr class="${i===hl?'hl':''}"><td class="p">${personLabel(tn,i)}</td><td>${c.irr?`<span class="irrf" title="${t('irr.form')}">${esc(c.display)}</span>`:esc(c.display)}${sayBtn(c.display)}</td></tr>`;
   }).join('');
-  const T = tenseOf(tn), irr = vb.irrT.includes(tn);
+  const T = tenseOf(tn), irr = isIrrT(vb, tn);
   return `<div class="tbox"><h4>${T.it}<span>${tdesc(tn)}${irr?` · <span class="irrtag">${t('irr')}</span>`:''}</span></h4><table class="ttable"><tbody>${rows}</tbody></table></div>`;
 }
 
@@ -2504,7 +2588,7 @@ function recordImpl(vb, t, i, res, given){
   if (res==='ok' || (res==='acc' && S.lenient)){ ST.ok++; ST.streak++; ST.best=Math.max(ST.best,ST.streak); if (ST.miss[vb.inf]) ST.miss[vb.inf]=Math.max(0,ST.miss[vb.inf]-1); }
   else {
     ST.streak=0; ST.miss[vb.inf]=(ST.miss[vb.inf]||0)+1;
-    ST.recent.unshift({inf:vb.inf, t, p:PERS[i], given, right:cell(vb,t,i).display});
+    ST.recent.unshift({inf:vb.inf, t, p:personLabel(t,i), given, right:cell(vb,t,i).display});
     ST.recent = ST.recent.slice(0,8);
   }
   store.set('stats', ST); renderStats();
@@ -2525,9 +2609,11 @@ const rnd = a => a[Math.floor(Math.random()*a.length)];
 function next(){
   const vb = pickVerb();
   if (!vb){ $('qcard').innerHTML = `<p>${t('empty.verbs')}</p>`; return; }
-  let t = rnd(S.tenses);
-  if (S.kind==='irr' && Math.random()<.7){ const it = S.tenses.filter(x=>vb.irrT.includes(x)); if (it.length) t = rnd(it); }
-  cur = {vb, t, i: Math.floor(Math.random()*6), done:false};
+  let usable = S.tenses.filter(x => !(x==='impv' && vb.noImpv));
+  if (!usable.length) usable = ['pres'];
+  let t = rnd(usable);
+  if (S.kind==='irr' && Math.random()<.7){ const it = usable.filter(x=>isIrrT(vb,x)); if (it.length) t = rnd(it); }
+  cur = {vb, t, i: t==='impv' ? 1+Math.floor(Math.random()*5) : Math.floor(Math.random()*6), done:false};
   S.mode==='table' ? renderTableQ() : renderSingleQ();
 }
 
@@ -2559,7 +2645,7 @@ function renderSingleQ(){
   const {vb,i} = cur, tn = cur.t;
   $('qcard').innerHTML = head(vb,tn) + `
   <form id="qform" autocomplete="off">
-    <div class="answer-row"><label class="person" for="ans">${PERS[i]}</label>
+    <div class="answer-row"><label class="person" for="ans">${personLabel(tn,i)}</label>
     <input id="ans" autocapitalize="off" spellcheck="false" placeholder="${vb.refl?t('ph.refl'):t('ph.form')}"></div>
     ${keysHtml()}
     <div class="actions">
@@ -2588,7 +2674,7 @@ function answerSingle(gaveUp){
   const note = c.irr ? `<p><span class="irrf">${t('irr.this')}</span>${tn==='pp'?t('irr.pp', {pp: esc(vb.F.pp.split('/')[0])}):''}</p>` : '';
   const auxNote = (tn==='pp' && vb.aux==='essere') ? `<p class="muted">${t('aux.note')}</p>` : '';
   $('fb').innerHTML = `<div class="feedback ${cls}">
-    <p><span class="verdict">${verdict}</span> ${res!=='ok'?`<strong class="big">${esc(PERS[i])} ${esc(c.display)}</strong>`:''} ${sayBtn(c.display)}</p>
+    <p><span class="verdict">${verdict}</span> ${res!=='ok'?`<strong class="big">${esc(personLabel(tn,i))} ${esc(c.display)}</strong>`:''} ${sayBtn(c.display)}</p>
     ${note}${auxNote}
     <div class="after-table">${table(vb,tn,i)}</div>${exampleHtml(vb)}</div>`;
   $('go').focus({preventScroll:true});
@@ -2598,13 +2684,13 @@ function renderTableQ(){
   const {vb} = cur, tn = cur.t;
   $('qcard').innerHTML = head(vb,tn,t('table.fill')) + `
   <form id="qform" autocomplete="off"><div class="trows">
-  ${PERS.map((p,i)=>`<div class="trow"><label class="person" for="t${i}">${p}</label><input id="t${i}" autocapitalize="off" spellcheck="false"><div class="sol" id="sol${i}" hidden></div></div>`).join('')}
+  ${PERS.map((p,i)=>`<div class="trow" ${tn==='impv'&&i===0?'hidden':''}><label class="person" for="t${i}">${personLabel(tn,i)}</label><input id="t${i}" autocapitalize="off" spellcheck="false"><div class="sol" id="sol${i}" hidden></div></div>`).join('')}
   </div>${keysHtml()}
   <div class="actions"><button class="btn" type="submit" id="go">${t('btn.check')}</button>
   <button class="btn ghost" type="button" id="idk">${t('btn.solution')}</button>
   <button class="btn quiet" type="button" id="skip">${t('btn.otherverb')}</button></div></form><div id="fb"></div>`;
   wireCommon();
-  $('t0').focus({preventScroll:true});
+  $(tn==='impv' ? 't1' : 't0').focus({preventScroll:true});
   for (let i=0;i<5;i++) $('t'+i).addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); $('t'+(i+1)).focus(); } });
   $('skip').onclick = next;
   $('idk').onclick = ()=>{ if(!cur.done) answerTable(true); };
@@ -2613,8 +2699,10 @@ function renderTableQ(){
 function answerTable(gaveUp){
   const {vb} = cur, tn = cur.t; let good = 0;
   cur.done = true;
+  const total = tn==='impv' ? 5 : 6;
   PERS.forEach((p,i)=>{
     const c = cell(vb,tn,i), inp = $('t'+i), given = inp.value;
+    if (c.na){ inp.readOnly = true; return; }
     const res = gaveUp ? 'bad' : check(given, c.accept);
     const ok = res==='ok' || (res==='acc' && S.lenient);
     if (ok) good++;
@@ -2624,8 +2712,8 @@ function answerTable(gaveUp){
     if (res!=='ok'){ const s=$('sol'+i); s.hidden=false; s.innerHTML = c.irr?`<span class="irrf">${esc(c.display)}</span>`:esc(c.display); }
   });
   $('go').textContent = t('btn.next'); $('idk').disabled = true; $('skip').hidden = true;
-  const cls = good===6?'ok':good>=4?'acc':'bad';
-  $('fb').innerHTML = `<div class="feedback ${cls}"><p><span class="verdict">${t('good6', {n: good})}</span>${vb.irrT.includes(tn)?` · <span class="irrf">${t('irr.tense')}</span>`:''}</p><div class="after-table">${table(vb,tn,-1)}</div>${exampleHtml(vb)}</div>`;
+  const cls = good===total?'ok':good>=total-2?'acc':'bad';
+  $('fb').innerHTML = `<div class="feedback ${cls}"><p><span class="verdict">${t('good6', {n: good, m: total})}</span>${isIrrT(vb,tn)?` · <span class="irrf">${t('irr.tense')}</span>`:''}</p><div class="after-table">${table(vb,tn,-1)}</div>${exampleHtml(vb)}</div>`;
   $('go').focus({preventScroll:true});
 }
 
@@ -2858,11 +2946,13 @@ const AIP = (() => {
 // (a tools/embed-prompts.mjs bemásolja az /*AI-PROMPTS*/ jelölők közé, az "export" szavak nélkül).
 
 const PROMPT_LANG = { hu: 'Hungarian', pl: 'Polish', en: 'English' };
-const CEFR = ['A1', 'A2', 'B1'];
+const CEFR = ['A1', 'A2', 'B1', 'B2', 'C1'];
 const CEFR_HINT = {
   A1: 'very simple words, present tense mostly, short sentences',
   A2: 'simple everyday language, short sentences, common past and future forms',
-  B1: 'natural everyday language with some longer sentences'
+  B1: 'natural everyday language with some longer sentences',
+  B2: 'fluent, varied language with complex sentences and idiomatic expressions',
+  C1: 'rich, nuanced, near-native language, including idioms and sophisticated structures'
 };
 const SCENARIOS = {
   cafe: 'You are a friendly barista in an Italian bar (café). The learner is a customer who wants to order coffee and something to eat, and pay.',
@@ -2875,7 +2965,7 @@ const SCENARIOS = {
   meet: 'You are a friendly Italian person the learner has just met at a language exchange evening. Chat about where they are from, family, work, hobbies and plans.',
   free: 'Have a friendly everyday conversation with the learner about the topic they chose.'
 };
-const TENSE_EN = { pres: 'presente', pp: 'passato prossimo', imp: 'imperfetto', fut: 'futuro semplice', cond: 'condizionale presente', cong: 'congiuntivo presente' };
+const TENSE_EN = { pres: 'presente', pp: 'passato prossimo', imp: 'imperfetto', trp: 'trapassato prossimo', rem: 'passato remoto', trr: 'trapassato remoto', fut: 'futuro semplice', futa: 'futuro anteriore', cond: 'condizionale presente', condp: 'condizionale passato', cong: 'congiuntivo presente', congp: 'congiuntivo passato', congi: 'congiuntivo imperfetto', congt: 'congiuntivo trapassato', impv: 'imperativo' };
 
 const str = (v, n) => String(v == null ? '' : v).slice(0, n).trim();
 
@@ -2898,7 +2988,7 @@ function sanitize(body) {
   }
   if (type === 'story') {
     const level = CEFR.includes(body.level) ? body.level : 'A2';
-    const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 6) : [];
+    const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
     return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100) };
   }
   // alapeset: fordítás javítása
@@ -2943,7 +3033,7 @@ Evaluate ONLY the learner's Italian. Write everything except the Italian example
 - "tips": up to 3 short, practical tips in ${LN}.`;
   }
   if (p.type === 'story') {
-    const len = { A1: '60-80', A2: '90-120', B1: '130-170' }[p.level];
+    const len = { A1: '60-80', A2: '90-120', B1: '130-170', B2: '170-220', C1: '220-280' }[p.level];
     return `Write a short, original Italian text for a language learner whose native language is ${LN}. Level ${p.level} (${CEFR_HINT[p.level]}). Length: ${len} words.
 Use mainly these tenses, naturally: ${p.tenses.map((x) => TENSE_EN[x]).join(', ')}.
 Topic: ${p.topic ? JSON.stringify(p.topic) : 'an everyday situation of your choice (family, travel, work, food, city life, a small adventure)'}.
@@ -3348,7 +3438,7 @@ function answerR(i, k){
 let curM = null;
 function mpool(){ return SENTS.filter(x => S.mtenses.includes(x.t) && S.mlevels.includes(VBY[x.inf].lvl)); }
 function renderOptionsM(){
-  $('m-tenses').innerHTML = TENSES.map(t=>chk('checkbox','mtense',t.id,S.mtenses.includes(t.id),t.it)).join('');
+  $('m-tenses').innerHTML = TENSES.filter(x=>SENTS.some(y=>y.t===x.id)).map(t=>chk('checkbox','mtense',t.id,S.mtenses.includes(t.id),t.it)).join('');
   $('m-levels').innerHTML = [1,2,3].map(l=>chk('checkbox','mlevel',l,S.mlevels.includes(l),LEVELS[l])).join('');
   $('m-hu').checked = S.mhu;
   $('m-pool').textContent = t('pool.m', {n: mpool().length});
