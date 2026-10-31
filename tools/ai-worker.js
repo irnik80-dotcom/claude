@@ -64,7 +64,7 @@ export default {
     } catch (e) {
       usage.set(key, used); // a sikertelen kérés ne számítson bele
       const status = e.status === 429 ? 429 : 502;
-      return reply(status, { error: 'ai', message: e.status === 429 ? 'Az AI ingyenes kerete most elfogyott. Próbáld újra később.' : 'Az AI most nem válaszolt. Próbáld újra.' });
+      return reply(status, { error: 'ai', detail: e.detail || String(e.message || ''), message: e.status === 429 ? 'Az AI ingyenes kerete most elfogyott. Próbáld újra később.' : 'Az AI most nem válaszolt. Próbáld újra.' });
     }
   }
 };
@@ -121,8 +121,12 @@ async function askGemini(env, hu, ref, given) {
         generationConfig: { temperature: 0.2, responseMimeType: 'application/json', responseSchema: SCHEMA }
       })
     });
-    if (r.status === 404) { lastErr = Object.assign(new Error('model'), { status: 404 }); continue; }
-    if (!r.ok) throw Object.assign(new Error('gemini ' + r.status), { status: r.status });
+    if (r.status === 404) { lastErr = Object.assign(new Error('model ' + model), { status: 404, detail: 'model not found: ' + model }); continue; }
+    if (!r.ok) {
+      let detail = '';
+      try { const j = await r.json(); detail = (j.error && (j.error.status + ': ' + j.error.message)) || ''; } catch (e) {}
+      throw Object.assign(new Error('gemini ' + r.status), { status: r.status, detail: (model + ' ' + r.status + ' ' + detail).slice(0, 300) });
+    }
     const data = await r.json();
     const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
     const out = JSON.parse(text);
