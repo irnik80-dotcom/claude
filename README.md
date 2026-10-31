@@ -3,7 +3,7 @@
 Olasz igeragozás gyakorló: 319 ige három szinten, hat igeidő/mód, a rendhagyó alakok jelölve. Nyelvek: magyar, lengyel, angol.
 
 - `coniuga.html`: a forrás (ez fut Claude artifactként is).
-- `docs/`: a nyilvános weboldal (GitHub Pages), saját bejelentkezéssel (Firebase). Fülek: Ragozás, Szójelentés (4 lehetőség közül), Mondatok (hiányzó ige), Igetár, Tanári nézet. Kiejtés és példamondat minden igéhez.
+- `docs/`: a nyilvános weboldal (GitHub Pages), saját bejelentkezéssel (Firebase). Fülek: Ragozás, Szójelentés (4 lehetőség közül), Mondatok (hiányzó ige), Fordítás (AI), Beszélgetés (AI), Olvasás (AI), Igetár, Tanári nézet. Kiejtés és példamondat minden igéhez.
   A `docs/index.html` generált fájl. Ha a `coniuga.html` változik: `node tools/build-site.mjs`.
 - `firestore.rules`: az adatbázis biztonsági szabályai (mindenki csak a saját profilját látja).
 
@@ -28,3 +28,5 @@ Olasz igeragozás gyakorló: 319 ige három szinten, hat igeidő/mód, a rendhag
 4. 1–2 perc múlva az oldal elérhető: **https://irnik80-dotcom.github.io/claude/**
 - `tools/sentences.txt`: a példamondatok forrása (a `coniuga.html`-be ágyazva).
 - `tools/i18n-verbs.txt`, `tools/i18n-sentences.txt`: az igék jelentése és a példamondatok lengyelül és angolul (a `coniuga.html`-be ágyazva). A felület feliratai a `coniuga.html` `I18N` táblájában vannak.
+- `tools/ai-prompts.js`: az AI-feladatok promptjai (a Worker importálja; a `coniuga.html`-be a `node tools/embed-prompts.mjs` másolja be).
+- `tools/ai-worker.js` + `wrangler.toml`: a Cloudflare Worker (AI-közvetítő), a GitHubról automatikusan települ.
