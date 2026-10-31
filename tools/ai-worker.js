@@ -51,6 +51,21 @@ export default {
           return reply(200, { models: (j.models || []).filter((m) => (m.supportedGenerationMethods || []).includes('generateContent')).map((m) => m.name.replace('models/', '')) });
         } catch (e) { return reply(502, { error: 'models' }); }
       }
+      // ?probe=modell[&think=minimal|low|off] : rövid próbakérés egy modellre (hibakereséshez)
+      const probe = new URL(request.url).searchParams.get('probe');
+      if (probe && env.GEMINI_API_KEY && /^[a-z0-9.\-]+$/.test(probe)) {
+        const think = new URL(request.url).searchParams.get('think') || '';
+        const generationConfig = { temperature: 0.2, responseMimeType: 'application/json', responseSchema: { type: 'OBJECT', properties: { text: { type: 'STRING' } }, required: ['text'] } };
+        if (think === 'off') generationConfig.thinkingConfig = { thinkingBudget: 0 };
+        else if (think) generationConfig.thinkingConfig = { thinkingLevel: think };
+        const t0 = Date.now();
+        try {
+          const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${probe}:generateContent`, { signal: AbortSignal.timeout(40000), method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
+            body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Scrivi una frase di 15 parole su Roma.' }] }], generationConfig }) });
+          const j = await r.json().catch(() => ({}));
+          return reply(200, { model: probe, think, status: r.status, ms: Date.now() - t0, out: (j?.candidates?.[0]?.content?.parts || []).map((x) => x.text || '').join('').slice(0, 120), err: j.error ? (j.error.status + ': ' + String(j.error.message).slice(0, 160)) : '' });
+        } catch (e) { return reply(200, { model: probe, think, status: 'timeout', ms: Date.now() - t0 }); }
+      }
       return reply(200, { ok: true, service: 'coniuga-ai', configured: !!env.GEMINI_API_KEY });
     }
     if (request.method !== 'POST') return reply(405, { error: 'method' });
