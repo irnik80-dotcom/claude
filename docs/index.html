@@ -56,7 +56,19 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .who-dot{width:8px; height:8px; border-radius:50%; background:var(--line); flex:none}
 .who.on .who-dot{background:var(--ok)}
 .who b{color:var(--ink)}
-nav.tabs{display:flex; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:4px}
+.opts{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.optbtn{display:flex; gap:12px; align-items:baseline; text-align:left; font:inherit; font-size:1.05rem; padding:14px 16px; border-radius:10px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; min-width:0}
+.optbtn:hover:not(:disabled){border-color:var(--accent); background:var(--accent-soft)}
+.optbtn .k{font-family:var(--f-mono); font-size:.8rem; color:var(--ink-soft); flex:none}
+.optbtn .t{min-width:0; overflow-wrap:anywhere}
+.optbtn.it .t{font-family:var(--f-display); font-size:1.2rem}
+.optbtn:disabled{cursor:default}
+.optbtn.right{border-color:var(--ok); background:var(--ok-soft)}
+.optbtn.wrong{border-color:var(--pen); background:var(--pen-soft)}
+.optbtn.dim{opacity:.55}
+.vprompt{font-family:var(--f-display); font-weight:400; font-size:clamp(2rem,7vw,2.9rem); margin:0 0 16px; line-height:1.15; overflow-wrap:anywhere}
+nav.tabs{display:flex; flex-wrap:wrap; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:4px}
 nav.tabs button{font:inherit; font-weight:600; border:0; background:transparent; color:var(--ink-soft); padding:8px 16px; border-radius:7px; cursor:pointer}
 nav.tabs button[aria-selected="true"]{background:var(--accent); color:var(--on-accent)}
 button:focus-visible,input:focus-visible,select:focus-visible,label:focus-within{outline:2px solid var(--accent); outline-offset:2px}
@@ -218,7 +230,8 @@ dialog.login .row .btn{flex:1 1 140px}
     </div>
     <div class="auth" id="auth" hidden><button class="btn ghost" id="login-open" type="button">Bejelentkezés</button><button class="btn quiet" id="logout" type="button" hidden>Kijelentkezés</button></div>
     <nav class="tabs" role="tablist">
-      <button id="tab-practice" role="tab" aria-selected="true">Gyakorlás</button>
+      <button id="tab-practice" role="tab" aria-selected="true">Ragozás</button>
+      <button id="tab-vocab" role="tab" aria-selected="false">Szójelentés</button>
       <button id="tab-browse" role="tab" aria-selected="false">Igetár</button>
       <button id="tab-teacher" role="tab" aria-selected="false" hidden>Tanári nézet</button>
     </nav>
@@ -229,7 +242,7 @@ dialog.login .row .btn{flex:1 1 140px}
       <div class="card" id="qcard"></div>
       <aside class="side">
         <div class="card">
-          <h3>Eredmény</h3>
+          <h3>Eredmény · ragozás</h3>
           <div class="stats">
             <div class="stat"><b id="s-pct">–</b><span>helyes</span></div>
             <div class="stat"><b id="s-streak">0</b><span>sorozat</span></div>
@@ -268,6 +281,45 @@ dialog.login .row .btn{flex:1 1 140px}
           <ul class="mist" id="mistakes"></ul>
           <div class="actions" style="margin-top:12px"><button class="btn quiet" id="reset">Eredmények törlése</button></div>
           <p class="muted" id="reset-confirm" hidden style="margin:8px 0 0">Biztosan? <button class="btn quiet" id="reset-yes" style="padding:3px 10px">Igen, törlöm</button></p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="view-vocab" hidden>
+    <div class="layout">
+      <div class="card" id="vcard"></div>
+      <aside class="side" id="vside">
+        <div class="card">
+          <h3>Eredmény · szójelentés</h3>
+          <div class="stats">
+            <div class="stat"><b id="v-pct">–</b><span>helyes</span></div>
+            <div class="stat"><b id="v-streak">0</b><span>sorozat</span></div>
+            <div class="stat"><b id="v-best">0</b><span>legjobb</span></div>
+          </div>
+          <p class="muted" id="v-total" style="margin:10px 0 0;text-align:center"></p>
+        </div>
+        <div class="card">
+          <h3>Beállítások</h3>
+          <div class="opt">
+            <span class="lbl">Irány</span>
+            <div class="checks" id="v-dir"></div>
+          </div>
+          <div class="opt">
+            <span class="lbl">Szint</span>
+            <div class="checks" id="v-levels"></div>
+          </div>
+          <div class="opt">
+            <span class="lbl">Igék</span>
+            <div class="checks" id="v-kind"></div>
+            <span class="pool" id="v-pool"></span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Legutóbbi hibák</h3>
+          <ul class="mist" id="v-mistakes"></ul>
+          <div class="actions" style="margin-top:12px"><button class="btn quiet" id="v-reset">Eredmények törlése</button></div>
+          <p class="muted" id="v-reset-confirm" hidden style="margin:8px 0 0">Biztosan? <button class="btn quiet" id="v-reset-yes" style="padding:3px 10px">Igen, törlöm</button></p>
         </div>
       </aside>
     </div>
@@ -757,7 +809,7 @@ async function saveCloud(){
   if (!cloudRef) return;
   if (cloudBusy){ cloudDirty = true; return; }
   cloudBusy = true;
-  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
+  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
   catch(e){ setWho(null, 'Most nem sikerült menteni a fiókodba; a böngészőben megvan.'); }
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
@@ -781,8 +833,10 @@ function applyData(d){
   d = d || {};
   ST = Object.assign(BLANK_STATS(), d.stats ? JSON.parse(JSON.stringify(d.stats)) : {});
   S = Object.assign({}, DEF, d.settings ? JSON.parse(JSON.stringify(d.settings)) : {});
+  VST = Object.assign(BLANK_STATS(), d.vstats ? JSON.parse(JSON.stringify(d.vstats)) : {});
   if (S.focus && !byInf[S.focus]) S.focus = null;
   renderOptions(); renderStats(); next();
+  renderOptionsV(); renderStatsV(); nextV();
 }
 /* ref: {get(): Promise<{exists, data()}>, set(obj): Promise} */
 async function attachCloud(ref, me){
@@ -790,11 +844,11 @@ async function attachCloud(ref, me){
   if (snap.exists) applyData(snap.data());
   cloudRef = ref;
   setWho(me);
-  if (snap.exists || ST.total || Object.keys(cloudExtra).length) saveCloud();
+  if (snap.exists || ST.total || VST.total || Object.keys(cloudExtra).length) saveCloud();
 }
 function detachCloud(){
   cloudRef = null; clearTimeout(cloudTimer);
-  applyData({stats: store.get('stats', {}), settings: store.get('settings', {})});
+  applyData({stats: store.get('stats', {}), vstats: store.get('vstats', {}), settings: store.get('settings', {})});
   setWho(null);
 }
 async function initCloud(){
@@ -807,9 +861,10 @@ async function initCloud(){
     await attachCloud(db.collection('data/users/' + me.id).doc('coniuga'), me);
   }catch(e){ /* marad a böngészős mentés */ }
 }
-const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null};
+const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all'};
 let S = Object.assign({}, DEF, store.get('settings', {}));
 let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
+let VST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('vstats', {}));
 let cur = null;
 let lastInput = null;
 const byInf = Object.fromEntries(VERBS.map(v=>[v.inf, v]));
@@ -884,7 +939,7 @@ function renderStats(){
 }
 function record(vb, t, i, res, given){
   if (answerHook){
-    try{ answerHook({inf:vb.inf, t, p:i, given:given||'', right:cell(vb,t,i).display, res, ok: res==='ok' || (res==='acc' && S.lenient), at: Date.now()}); }catch(e){}
+    try{ answerHook({kind:'conj', inf:vb.inf, t, p:i, given:given||'', right:cell(vb,t,i).display, res, ok: res==='ok' || (res==='acc' && S.lenient), at: Date.now()}); }catch(e){}
   }
   ST.total++;
   if (res==='ok' || (res==='acc' && S.lenient)){ ST.ok++; ST.streak++; ST.best=Math.max(ST.best,ST.streak); if (ST.miss[vb.inf]) ST.miss[vb.inf]=Math.max(0,ST.miss[vb.inf]-1); }
@@ -1052,7 +1107,7 @@ function renderDetail(){
 
 /* ---- fülek ---- */
 function showTab(name){
-  ['practice','browse','teacher'].forEach(n=>{
+  ['practice','vocab','browse','teacher'].forEach(n=>{
     const tab = $('tab-'+n), view = $('view-'+n);
     if (tab) tab.setAttribute('aria-selected', n===name);
     if (view) view.hidden = n!==name;
@@ -1060,8 +1115,108 @@ function showTab(name){
 }
 $('tab-practice').onclick = ()=>showTab('practice');
 $('tab-browse').onclick = ()=>showTab('browse');
+$('tab-vocab').onclick = ()=>showTab('vocab');
+
+/* ---- Szójelentés: 4 lehetőség közül a jó ---- */
+const DIRS = {it2hu:'olaszból magyarra', hu2it:'magyarból olaszra'};
+let curV = null;
+const huTokens = hu => hu.toLowerCase().split(/[,;()]/).map(x=>x.trim()).filter(Boolean);
+const sameMeaning = (a,b) => { const A = huTokens(a.hu); return huTokens(b.hu).some(t=>A.includes(t)); };
+function shuffle(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function renderOptionsV(){
+  $('v-dir').innerHTML = chk('radio','vdir','mix',S.vdir==='mix','vegyes') + chk('radio','vdir','it2hu',S.vdir==='it2hu','olasz → magyar') + chk('radio','vdir','hu2it',S.vdir==='hu2it','magyar → olasz');
+  $('v-levels').innerHTML = [1,2,3].map(l=>chk('checkbox','vlevel',l,S.vlevels.includes(l),LEVELS[l])).join('');
+  $('v-kind').innerHTML = chk('radio','vkind','all',S.vkind==='all','mind') + chk('radio','vkind','irr',S.vkind==='irr','csak rendhagyó') + chk('radio','vkind','reg',S.vkind==='reg','csak szabályos');
+  $('v-pool').textContent = `${vpool().length} ige felel meg a szűrésnek.`;
+}
+function vpool(){
+  return VERBS.filter(v => S.vlevels.includes(v.lvl) && (S.vkind==='all' || (S.vkind==='irr' ? v.irr : !v.irr)));
+}
+$('vside').addEventListener('change', e=>{
+  const el = e.target;
+  if (el.name==='vdir') S.vdir = el.value;
+  else if (el.name==='vkind') S.vkind = el.value;
+  else if (el.name==='vlevel'){ const sel=[...document.querySelectorAll('input[name=vlevel]:checked')].map(x=>+x.value); if(!sel.length){ el.checked=true; return; } S.vlevels = sel; }
+  else return;
+  store.set('settings', S); renderOptionsV(); nextV();
+});
+function renderStatsV(){
+  $('v-pct').textContent = VST.total ? Math.round(100*VST.ok/VST.total)+'%' : '–';
+  $('v-streak').textContent = VST.streak; $('v-best').textContent = VST.best;
+  $('v-total').textContent = VST.total ? `${VST.ok} helyes / ${VST.total} válasz` : 'Még nincs válasz.';
+  $('v-mistakes').innerHTML = VST.recent.length ? VST.recent.map(m=>
+    `<li><span><b>${esc(m.prompt)}</b> · ${esc(DIRS[m.dir]||'')}<br><span class="w">${esc(m.given||'—')}</span></span><span class="c">${esc(m.right)}</span></li>`).join('')
+    : '<li class="muted">Itt jelennek meg a hibás válaszaid.</li>';
+}
+$('v-reset').onclick = ()=>{ $('v-reset-confirm').hidden = false; };
+$('v-reset-yes').onclick = ()=>{ VST={ok:0,total:0,streak:0,best:0,miss:{},recent:[]}; store.set('vstats',VST); renderStatsV(); $('v-reset-confirm').hidden = true; };
+
+function nextV(){
+  const pl = vpool();
+  if (pl.length < 4){ $('vcard').innerHTML = '<p>Ehhez legalább 4 ige kell. Válassz több szintet vagy igetípust.</p>'; curV=null; return; }
+  const w = pl.map(v=>1+Math.min(4,(VST.miss[v.inf]||0))*1.5);
+  let r = Math.random()*w.reduce((a,b)=>a+b,0), vb = pl[pl.length-1];
+  for (let k=0;k<pl.length;k++){ r-=w[k]; if (r<=0){ vb = pl[k]; break; } }
+  const dir = S.vdir==='mix' ? rnd(['it2hu','hu2it']) : S.vdir;
+  // rossz válaszok: más jelentésű igék, egymással sem azonos jelentésűek
+  const cand = shuffle((pl.length>=12 ? pl : VERBS).filter(v=>v!==vb && !sameMeaning(v,vb)));
+  const wrong = [];
+  for (const c of cand){ if (wrong.length===3) break; if (!wrong.some(x=>sameMeaning(x,c))) wrong.push(c); }
+  curV = {vb, dir, opts: shuffle([vb, ...wrong]), done:false};
+  renderV();
+}
+const optText = (o, dir) => dir==='it2hu' ? o.hu : o.inf;
+function renderV(){
+  const {vb, dir, opts} = curV;
+  $('vcard').innerHTML = `
+    <div class="task"><span class="task-lbl">${dir==='it2hu'?'Olaszból magyarra':'Magyarból olaszra'}</span><span class="task-tense">${dir==='it2hu'?'Mit jelent magyarul?':'Hogy mondják olaszul?'}</span><span class="task-extra">Válaszd ki a jó megoldást (billentyűzeten: 1–4).</span></div>
+    <h2 class="vprompt">${esc(dir==='it2hu'?vb.inf:vb.hu)}</h2>
+    <div class="opts">${opts.map((o,k)=>`<button type="button" class="optbtn ${dir==='hu2it'?'it':''}" data-k="${k}"><span class="k">${k+1}</span><span class="t">${esc(optText(o,dir))}</span></button>`).join('')}</div>
+    <div class="actions"><button class="btn quiet" type="button" id="v-skip">Másik kérdés</button></div>
+    <div id="v-fb"></div>`;
+  $('vcard').querySelectorAll('.optbtn').forEach(b=>b.onclick=()=>answerV(+b.dataset.k));
+  $('v-skip').onclick = nextV;
+}
+function answerV(k){
+  if (!curV || curV.done) return;
+  const {vb, dir, opts} = curV, chosen = opts[k], ok = chosen===vb;
+  curV.done = true;
+  $('vcard').querySelectorAll('.optbtn').forEach((b,j)=>{
+    b.disabled = true;
+    if (opts[j]===vb) b.classList.add('right'); else if (j===k) b.classList.add('wrong'); else b.classList.add('dim');
+  });
+  recordV(vb, dir, chosen, ok);
+  $('v-skip').hidden = true;
+  const other = ok ? '' : `<p>A te választásod: <b>${esc(chosen.inf)}</b> = ${esc(chosen.hu)}</p>`;
+  $('v-fb').innerHTML = `<div class="feedback ${ok?'ok':'bad'}">
+    <p><span class="verdict">${ok?'Helyes!':'Nem jó.'}</span> <strong class="big">${esc(vb.inf)}</strong> = ${esc(vb.hu)}</p>
+    ${other}
+    ${chips(vb)}
+    <div class="actions" style="margin-top:4px"><button class="btn" type="button" id="v-next">Következő →</button></div></div>`;
+  $('v-next').onclick = nextV;
+  $('v-next').focus({preventScroll:true});
+}
+function recordV(vb, dir, chosen, ok){
+  if (answerHook){
+    try{ answerHook({kind:'vocab', inf:vb.inf, dir, given: optText(chosen,dir), right: optText(vb,dir), ok, at: Date.now()}); }catch(e){}
+  }
+  VST.total++;
+  if (ok){ VST.ok++; VST.streak++; VST.best=Math.max(VST.best,VST.streak); if (VST.miss[vb.inf]) VST.miss[vb.inf]=Math.max(0,VST.miss[vb.inf]-1); }
+  else {
+    VST.streak=0; VST.miss[vb.inf]=(VST.miss[vb.inf]||0)+1;
+    VST.recent.unshift({inf:vb.inf, dir, prompt: dir==='it2hu'?vb.inf:vb.hu, given: optText(chosen,dir), right: optText(vb,dir)});
+    VST.recent = VST.recent.slice(0,8);
+  }
+  store.set('vstats', VST); renderStatsV();
+}
+document.addEventListener('keydown', e=>{
+  if ($('view-vocab').hidden || !curV || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (/^[1-4]$/.test(e.key) && !curV.done){ e.preventDefault(); answerV(+e.key-1); }
+});
 
 renderOptions(); renderStats(); renderBrowseKind(); renderList(); renderDetail(); next();
+renderOptionsV(); renderStatsV(); nextV();
 </script>
 
 <dialog class="login" id="login">
