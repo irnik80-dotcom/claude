@@ -46,6 +46,11 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .brand h1{font-family:var(--f-display); font-weight:400; font-size:2.4rem; line-height:1; margin:0; letter-spacing:-.01em}
 .brand h1 em{font-style:normal; color:var(--pen)}
 .brand p{margin:6px 0 0; color:var(--ink-soft)}
+.brand p.who{display:flex; align-items:center; gap:8px; font-size:.85rem; margin-top:8px}
+.who img{width:22px; height:22px; border-radius:50%; flex:none}
+.who-dot{width:8px; height:8px; border-radius:50%; background:var(--line); flex:none}
+.who.on .who-dot{background:var(--ok)}
+.who b{color:var(--ink)}
 nav.tabs{display:flex; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:4px}
 nav.tabs button{font:inherit; font-weight:600; border:0; background:transparent; color:var(--ink-soft); padding:8px 16px; border-radius:7px; cursor:pointer}
 nav.tabs button[aria-selected="true"]{background:var(--accent); color:var(--on-accent)}
@@ -165,6 +170,7 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
     <div class="brand">
       <h1>Coniuga<em>!</em></h1>
       <p id="subtitle">Olasz igeragozás gyakorló</p>
+      <p class="who" id="who"><span class="who-dot" aria-hidden="true"></span><span id="who-text">Az eredményeid ebben a böngészőben maradnak.</span></p>
     </div>
     <nav class="tabs" role="tablist">
       <button id="tab-practice" role="tab" aria-selected="true">Gyakorlás</button>
@@ -687,8 +693,54 @@ const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&
 const LEVELS = {1:'Alap', 2:'Középhaladó', 3:'Haladó'};
 const store = {
   get(k, d){ try{ const v = localStorage.getItem('coniuga:'+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem('coniuga:'+k, JSON.stringify(v)); }catch(e){} }
+  set(k, v){ try{ localStorage.setItem('coniuga:'+k, JSON.stringify(v)); }catch(e){} scheduleCloud(); }
 };
+
+/* ---- saját profil: mentés a bejelentkezett felhasználó privát tárhelyére ---- */
+let cloudRef = null, cloudBusy = false, cloudDirty = false, cloudTimer = null;
+function scheduleCloud(){
+  if (!cloudRef) return;
+  clearTimeout(cloudTimer);
+  cloudTimer = setTimeout(saveCloud, 1200);
+}
+async function saveCloud(){
+  if (!cloudRef) return;
+  if (cloudBusy){ cloudDirty = true; return; }
+  cloudBusy = true;
+  try{ await cloudRef.set({stats: JSON.parse(JSON.stringify(ST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()}); }
+  catch(e){ setWho(null, 'Most nem sikerült menteni a fiókodba; a böngészőben megvan.'); }
+  cloudBusy = false;
+  if (cloudDirty){ cloudDirty = false; saveCloud(); }
+}
+function setWho(me, msg){
+  const w = $('who');
+  if (me){
+    w.classList.add('on');
+    w.innerHTML = `<img alt="" src="${esc(me.avatarUrl)}"><span><b></b> profilja · az eredmények a fiókodba mentődnek</span>`;
+    w.querySelector('b').textContent = me.name || 'Saját';
+  } else if (msg){ $('who-text') ? ($('who-text').textContent = msg) : (w.lastElementChild.textContent = msg); }
+}
+async function initCloud(){
+  if (!window.claude || typeof window.claude.use !== 'function') return;
+  try{
+    const [user, db] = await Promise.all([window.claude.use('user'), window.claude.use('db')]);
+    if (!user || !db) return;
+    const me = await user.me();
+    if (!me || !me.id) return;
+    const ref = db.collection('data/users/' + me.id).doc('coniuga');
+    const snap = await Promise.race([ref.get(), new Promise((_, rej)=>setTimeout(()=>rej(new Error('timeout')), 10000))]);
+    if (snap.exists){
+      const d = snap.data() || {};
+      if (d.stats) ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, JSON.parse(JSON.stringify(d.stats)));
+      if (d.settings) S = Object.assign({}, DEF, JSON.parse(JSON.stringify(d.settings)));
+      if (S.focus && !byInf[S.focus]) S.focus = null;
+      renderOptions(); renderStats(); next();
+    }
+    cloudRef = ref;
+    setWho(me);
+    if (!snap.exists && ST.total) saveCloud();
+  }catch(e){ /* marad a böngészős mentés */ }
+}
 const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null};
 let S = Object.assign({}, DEF, store.get('settings', {}));
 let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
@@ -938,4 +990,5 @@ $('tab-practice').onclick = ()=>showTab('practice');
 $('tab-browse').onclick = ()=>showTab('browse');
 
 renderOptions(); renderStats(); renderBrowseKind(); renderList(); renderDetail(); next();
+initCloud();
 </script>
