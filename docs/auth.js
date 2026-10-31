@@ -81,8 +81,8 @@ async function start() {
           const tok = await u.getIdToken();
           let r;
           try {
-            r = await fetch(AI_URL, { method: 'POST', headers: { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
-          } catch (e) { throw new Error(t('ai.network')); }
+            r = await fetch(AI_URL, { method: 'POST', signal: AbortSignal.timeout(65000), headers: { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: JSON.stringify(p) });
+          } catch (e) { throw new Error(e && (e.name === 'TimeoutError' || e.name === 'AbortError') ? t('ai.slow') : (navigator.onLine === false ? t('ai.network') : t('ai.slow'))); }
           const j = await r.json().catch(() => ({}));
           if (!r.ok) throw new Error(j.message || t('ai.unavail'));
           return j;

@@ -6,7 +6,7 @@
 // Beállítás a Cloudflare-ben: Settings → Variables and Secrets → Add
 //   GEMINI_API_KEY  (Secret)  – a Google AI Studióban kapott kulcs
 // Opcionális:
-//   MODEL           (Text)    – alapból: gemini-flash-lite-latest
+//   MODEL           (Text)    – ha meg van adva, ezzel a modellel próbálkozik elsőként
 //   DAILY_LIMIT     (Text)    – egy felhasználó napi AI-kéréseinek száma, alapból: 1000
 
 import { sanitize, buildPrompt, SCHEMAS, normalize, looksBroken } from './ai-prompts.js';
@@ -96,9 +96,9 @@ export default {
     // 4) Gemini
     try {
       const temp = { chat: 0.7, story: 0.8, adv: 0.9 }[p.type] ?? 0.2;
-      let out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], ['story', 'adv'].includes(p.type) ? 30000 : 15000, temp);
+      let out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], p.type, temp);
       // ritka modellhiba (idegen írásjelek a szövegben): egyszer újrakérjük
-      if (looksBroken(p.type, out)) { try { out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], ['story', 'adv'].includes(p.type) ? 30000 : 15000, temp); } catch (e) {} }
+      if (looksBroken(p.type, out)) { try { out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], p.type, temp); } catch (e) {} }
       return reply(200, { result: normalize(p.type, out, p) });
     } catch (e) {
       usage.set(key, used); // a sikertelen kérés ne számítson bele
@@ -108,18 +108,31 @@ export default {
   }
 };
 
-// ha egy modell túlterhelt vagy nem létezik, a következővel próbálkozik
-async function callGemini(env, prompt, schema, timeout, temperature) {
-  const models = [env.MODEL || 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-flash-latest'];
+// Modellek (2026. októberi mérés alapján): a gyors feladatokhoz a 3.1 flash-lite (~1 mp),
+// a hosszabb szövegíráshoz a jobb minőségű 3.5 flash (~3 mp). Ha egy modell túlterhelt,
+// nem létezik vagy túl lassú, a következővel próbálkozik – összesen legfeljebb ~50 mp-ig.
+const LONG_TASKS = ['story', 'adv', 'chatsum'];
+const THINK_MINIMAL = ['gemini-3.1-flash-lite', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+function modelsFor(type, env) {
+  const list = LONG_TASKS.includes(type)
+    ? ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-3.5-flash-lite']
+    : ['gemini-3.1-flash-lite', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
+  return env.MODEL ? [env.MODEL, ...list.filter((m) => m !== env.MODEL)] : list;
+}
+async function callGemini(env, prompt, schema, type, temperature) {
+  const started = Date.now(), BUDGET = 50000;
+  const perModel = LONG_TASKS.includes(type) ? 30000 : 15000;
   const tries = [];
   let lastErr;
-  for (const model of models) {
+  for (const model of modelsFor(type, env)) {
+    const left = BUDGET - (Date.now() - started);
+    if (left < 4000) break;
     const generationConfig = { temperature, responseMimeType: 'application/json', responseSchema: schema };
-    if (model.startsWith('gemini-2.5')) generationConfig.thinkingConfig = { thinkingBudget: 0 }; // gyorsabb válasz
+    if (THINK_MINIMAL.includes(model)) generationConfig.thinkingConfig = { thinkingLevel: 'minimal' }; // gyorsabb válasz
     let r; const t0 = Date.now();
     try {
       r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-        signal: AbortSignal.timeout(timeout), method: 'POST',
+        signal: AbortSignal.timeout(Math.min(perModel, left)), method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
         body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig })
       });
@@ -128,8 +141,8 @@ async function callGemini(env, prompt, schema, timeout, temperature) {
     if (!r.ok) {
       let detail = '';
       try { const j = await r.json(); detail = (j.error && (j.error.status + ': ' + j.error.message)) || ''; } catch (e) {}
-      lastErr = Object.assign(new Error('gemini ' + r.status), { status: r.status, detail: (tries.join(', ') + ' ' + detail).slice(0, 300) });
-      if ([404, 429, 500, 503].includes(r.status)) continue;
+      lastErr = Object.assign(new Error('gemini ' + r.status), { status: r.status === 404 || r.status === 400 ? 503 : r.status, detail: (tries.join(', ') + ' ' + detail).slice(0, 300) });
+      if ([400, 404, 429, 500, 503].includes(r.status)) continue;
       throw lastErr;
     }
     const data = await r.json();
@@ -137,7 +150,7 @@ async function callGemini(env, prompt, schema, timeout, temperature) {
     try { return JSON.parse(text); }
     catch (e) { lastErr = Object.assign(new Error('bad json'), { status: 502, detail: model + ' invalid JSON' }); continue; }
   }
-  throw lastErr || new Error('no model');
+  throw lastErr || Object.assign(new Error('no model'), { status: 503 });
 }
 
 // ---- Firebase ID-token ellenőrzése (RS256, Google nyilvános kulcsaival) ----
