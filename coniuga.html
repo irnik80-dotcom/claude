@@ -101,6 +101,20 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .qblock h4{margin:0 0 8px; font-size:1rem}
 .qexp{font-size:.88rem; color:var(--ink-soft); margin:8px 0 0}
 .tiplist{margin:6px 0 0; padding-left:20px}
+.bsave{font:inherit; font-size:1.1rem; line-height:1; border:1px solid var(--line); background:var(--card); color:var(--accent); width:32px; height:32px; border-radius:50%; cursor:pointer; flex:none}
+.bsave[aria-pressed="true"]{background:var(--accent); color:var(--on-accent); border-color:var(--accent)}
+.flash{text-align:center; padding:10px 0}
+.flash .fw{font-family:var(--f-display); font-size:clamp(2rem,8vw,2.8rem); margin:6px 0; overflow-wrap:anywhere}
+.flash .fctx{color:var(--ink-soft); font-size:1rem; max-width:34em; margin:6px auto 0}
+.flash .fctx mark{background:var(--warn-soft); color:var(--ink); padding:0 2px; border-radius:3px}
+.flash .fback{font-size:1.3rem; font-weight:600; margin:16px 0 4px}
+.grades{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:16px}
+@media (max-width:480px){.grades{grid-template-columns:repeat(2,1fr)}}
+.grades button{font:inherit; font-weight:600; padding:10px 6px; border-radius:10px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; display:flex; flex-direction:column; gap:2px; align-items:center}
+.grades button small{font-weight:400; color:var(--ink-soft); font-size:.75rem}
+.grades .g0{border-color:var(--pen)} .grades .g5{border-color:var(--ok)}
+.rvdel{border:0; background:none; color:var(--ink-soft); cursor:pointer; font:inherit; padding:0 4px}
+.rvprog{height:6px; border-radius:3px; background:var(--accent-soft); overflow:hidden; margin:0 0 14px} .rvprog i{display:block; height:100%; background:var(--accent)}
 .book h2{font-family:var(--f-display); font-weight:400; font-size:clamp(1.6rem,5.5vw,2.2rem); margin:0 0 4px; text-wrap:balance}
 .bpage{border-top:1px dashed var(--line); padding-top:16px; margin-top:16px}
 .bpage:first-of-type{border-top:0; margin-top:8px; padding-top:0}
@@ -317,6 +331,7 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
       <button id="tab-chat" role="tab" aria-selected="false" data-i18n="tab.chat">Beszélgetés</button>
       <button id="tab-read" role="tab" aria-selected="false" data-i18n="tab.read">Olvasás</button>
       <button id="tab-adv" role="tab" aria-selected="false" data-i18n="tab.adv">Kaland</button>
+      <button id="tab-rev" role="tab" aria-selected="false">Ismétlés</button>
       <button id="tab-browse" role="tab" aria-selected="false" data-i18n="tab.browse">Igetár</button>
     </nav>
   </header>
@@ -607,6 +622,37 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
         <div class="card">
           <h3 data-i18n="recent.advs"></h3>
           <ul class="mist" id="a-recent"></ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="view-rev" hidden>
+    <div class="layout">
+      <div class="card" id="qrev"></div>
+      <aside class="side" id="revside">
+        <div class="card">
+          <h3 data-i18n="res.rev"></h3>
+          <div class="stats">
+            <div class="stat"><b id="rv-a">0</b><span data-i18n="rv.due"></span></div>
+            <div class="stat"><b id="rv-b">0</b><span data-i18n="rv.cards"></span></div>
+            <div class="stat"><b id="rv-c">0</b><span data-i18n="rv.learned"></span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="settings"></h3>
+          <div class="opt">
+            <span class="lbl" data-i18n="rv.auto"></span>
+            <div class="checks">
+              <label><input type="checkbox" id="rv-autof"> <span data-i18n="rv.autof"></span></label>
+              <label><input type="checkbox" id="rv-autow"> <span data-i18n="rv.autow"></span></label>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="rv.mywords"></h3>
+          <input class="search" id="rv-search" type="search" autocomplete="off" data-i18n-ph="rv.searchph">
+          <ul class="mist" id="rv-list" style="margin-top:10px;max-height:50vh;overflow:auto"></ul>
         </div>
       </aside>
     </div>
@@ -3088,6 +3134,33 @@ const I18N = {
   'rhero.ph': ['pl. Marco','np. Marco','e.g. Marco'],
   'tts.slow': ['Lassú felolvasás','Wolne czytanie','Slow audio'],
   'tts.slowhint': ['A kiejtés lassabban szól minden felolvasásnál','Wymowa jest odtwarzana wolniej','All audio is played more slowly'],
+  'tab.rev': ['Ismétlés','Powtórki','Review'],
+  'res.rev': ['Ismétlés','Powtórki','Review'],
+  'rv.due': ['esedékes','do powtórki','due'],
+  'rv.cards': ['kártya','fiszek','cards'],
+  'rv.learned': ['megtanult','opanowane','learned'],
+  'rv.auto': ['Automatikusan bekerül','Dodawane automatycznie','Added automatically'],
+  'rv.autof': ['elrontott igealakok','błędne formy czasowników','missed verb forms'],
+  'rv.autow': ['Szójelentés hibái','błędy w Znaczeniu','mistakes in Meaning'],
+  'rv.mywords': ['Szavaim','Moje słówka','My words'],
+  'rv.searchph': ['Keresés a szavaim között','Szukaj w moich słówkach','Search my words'],
+  'rv.nowords': ['Még nincs mentett szavad. Olvasás közben koppints egy szóra, és a ☆ gombbal mentsd el.','Nie masz jeszcze zapisanych słówek. Podczas czytania dotknij słowa i zapisz je przyciskiem ☆.','No saved words yet. While reading, tap a word and save it with ☆.'],
+  'rv.del': ['Törlés','Usuń','Delete'],
+  'rv.save': ['Mentés a szavaim közé','Zapisz do moich słówek','Save to my words'],
+  'rv.label': ['Ismétlés','Powtórki','Review'],
+  'rv.title': ['Ami ma esedékes','Na dziś','Due today'],
+  'rv.extra': ['A mentett szavak és az elrontott igealakok egyre ritkábban jönnek vissza, amíg meg nem maradnak.','Zapisane słówka i błędne formy wracają coraz rzadziej, aż je zapamiętasz.','Saved words and missed verb forms come back less and less often until they stick.'],
+  'rv.start': ['Ismétlés indítása ({n})','Zacznij powtórkę ({n})','Start review ({n})'],
+  'rv.nothing': ['Mára nincs több ismétlés. A következő: {d}.','Na dziś to wszystko. Następna powtórka: {d}.','Nothing more for today. Next review: {d}.'],
+  'rv.empty': ['Még nincs kártyád. Ha elrontasz egy igealakot, vagy elmentesz egy szót, itt fog megjelenni.','Nie masz jeszcze fiszek. Pojawią się tu błędne formy i zapisane słówka.','No cards yet. Missed verb forms and saved words will appear here.'],
+  'rv.done': ['Kész! {n} kártya, ebből {g} ment jól.','Gotowe! {n} fiszek, dobrze: {g}.','Done! {n} cards, {g} went well.'],
+  'rv.show': ['Mutasd a jelentését','Pokaż znaczenie','Show the meaning'],
+  'rv.g0': ['Újra','Jeszcze raz','Again'],
+  'rv.g3': ['Nehéz','Trudne','Hard'],
+  'rv.g4': ['Jó','Dobrze','Good'],
+  'rv.g5': ['Könnyű','Łatwe','Easy'],
+  'rv.min10': ['10 perc','10 min','10 min'],
+  'rv.days': ['{n} nap','{n} dni','{n} days'],
   'opt.tone': ['Hangulat','Nastrój','Tone'],
   'tone.normal': ['normál','normalny','normal'],
   'tone.funny': ['vicces','zabawny','funny'],
@@ -3316,7 +3389,7 @@ async function saveCloud(){
   if (!cloudRef) return;
   if (cloudBusy){ cloudDirty = true; return; }
   cloudBusy = true;
-  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), astats: JSON.parse(JSON.stringify(AST)), adv: (typeof advPlain === 'function' ? advPlain() : null), advAt: (typeof advAt === 'number' ? advAt : 0), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
+  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), astats: JSON.parse(JSON.stringify(AST)), cards: JSON.parse(JSON.stringify(CARDS)), adv: (typeof advPlain === 'function' ? advPlain() : null), advAt: (typeof advAt === 'number' ? advAt : 0), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
   catch(e){ setWho(null, t('who.saveerr')); }
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
@@ -3362,6 +3435,8 @@ function applyData(d){
     try{ localStorage.setItem('coniuga:adv', JSON.stringify(ADV)); localStorage.setItem('coniuga:advAt', String(advAt)); }catch(e){}
   }
   renderOptionsA(); renderStatsA(); renderA();
+  CARDS = Array.isArray(d.cards) ? JSON.parse(JSON.stringify(d.cards)).filter(c => c && c.k) : [];
+  REV = null; renderRevSide(); renderRev(); revBadge();
 }
 /* ref: {get(): Promise<{exists, data()}>, set(obj): Promise} */
 async function attachCloud(ref, me){
@@ -3369,11 +3444,11 @@ async function attachCloud(ref, me){
   if (snap.exists) applyData(snap.data());
   cloudRef = ref;
   setWho(me);
-  if (snap.exists || ST.total || VST.total || MST.total || XST.total || CST.total || RST.total || AST.total || Object.keys(cloudExtra).length) saveCloud();
+  if (snap.exists || ST.total || VST.total || MST.total || XST.total || CST.total || RST.total || AST.total || CARDS.length || Object.keys(cloudExtra).length) saveCloud();
 }
 function detachCloud(){
   cloudRef = null; clearTimeout(cloudTimer);
-  applyData({stats: store.get('stats', {}), vstats: store.get('vstats', {}), mstats: store.get('mstats', {}), xstats: store.get('xstats', {}), cstats: store.get('cstats', {}), rstats: store.get('rstats', {}), astats: store.get('astats', {}), settings: store.get('settings', {})});
+  applyData({stats: store.get('stats', {}), vstats: store.get('vstats', {}), mstats: store.get('mstats', {}), xstats: store.get('xstats', {}), cstats: store.get('cstats', {}), rstats: store.get('rstats', {}), astats: store.get('astats', {}), cards: store.get('cards', []), settings: store.get('settings', {})});
   setWho(null);
 }
 /* AI a Claude-on belül: a néző saját Claude-fiókjával (sample képesség) */
@@ -3405,7 +3480,7 @@ async function initCloud(){
     await attachCloud(db.collection('data/users/' + me.id).doc('coniuga'), me);
   }catch(e){ /* marad a böngészős mentés */ }
 }
-const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', agenre:'fantasy', atone:'normal', rtone:'normal', alevel:'A2', alen:10, atenses:['pres','pp','imp'], ahero:'', ahero2:'', rhero:'', rhero2:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
+const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', agenre:'fantasy', atone:'normal', autoForms:true, autoWords:true, rtone:'normal', alevel:'A2', alen:10, atenses:['pres','pp','imp'], ahero:'', ahero2:'', rhero:'', rhero2:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
 let S = Object.assign({}, DEF, store.get('settings', {}));
 let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
 let VST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('vstats', {}));
@@ -3414,6 +3489,7 @@ let XST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[],sum:0}, 
 let CST = Object.assign({total:0,sum:0,best:0,recent:[]}, store.get('cstats', {}));
 let RST = Object.assign({total:0,q:0,ok:0,recent:[]}, store.get('rstats', {}));
 let AST = Object.assign({total:0,good:0,pages:0,recent:[]}, store.get('astats', {}));
+let CARDS = (store.get('cards', []) || []).filter(c => c && c.k);
 let cur = null;
 let lastInput = null;
 const byInf = Object.fromEntries(VERBS.map(v=>[v.inf, v]));
@@ -3496,6 +3572,7 @@ function recordImpl(vb, t, i, res, given){
   if (res==='ok' || (res==='acc' && S.lenient)){ ST.ok++; ST.streak++; ST.best=Math.max(ST.best,ST.streak); if (ST.miss[vb.inf]) ST.miss[vb.inf]=Math.max(0,ST.miss[vb.inf]-1); }
   else {
     ST.streak=0; ST.miss[vb.inf]=(ST.miss[vb.inf]||0)+1;
+    addFormCard(vb.inf, t, i);
     ST.recent.unshift({inf:vb.inf, t, p:personLabel(t,i), given, right:cell(vb,t,i).display});
     ST.recent = ST.recent.slice(0,8);
   }
@@ -3669,7 +3746,7 @@ function renderDetail(){
 /* ---- fülek ---- */
 function showTab(name){
   if (typeof hideBubble === 'function') hideBubble();
-  ['practice','vocab','sent','trans','chat','read','adv','browse','teacher'].forEach(n=>{
+  ['practice','vocab','sent','trans','chat','read','adv','rev','browse','teacher'].forEach(n=>{
     const tab = $('tab-'+n), view = $('view-'+n);
     if (tab) tab.setAttribute('aria-selected', n===name);
     if (view) view.hidden = n!==name;
@@ -3683,6 +3760,7 @@ $('tab-trans').onclick = ()=>showTab('trans');
 $('tab-chat').onclick = ()=>showTab('chat');
 $('tab-read').onclick = ()=>showTab('read');
 $('tab-adv').onclick = ()=>showTab('adv');
+$('tab-rev').onclick = ()=>{ showTab('rev'); if (!REV) renderRev(); };
 
 /* ---- Szójelentés: 4 lehetőség közül a jó ---- */
 const DIRS = {get it2hu(){ return t('dir.it2x'); }, get hu2it(){ return t('dir.x2it'); }};
@@ -3773,6 +3851,7 @@ function recordV(vb, dir, chosen, ok){
   if (ok){ VST.ok++; VST.streak++; VST.best=Math.max(VST.best,VST.streak); if (VST.miss[vb.inf]) VST.miss[vb.inf]=Math.max(0,VST.miss[vb.inf]-1); }
   else {
     VST.streak=0; VST.miss[vb.inf]=(VST.miss[vb.inf]||0)+1;
+    if (S.autoWords !== false){ const ex = SENT_BY[vb.inf]; addWordCard(vb.inf, vb.hu, ex ? sentFill(ex).full : '', {verb: vb.inf, silent: true}); }
     VST.recent.unshift({inf:vb.inf, dir, prompt: dir==='it2hu'?vb.inf:vb.hu, given: optText(chosen,dir), right: optText(vb,dir)});
     VST.recent = VST.recent.slice(0,8);
   }
@@ -3834,7 +3913,12 @@ function showBubble(btn){
   const fill = (tr, cls) => {
     if (!bubble || bubbleFor !== btn) return;
     const itText = e.from === 'it' ? word : String(tr||'').replace(/\s*\([^)]*\)/g,'');
-    bubble.innerHTML = `<span><span class="bw"></span><span class="bt ${cls||''}"></span></span>${(!cls && itText) ? sayBtn(itText) : ''}`;
+    const itWord = e.from === 'it' ? word : String(tr||'').replace(/\s*\([^)]*\)\s*$/,'').trim();
+    const natWord = e.from === 'it' ? String(tr||'') : word;
+    const saved = !cls && hasWordCard(itWord);
+    bubble.innerHTML = `<span><span class="bw"></span><span class="bt ${cls||''}"></span></span>${(!cls && itText) ? sayBtn(itText) : ''}${!cls && itWord ? `<button type="button" class="bsave" data-bsave="1" aria-pressed="${saved}" title="${t('rv.save')}" aria-label="${t('rv.save')}">${saved ? '★' : '☆'}</button>` : ''}`;
+    const bs = bubble.querySelector('[data-bsave]');
+    if (bs) bs.onclick = ev => { ev.stopPropagation(); if (hasWordCard(itWord)) return; addWordCard(itWord, natWord, e.from === 'it' ? e.text : (e.ref || ''), {}); bs.textContent = '★'; bs.setAttribute('aria-pressed', 'true'); };
     bubble.querySelector('.bw').textContent = word;
     bubble.querySelector('.bt').textContent = tr || '—';
     placeBubble(btn);
@@ -4590,6 +4674,120 @@ PDF.adv = () => {
     ${ADV.done ? `<h2>${esc(t('a.end'))}</h2><p>${esc(ADV.ending==='good' ? t('a.good') : t('a.bad'))}</p>` : ''}`);
 };
 
+/* ---- Szógyűjtemény és ismétlés (egyszerűsített SM-2) ---- */
+const DAY = 86400000;
+let REV = null;   // {queue:[ids], i, shown, res, total}
+const cardKey = c => c.k === 'f' ? `f|${c.inf}|${c.t}|${c.p}` : `w|${String(c.it).toLowerCase()}`;
+const hasWordCard = it => CARDS.some(c => c.k === 'w' && String(c.it).toLowerCase() === String(it).toLowerCase());
+function addCard(c){
+  c.id = c.id || (Date.now().toString(36) + Math.random().toString(36).slice(2, 6));
+  c.added = Date.now(); c.due = c.due || Date.now(); c.ivl = 0; c.ef = 2.5; c.reps = 0; c.lapses = 0;
+  const key = cardKey(c), old = CARDS.find(x => cardKey(x) === key);
+  if (old){ if (old.ivl > 1){ old.ivl = 1; old.due = Math.min(old.due, Date.now() + DAY); } store.set('cards', CARDS); return; }
+  CARDS.push(c);
+  if (CARDS.length > 1500) CARDS.splice(0, CARDS.length - 1500);
+  store.set('cards', CARDS); revBadge(); renderRevSide();
+}
+function addWordCard(it, tr, ctx, o){ if (!it) return; addCard({k:'w', it: String(it).slice(0, 80), tr: String(tr||'').slice(0, 160), ctx: String(ctx||'').slice(0, 400), verb: (o && o.verb) || '', lang: LANG}); }
+function addFormCard(inf, tn, p){ if (S.autoForms === false || !VBY0[inf]) return; addCard({k:'f', inf, t: tn, p, due: Date.now() + DAY}); }
+const dueCards = () => { const now = Date.now(); return CARDS.filter(c => c.due <= now); };
+function revBadge(){
+  const n = dueCards().length, b = $('tab-rev');
+  if (b) b.textContent = t('tab.rev') + (n ? ` · ${n}` : '');
+}
+function schedule(c, g){   // g: 0 = újra, 3 = nehéz, 4 = jó, 5 = könnyű
+  if (g < 3){ c.reps = 0; c.ivl = 0; c.lapses = (c.lapses||0) + 1; c.due = Date.now() + 10*60*1000; }
+  else {
+    c.reps = (c.reps||0) + 1;
+    c.ivl = c.reps === 1 ? (g === 5 ? 3 : 1) : c.reps === 2 ? (g === 3 ? 2 : g === 5 ? 6 : 3) : Math.round(Math.max(1, c.ivl) * c.ef * (g === 3 ? 0.8 : g === 5 ? 1.3 : 1));
+    c.ef = Math.max(1.3, (c.ef||2.5) + (0.1 - (5-g) * (0.08 + (5-g) * 0.02)));
+    c.due = Date.now() + c.ivl * DAY;
+  }
+}
+function previewIvl(c, g){ const x = Object.assign({}, c); schedule(x, g); return g < 3 ? t('rv.min10') : t('rv.days', {n: x.ivl}); }
+function renderRevSide(){
+  $('rv-a').textContent = dueCards().length;
+  $('rv-b').textContent = CARDS.length;
+  $('rv-c').textContent = CARDS.filter(c => c.ivl >= 21).length;
+  $('rv-autof').checked = S.autoForms !== false; $('rv-autow').checked = S.autoWords !== false;
+  const q = deacc(($('rv-search').value || '').toLowerCase());
+  const words = CARDS.filter(c => c.k === 'w' && (!q || deacc(String(c.it).toLowerCase()).includes(q) || deacc(String(c.tr).toLowerCase()).includes(q)));
+  $('rv-list').innerHTML = words.length ? words.slice().reverse().slice(0, 300).map(c =>
+    `<li><span><b>${esc(c.it)}</b> ${sayBtn(c.it)}<br><span class="muted">${esc(c.tr)}</span></span><span class="c" style="white-space:nowrap">${c.due <= Date.now() ? '●' : esc(new Date(c.due).toLocaleDateString({hu:'hu-HU',pl:'pl-PL',en:'en-GB'}[LANG]))} <button class="rvdel" data-rvdel="${c.id}" title="${t('rv.del')}" aria-label="${t('rv.del')}">✕</button></span></li>`).join('')
+    : `<li class="muted">${t('rv.nowords')}</li>`;
+}
+$('revside').addEventListener('change', e => {
+  if (e.target.id === 'rv-autof'){ S.autoForms = e.target.checked; store.set('settings', S); }
+  if (e.target.id === 'rv-autow'){ S.autoWords = e.target.checked; store.set('settings', S); }
+});
+$('rv-search').addEventListener('input', renderRevSide);
+$('rv-list').addEventListener('click', e => {
+  const d = e.target.closest('[data-rvdel]'); if (!d) return;
+  CARDS = CARDS.filter(c => c.id !== d.dataset.rvdel); store.set('cards', CARDS); renderRevSide(); revBadge();
+});
+function startRev(){
+  const due = dueCards().sort((a, b) => a.due - b.due).slice(0, 50);
+  REV = {queue: due.map(c => c.id), i: 0, shown: false, res: null, total: due.length, good: 0};
+  renderRev();
+}
+function renderRev(){
+  hideBubble();
+  const box = $('qrev');
+  const head = `<div class="task"><span class="task-lbl">${t('rv.label')}</span><span class="task-tense">${t('rv.title')}</span><span class="task-extra">${t('rv.extra')}</span></div>`;
+  const due = dueCards().length;
+  if (!REV || REV.i >= REV.queue.length){
+    const fin = REV && REV.total ? `<div class="feedback ok"><p><span class="verdict">${t('rv.done', {n: REV.total, g: REV.good})}</span></p></div>` : '';
+    const next = CARDS.filter(c => c.due > Date.now()).sort((a, b) => a.due - b.due)[0];
+    box.innerHTML = head + fin + (due ? `<div class="actions"><button class="btn" type="button" id="rv-start">${t('rv.start', {n: due})}</button></div>`
+      : `<p class="muted">${CARDS.length ? t('rv.nothing', {d: next ? new Date(next.due).toLocaleString({hu:'hu-HU',pl:'pl-PL',en:'en-GB'}[LANG], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '–'}) : t('rv.empty')}</p>`);
+    const st = $('rv-start'); if (st) st.onclick = startRev;
+    return;
+  }
+  const c = CARDS.find(x => x.id === REV.queue[REV.i]);
+  if (!c){ REV.i++; return renderRev(); }
+  const prog = `<div class="rvprog"><i style="width:${Math.round(100*REV.i/REV.queue.length)}%"></i></div><p class="muted" style="margin:-8px 0 10px">${REV.i+1} / ${REV.queue.length}</p>`;
+  if (c.k === 'w'){
+    const ctx = c.ctx ? esc(c.ctx).replace(new RegExp('(' + String(c.it).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'i'), '<mark>$1</mark>') : '';
+    box.innerHTML = head + prog + `<div class="flash"><div class="fw">${esc(c.it)} ${sayBtn(c.it)}</div>${ctx ? `<p class="fctx">${ctx}</p>` : ''}
+      ${REV.shown ? `<p class="fback">${esc(c.tr)}</p>
+        <div class="grades">${[[0,'rv.g0'],[3,'rv.g3'],[4,'rv.g4'],[5,'rv.g5']].map(([g,k]) => `<button type="button" class="g${g}" data-grade="${g}">${t(k)}<small>${previewIvl(c, g)}</small></button>`).join('')}</div>`
+      : `<div class="actions" style="justify-content:center"><button class="btn" type="button" id="rv-show">${t('rv.show')}</button></div>`}</div>`;
+    const sh = $('rv-show'); if (sh) sh.onclick = () => { REV.shown = true; renderRev(); };
+    box.querySelectorAll('[data-grade]').forEach(b => b.onclick = () => gradeRev(c, +b.dataset.grade));
+    return;
+  }
+  // igealak-kártya
+  const vb = VBY0[c.inf], T = tenseOf(c.t), cl = cell(vb, c.t, c.p);
+  box.innerHTML = head + prog + `<div class="flash"><p class="muted" style="margin:0">${esc(T.it)} · ${esc(tdesc(c.t))}</p>
+    <div class="fw">${esc(vb.inf)}</div><p class="fctx">${esc(vb.hu)}</p></div>
+    <form id="rv-form" autocomplete="off"><div class="answer-row"><label class="person" for="rv-ans">${personLabel(c.t, c.p)}</label>
+    <input id="rv-ans" autocapitalize="off" spellcheck="false" ${REV.res ? 'readonly' : ''}></div>${keysHtml()}
+    <div class="actions"><button class="btn" type="submit" id="rv-go">${REV.res ? t('btn.next') : t('btn.check')}</button>${REV.res ? '' : `<button class="btn ghost" type="button" id="rv-idk">${t('btn.idk')}</button>`}</div></form>
+    ${REV.res ? `<div class="feedback ${REV.res==='ok'?'ok':REV.res==='acc'?'acc':'bad'}"><p><span class="verdict">${REV.res==='ok'?t('v.ok'):REV.res==='acc'?t('v.acc'):t('v.bad')}</span> <strong class="big">${esc(cl.display)}</strong> ${sayBtn(cl.display)}</p><div class="after-table">${table(vb, c.t, c.p)}</div></div>` : ''}`;
+  wireCommon(box);
+  const inp = $('rv-ans');
+  if (REV.res){ inp.value = REV.given || ''; inp.classList.add(REV.res==='ok'?'is-ok':REV.res==='acc'?'is-acc':'is-bad'); $('rv-go').focus({preventScroll:true}); }
+  else inp.focus({preventScroll:true});
+  $('rv-form').onsubmit = ev => {
+    ev.preventDefault();
+    if (REV.res){ REV.res = null; REV.given = ''; REV.i++; renderRev(); return; }
+    const given = inp.value; if (!norm(given)) return;
+    const res = check(given, cl.accept); REV.res = res; REV.given = given;
+    gradeRev(c, res === 'ok' ? 4 : res === 'acc' && S.lenient ? 3 : 0, true);
+  };
+  const idk = $('rv-idk'); if (idk) idk.onclick = () => { REV.res = 'bad'; REV.given = ''; gradeRev(c, 0, true); };
+}
+function gradeRev(c, g, keep){
+  schedule(c, g);
+  if (g >= 3) REV.good++;
+  else if (!REV.queue.slice(REV.i + 1).includes(c.id)) REV.queue.push(c.id);   // még egyszer ma
+  store.set('cards', CARDS); revBadge(); renderRevSide();
+  if (typeof logActivity === 'function') logActivity(1);
+  if (!keep){ REV.shown = false; REV.i++; }
+  renderRev();
+}
+setInterval(revBadge, 60000);
+
 /* ---- Mondatok: a hiányzó ige beírása ---- */
 let curM = null;
 function mpool(){ return SENTS.filter(x => S.mtenses.includes(x.t) && S.mlevels.includes(VBY[x.inf].lvl)); }
@@ -4683,6 +4881,7 @@ function recordM(x, f, res, ok, given){
   if (ok){ MST.ok++; MST.streak++; MST.best=Math.max(MST.best,MST.streak); if (MST.miss[x.inf]) MST.miss[x.inf]=Math.max(0,MST.miss[x.inf]-1); }
   else {
     MST.streak=0; MST.miss[x.inf]=(MST.miss[x.inf]||0)+1;
+    addFormCard(x.inf, x.t, x.p);
     MST.recent.unshift({inf:x.inf, t:x.t, p:x.p, it:x.it, given, right:f.form});
     MST.recent = MST.recent.slice(0,8);
   }
@@ -4710,6 +4909,7 @@ function setLang(l, opts){
   renderOptionsC(); renderStatsC(); renderC();
   renderOptionsR(); renderStatsR(); renderR();
   renderOptionsA(); renderStatsA(); renderA();
+  renderRevSide(); renderRev(); revBadge();
   renderBrowseKind(); renderList(); renderDetail();
   setAINote(aiNote);
   if (typeof window.onLangChange === 'function') window.onLangChange();
@@ -4729,5 +4929,6 @@ renderOptionsX(); renderStatsX(); nextX();
 renderOptionsC(); renderStatsC(); renderC();
 renderOptionsR(); renderStatsR(); renderR();
 renderOptionsA(); renderStatsA(); renderA();
+renderRevSide(); renderRev(); revBadge();
 initCloud(); initAI();
 </script>
