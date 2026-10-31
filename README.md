@@ -1,6 +1,6 @@
 # Coniuga
 
-Olasz igeragozás gyakorló: 319 ige három szinten, hat igeidő/mód, a rendhagyó alakok jelölve.
+Olasz igeragozás gyakorló: 319 ige három szinten, hat igeidő/mód, a rendhagyó alakok jelölve. Nyelvek: magyar, lengyel, angol.
 
 - `coniuga.html`: a forrás (ez fut Claude artifactként is).
 - `docs/`: a nyilvános weboldal (GitHub Pages), saját bejelentkezéssel (Firebase). Fülek: Ragozás, Szójelentés (4 lehetőség közül), Mondatok (hiányzó ige), Igetár, Tanári nézet. Kiejtés és példamondat minden igéhez.
@@ -27,3 +27,4 @@ Olasz igeragozás gyakorló: 319 ige három szinten, hat igeidő/mód, a rendhag
 3. **Settings → Pages** → Source: **Deploy from a branch** → Branch: `main`, mappa: **`/docs`** → Save.
 4. 1–2 perc múlva az oldal elérhető: **https://irnik80-dotcom.github.io/claude/**
 - `tools/sentences.txt`: a példamondatok forrása (a `coniuga.html`-be ágyazva).
+- `tools/i18n-verbs.txt`, `tools/i18n-sentences.txt`: az igék jelentése és a példamondatok lengyelül és angolul (a `coniuga.html`-be ágyazva). A felület feliratai a `coniuga.html` `I18N` táblájában vannak.
