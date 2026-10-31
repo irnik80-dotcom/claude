@@ -9,7 +9,7 @@
 //   MODEL           (Text)    – alapból: gemini-flash-lite-latest
 //   DAILY_LIMIT     (Text)    – egy felhasználó napi AI-kéréseinek száma, alapból: 1000
 
-import { sanitize, buildPrompt, SCHEMAS, normalize } from './ai-prompts.js';
+import { sanitize, buildPrompt, SCHEMAS, normalize, looksBroken } from './ai-prompts.js';
 
 const FIREBASE_PROJECT = 'coniuga80';
 const ALLOWED_ORIGINS = ['https://irnik80-dotcom.github.io'];
@@ -71,7 +71,9 @@ export default {
     // 4) Gemini
     try {
       const temp = { chat: 0.7, story: 0.8 }[p.type] ?? 0.2;
-      const out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], p.type === 'story' ? 30000 : 15000, temp);
+      let out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], p.type === 'story' ? 30000 : 15000, temp);
+      // ritka modellhiba (idegen írásjelek a szövegben): egyszer újrakérjük
+      if (looksBroken(p.type, out)) { try { out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], p.type === 'story' ? 30000 : 15000, temp); } catch (e) {} }
       return reply(200, { result: normalize(p.type, out, p) });
     } catch (e) {
       usage.set(key, used); // a sikertelen kérés ne számítson bele

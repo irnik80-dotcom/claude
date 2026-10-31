@@ -3119,13 +3119,23 @@ const JSON_SPEC = {
   story: '{"title": "...", "text": "...", "translation": "...", "questions": [{"q": "...", "options": ["...", "...", "...", "..."], "answer": 0-3, "explanation": "..."}]}'
 };
 
+/* hibás modellválasz felismerése: az olasz szövegben nem latin betűk (pl. arab, cirill írásjelek) */
+const ODD = /[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]/u;
+function looksBroken(type, r) {
+  if (!r) return true;
+  if (type === 'story') return ODD.test(String(r.text || '') + String(r.title || '')) || !r.text;
+  if (type === 'chat') return ODD.test(String(r.reply || '')) || !r.reply;
+  return false;
+}
+const clean = (x) => String(x || '').replace(/[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]+/gu, '');
+
 /* a válasz egységesítése (hiányzó/hibás mezők pótlása) */
 function normalize(type, r, p) {
   r = r || {};
   const errs = (a) => (Array.isArray(a) ? a.slice(0, 10).map((e) => ({ wrong: str(e && e.wrong, 300), fix: str(e && e.fix, 300), type: str(e && e.type, 60), explanation: str(e && e.explanation, 500) })) : []);
   const score = (v) => Math.max(0, Math.min(10, Math.round(Number(v) || 0)));
   if (type === 'gloss') { const t = Array.isArray(r.translations) ? r.translations : []; return { translations: p.words.map((_, i) => str(t[i], 80)) }; }
-  if (type === 'chat') { const c = r.correction || {}; return { reply: str(r.reply, 1200), translation: str(r.translation, 1200), correction: { ok: c.ok !== false || !str(c.corrected, 10), corrected: str(c.corrected, 600), explanation: str(c.explanation, 600) } }; }
+  if (type === 'chat') { const c = r.correction || {}; return { reply: str(clean(r.reply), 1200), translation: str(r.translation, 1200), correction: { ok: c.ok !== false || !str(c.corrected, 10), corrected: str(c.corrected, 600), explanation: str(c.explanation, 600) } }; }
   if (type === 'chatsum') return { score: score(r.score), summary: str(r.summary, 1200), errors: errs(r.errors).slice(0, 6), tips: (Array.isArray(r.tips) ? r.tips : []).slice(0, 3).map((x) => str(x, 300)) };
   if (type === 'story') {
     const qs = (Array.isArray(r.questions) ? r.questions : []).slice(0, 3).map((q) => {
@@ -3133,12 +3143,12 @@ function normalize(type, r, p) {
       const answer = Math.round(Number(q && q.answer));
       return { q: str(q && q.q, 300), options, answer: answer >= 0 && answer < options.length ? answer : 0, explanation: str(q && q.explanation, 400) };
     }).filter((q) => q.q && q.options.length >= 2);
-    return { title: str(r.title, 120), text: str(r.text, 4000), translation: str(r.translation, 5000), questions: qs };
+    return { title: str(clean(r.title), 120), text: str(clean(r.text), 4000), translation: str(r.translation, 5000), questions: qs };
   }
   return { score: score(r.score), correct: !!r.correct, corrected: str(r.corrected, 600), errors: errs(r.errors), comment: str(r.comment, 600) };
 }
 
-return { PROMPT_LANG, CEFR, SCENARIOS, sanitize, buildPrompt, SCHEMAS, JSON_SPEC, normalize };
+return { PROMPT_LANG, CEFR, SCENARIOS, sanitize, buildPrompt, SCHEMAS, JSON_SPEC, looksBroken, normalize };
 })();
 /*AI-PROMPTS-END*/
 const normAI = r => AIP.normalize('check', r);
