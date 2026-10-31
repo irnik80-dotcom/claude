@@ -3,7 +3,7 @@
 Olasz igeragozás gyakorló: 319 ige három szinten, hat igeidő/mód, a rendhagyó alakok jelölve.
 
 - `coniuga.html`: a forrás (ez fut Claude artifactként is).
-- `docs/`: a nyilvános weboldal (GitHub Pages), saját bejelentkezéssel (Firebase). Fülek: Ragozás, Szójelentés (4 lehetőség közül), Igetár, Tanári nézet.
+- `docs/`: a nyilvános weboldal (GitHub Pages), saját bejelentkezéssel (Firebase). Fülek: Ragozás, Szójelentés (4 lehetőség közül), Mondatok (hiányzó ige), Igetár, Tanári nézet. Kiejtés és példamondat minden igéhez.
   A `docs/index.html` generált fájl. Ha a `coniuga.html` változik: `node tools/build-site.mjs`.
 - `firestore.rules`: az adatbázis biztonsági szabályai (mindenki csak a saját profilját látja).
 
@@ -26,3 +26,4 @@ Olasz igeragozás gyakorló: 319 ige három szinten, hat igeidő/mód, a rendhag
 2. Az `claude/italian-verb-practice-385vui` ágat olvaszd be a `main` ágba (Pull request → Merge).
 3. **Settings → Pages** → Source: **Deploy from a branch** → Branch: `main`, mappa: **`/docs`** → Save.
 4. 1–2 perc múlva az oldal elérhető: **https://irnik80-dotcom.github.io/claude/**
+- `tools/sentences.txt`: a példamondatok forrása (a `coniuga.html`-be ágyazva).

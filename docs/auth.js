@@ -126,12 +126,12 @@ async function loadList() {
     <div class="verb-line"><h2 class="inf" style="font-size:2rem">Tanári nézet</h2><span class="hu">${r.length} felhasználó</span></div>
     <div class="actions" style="margin-top:8px"><button class="btn quiet" id="t-refresh" type="button">Frissítés</button></div>
     <div class="tscroll"><table class="ttab">
-      <thead><tr><th rowspan="2">Név</th><th rowspan="2">E-mail</th><th colspan="2" style="text-align:center">Ragozás</th><th colspan="2" style="text-align:center">Szójelentés</th><th rowspan="2">Utoljára</th></tr>
-      <tr><th class="num">Válasz</th><th class="num">Helyes</th><th class="num">Válasz</th><th class="num">Helyes</th></tr></thead>
+      <thead><tr><th rowspan="2">Név</th><th rowspan="2">E-mail</th><th colspan="2" style="text-align:center">Ragozás</th><th colspan="2" style="text-align:center">Szójelentés</th><th colspan="2" style="text-align:center">Mondatok</th><th rowspan="2">Utoljára</th></tr>
+      <tr><th class="num">Válasz</th><th class="num">Helyes</th><th class="num">Válasz</th><th class="num">Helyes</th><th class="num">Válasz</th><th class="num">Helyes</th></tr></thead>
       <tbody>${r.map((u, k) => {
-        const s = u.stats || {}, v = u.vstats || {};
-        return `<tr class="click" data-k="${k}" tabindex="0"><td><b></b></td><td class="mono"></td><td class="num">${s.total || 0}</td><td class="num">${pct(s.ok || 0, s.total || 0)}</td><td class="num">${v.total || 0}</td><td class="num">${pct(v.ok || 0, v.total || 0)}</td><td>${fmt(u.updated)}</td></tr>`;
-      }).join('') || '<tr><td colspan="7" class="muted">Még senki sem lépett be.</td></tr>'}</tbody>
+        const s = u.stats || {}, v = u.vstats || {}, m = u.mstats || {};
+        return `<tr class="click" data-k="${k}" tabindex="0"><td><b></b></td><td class="mono"></td><td class="num">${s.total || 0}</td><td class="num">${pct(s.ok || 0, s.total || 0)}</td><td class="num">${v.total || 0}</td><td class="num">${pct(v.ok || 0, v.total || 0)}</td><td class="num">${m.total || 0}</td><td class="num">${pct(m.ok || 0, m.total || 0)}</td><td>${fmt(u.updated)}</td></tr>`;
+      }).join('') || '<tr><td colspan="9" class="muted">Még senki sem lépett be.</td></tr>'}</tbody>
     </table></div>
     <p class="muted">Koppints egy sorra a részletekért.</p>`;
   box.querySelectorAll('tr.click').forEach((tr) => {
@@ -172,8 +172,10 @@ async function loadUser(u) {
     const qs = await T.F.getDocs(T.F.query(T.F.collection(T.db, 'users', u.id, 'answers'), T.F.orderBy('at', 'desc'), T.F.limit(1000)));
     ans = qs.docs.map((d) => d.data());
   } catch (e) { console.warn(e); }
-  const conj = ans.filter((a) => a.kind !== 'vocab'), voc = ans.filter((a) => a.kind === 'vocab');
-  const s = u.stats || {}, v = u.vstats || {};
+  const conj = ans.filter((a) => a.kind !== 'vocab' && a.kind !== 'sent'), voc = ans.filter((a) => a.kind === 'vocab'), sen = ans.filter((a) => a.kind === 'sent');
+  const s = u.stats || {}, v = u.vstats || {}, m = u.mstats || {};
+  const gS = group(sen, 't');
+  const sentRows = rateRows(TENSES.filter((t) => gS[t.id]).map((t) => [t.it, gS[t.id]]));
   const gT = group(conj, 't'), gD = group(voc, 'dir');
   const tenseRows = rateRows(TENSES.filter((t) => gT[t.id]).map((t) => [t.it, gT[t.id]]));
   const dirRows = rateRows(Object.keys(DIRHU).filter((d) => gD[d]).map((d) => [DIRHU[d], gD[d]]));
@@ -193,7 +195,7 @@ async function loadUser(u) {
     ${H3(`Legutóbbi válaszok (${conj.length})`)}
     <div class="tscroll"><table class="ttab">
       <thead><tr><th>Időpont</th><th>Ige</th><th>Idő</th><th>Személy</th><th>Beírta</th><th>Helyes alak</th><th></th></tr></thead>
-      <tbody>${conj.slice(0, 200).map((a) => `<tr><td>${fmt(a.at)}</td><td><b>${esc(a.inf)}</b></td><td>${esc(TNAME[a.t] || a.t)}</td><td>${esc(PERS[a.p] || '')}</td><td class="mono">${esc(a.given || '—')}</td><td class="mono">${esc(a.right)}</td><td>${a.ok ? '<span class="okc">✓</span>' : '<span class="badc">✗</span>'}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Még nincs naplózott válasz.</td></tr>'}</tbody>
+      <tbody>${conj.slice(0, 200).map((a) => `<tr><td>${fmt(a.at)}</td><td><b>${esc(a.inf)}</b></td><td>${esc((TENSES.find((x) => x.id === a.t) || {}).it || a.t)}</td><td>${esc(PERS[a.p] || '')}</td><td class="mono">${esc(a.given || '—')}</td><td class="mono">${esc(a.right)}</td><td>${a.ok ? '<span class="okc">✓</span>' : '<span class="badc">✗</span>'}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Még nincs naplózott válasz.</td></tr>'}</tbody>
     </table></div>
 
     <div class="task" style="margin-top:28px"><span class="task-lbl">Napló</span><span class="task-tense">Szójelentés</span></div>
@@ -206,6 +208,18 @@ async function loadUser(u) {
     <div class="tscroll"><table class="ttab">
       <thead><tr><th>Időpont</th><th>Kérdés</th><th>Irány</th><th>Választotta</th><th>Helyes</th><th></th></tr></thead>
       <tbody>${voc.slice(0, 200).map((a) => `<tr><td>${fmt(a.at)}</td><td><b>${esc(a.dir === 'hu2it' ? (byInf[a.inf] ? byInf[a.inf].hu : a.inf) : a.inf)}</b></td><td>${esc(DIRHU[a.dir] || '')}</td><td>${esc(a.given || '—')}</td><td>${esc(a.right)}</td><td>${a.ok ? '<span class="okc">✓</span>' : '<span class="badc">✗</span>'}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">Még nincs naplózott válasz.</td></tr>'}</tbody>
+    </table></div>
+
+    <div class="task" style="margin-top:28px"><span class="task-lbl">Napló</span><span class="task-tense">Mondatok</span></div>
+    <p class="muted" style="margin:0">${summary(m, sen)}</p>
+    <div class="tgrid2">
+      <div><h3>Igeidők szerint</h3>${sentRows ? `<table class="ttab"><tbody>${sentRows}</tbody></table>` : none}</div>
+      <div><h3>Legtöbbet rontott igék</h3>${missTable(sen, m.miss)}</div>
+    </div>
+    ${H3(`Legutóbbi válaszok (${sen.length})`)}
+    <div class="tscroll"><table class="ttab">
+      <thead><tr><th>Időpont</th><th>Mondat</th><th>Idő</th><th>Beírta</th><th>Helyes</th><th></th></tr></thead>
+      <tbody>${sen.slice(0, 200).map((a) => `<tr><td>${fmt(a.at)}</td><td>${esc(SENT_BY[a.inf] ? SENT_BY[a.inf].it.replace('___', '…') : a.inf)} <span class="muted">(${esc(a.inf)})</span></td><td>${esc((TENSES.find((x) => x.id === a.t) || {}).it || a.t)}</td><td class="mono">${esc(a.given || '—')}</td><td class="mono">${esc(a.right)}</td><td>${a.ok ? '<span class="okc">✓</span>' : '<span class="badc">✗</span>'}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">Még nincs naplózott válasz.</td></tr>'}</tbody>
     </table></div>`;
   $('t-name').textContent = u.name || '(név nélkül)';
   $('t-mail').textContent = u.email || '';
