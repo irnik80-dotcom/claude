@@ -101,6 +101,19 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .qblock h4{margin:0 0 8px; font-size:1rem}
 .qexp{font-size:.88rem; color:var(--ink-soft); margin:8px 0 0}
 .tiplist{margin:6px 0 0; padding-left:20px}
+.wdiff{font-size:1.15rem; line-height:1.9; margin:6px 0 0}
+.wdiff span{padding:1px 4px; border-radius:4px; margin-right:2px}
+.wdiff .ok{background:var(--ok-soft); color:var(--ok)}
+.wdiff .acc{background:var(--warn-soft); color:var(--warn)}
+.wdiff .bad{background:var(--pen-soft); color:var(--pen); text-decoration:line-through}
+.wdiff .miss{border:1.5px dashed var(--pen); color:var(--pen)}
+.wdiff .extra{color:var(--ink-soft); text-decoration:line-through}
+.bigplay{display:inline-flex; align-items:center; gap:10px; font:inherit; font-weight:700; font-size:1.05rem; padding:14px 22px; border-radius:999px; border:0; background:var(--accent); color:var(--on-accent); cursor:pointer}
+.bigplay svg{width:22px; height:22px}
+.mic{display:inline-flex; align-items:center; gap:10px; font:inherit; font-weight:700; font-size:1.05rem; padding:14px 22px; border-radius:999px; border:2px solid var(--pen); background:var(--card); color:var(--pen); cursor:pointer}
+.mic.on{background:var(--pen); color:#fff}
+@media (prefers-reduced-motion: no-preference){ .mic.on{animation:pulse 1.2s ease-in-out infinite} @keyframes pulse{50%{box-shadow:0 0 0 8px var(--pen-soft)}} }
+.psent{font-family:var(--f-display); font-size:clamp(1.3rem,5vw,1.7rem); line-height:1.45; margin:6px 0 10px}
 .bsave{font:inherit; font-size:1.1rem; line-height:1; border:1px solid var(--line); background:var(--card); color:var(--accent); width:32px; height:32px; border-radius:50%; cursor:pointer; flex:none}
 .bsave[aria-pressed="true"]{background:var(--accent); color:var(--on-accent); border-color:var(--accent)}
 .flash{text-align:center; padding:10px 0}
@@ -332,6 +345,7 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
       <button id="tab-read" role="tab" aria-selected="false" data-i18n="tab.read">Olvasás</button>
       <button id="tab-adv" role="tab" aria-selected="false" data-i18n="tab.adv">Kaland</button>
       <button id="tab-rev" role="tab" aria-selected="false">Ismétlés</button>
+      <button id="tab-hear" role="tab" aria-selected="false" data-i18n="tab.hear">Hallás</button>
       <button id="tab-browse" role="tab" aria-selected="false" data-i18n="tab.browse">Igetár</button>
     </nav>
   </header>
@@ -657,6 +671,33 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
           <h3 data-i18n="rv.mywords"></h3>
           <input class="search" id="rv-search" type="search" autocomplete="off" data-i18n-ph="rv.searchph">
           <ul class="mist" id="rv-list" style="margin-top:10px;max-height:50vh;overflow:auto"></ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="view-hear" hidden>
+    <div class="layout">
+      <div class="card" id="hcard"></div>
+      <aside class="side" id="hside">
+        <div class="card">
+          <h3 data-i18n="res.hear"></h3>
+          <div class="stats">
+            <div class="stat"><b id="h-a">–</b><span data-i18n="h.dictavg"></span></div>
+            <div class="stat"><b id="h-b">–</b><span data-i18n="h.pronavg"></span></div>
+            <div class="stat"><b id="h-c">0</b><span data-i18n="h.count"></span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="settings"></h3>
+          <div class="opt">
+            <span class="lbl" data-i18n="opt.mode"></span>
+            <div class="checks" id="h-mode"></div>
+          </div>
+          <div class="opt">
+            <span class="lbl" data-i18n="opt.level"></span>
+            <div class="checks" id="h-levels"></div>
+          </div>
         </div>
       </aside>
     </div>
@@ -3178,6 +3219,32 @@ const I18N = {
   'own.help': ['Fordítás és kérdések az AI-tól','Tłumaczenie i pytania od AI','Translation and questions from the AI'],
   'own.helping': ['Az AI lefordítja a szöveget és kérdéseket ír…','AI tłumaczy tekst i układa pytania…','The AI is translating the text and writing questions…'],
   'own.edit': ['Másik szöveg','Inny tekst','Another text'],
+  'tab.hear': ['Hallás','Słuchanie','Listening'],
+  'res.hear': ['Eredmény · hallás','Wyniki · słuchanie','Results · listening'],
+  'h.dictavg': ['diktálás','dyktando','dictation'],
+  'h.pronavg': ['kiejtés','wymowa','pronunciation'],
+  'h.count': ['gyakorlat','ćwiczeń','exercises'],
+  'h.dict': ['diktálás','dyktando','dictation'],
+  'h.pron': ['kiejtés (mikrofon)','wymowa (mikrofon)','pronunciation (mic)'],
+  'h.label': ['Hallás','Słuchanie','Listening'],
+  'h.dict.title': ['Diktálás','Dyktando','Dictation'],
+  'h.dict.extra': ['Hallgasd meg a mondatot (akár többször), és írd le olaszul. Szavanként megmutatom, mit írtál jól.','Posłuchaj zdania (nawet kilka razy) i zapisz je po włosku. Pokażę, które słowa są dobrze.','Listen to the sentence (as many times as you like) and write it in Italian. You will see which words you got right.'],
+  'h.dict.ph': ['Írd ide, amit hallasz…','Zapisz, co słyszysz…','Write what you hear…'],
+  'h.play': ['Lejátszás','Odtwórz','Play'],
+  'h.score': ['{n}% egyezés','{n}% zgodności','{n}% match'],
+  'h.legend': ['Zöld: jó · sárga: ékezethiba · szaggatott: kimaradt · áthúzott: fölösleges','Zielone: dobrze · żółte: błąd akcentu · przerywane: brakuje · przekreślone: zbędne','Green: correct · yellow: accent mistake · dashed: missing · struck out: extra'],
+  'h.pron.title': ['Kiejtés','Wymowa','Pronunciation'],
+  'h.pron.extra': ['Hallgasd meg a mintát, aztán nyomd meg a mikrofont, és olvasd fel a mondatot. A beszédfelismerés megmutatja, mely szavakat értette.','Posłuchaj wzoru, naciśnij mikrofon i przeczytaj zdanie. Rozpoznawanie mowy pokaże, które słowa zrozumiało.','Listen to the model, then press the microphone and read the sentence aloud. Speech recognition shows which words it understood.'],
+  'h.model': ['Minta meghallgatása','Posłuchaj wzoru','Listen to the model'],
+  'h.speak': ['Beszélek','Mówię','Speak'],
+  'h.listening': ['Figyelek… (koppints, ha kész)','Słucham… (dotknij, gdy skończysz)','Listening… (tap when done)'],
+  'h.pscore': ['{n}%-ban érthető','Zrozumiałe w {n}%','{n}% understood'],
+  'h.heard': ['Ezt értettem:','Usłyszałem:','I heard:'],
+  'h.plegend': ['Zöld: érthető volt · szaggatott: nem sikerült felismerni','Zielone: zrozumiałe · przerywane: nierozpoznane','Green: understood · dashed: not recognised'],
+  'h.nosr': ['Ebben a böngészőben nincs beszédfelismerés. iPhone-on Safariban működik (a Siri legyen bekapcsolva), Androidon Chrome-ban.','Ta przeglądarka nie obsługuje rozpoznawania mowy. Na iPhonie działa w Safari (włącz Siri), na Androidzie w Chrome.','This browser has no speech recognition. On iPhone it works in Safari (Siri must be on), on Android in Chrome.'],
+  'h.denied': ['A mikrofon nincs engedélyezve. Engedélyezd a böngésző beállításaiban, majd próbáld újra.','Mikrofon jest zablokowany. Zezwól na niego w ustawieniach przeglądarki.','The microphone is blocked. Allow it in the browser settings and try again.'],
+  'h.nospeech': ['Nem hallottam semmit. Próbáld újra, közelebb a telefonhoz.','Nic nie usłyszałem. Spróbuj ponownie, bliżej telefonu.','I did not hear anything. Try again, closer to the phone.'],
+  'h.srerr': ['A beszédfelismerés most nem működött. Próbáld újra.','Rozpoznawanie mowy nie zadziałało. Spróbuj ponownie.','Speech recognition did not work. Please try again.'],
   'opt.tone': ['Hangulat','Nastrój','Tone'],
   'tone.normal': ['normál','normalny','normal'],
   'tone.funny': ['vicces','zabawny','funny'],
@@ -3406,7 +3473,7 @@ async function saveCloud(){
   if (!cloudRef) return;
   if (cloudBusy){ cloudDirty = true; return; }
   cloudBusy = true;
-  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), astats: JSON.parse(JSON.stringify(AST)), cards: JSON.parse(JSON.stringify(CARDS)), adv: (typeof advPlain === 'function' ? advPlain() : null), advAt: (typeof advAt === 'number' ? advAt : 0), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
+  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), astats: JSON.parse(JSON.stringify(AST)), cards: JSON.parse(JSON.stringify(CARDS)), hstats: JSON.parse(JSON.stringify(HST)), adv: (typeof advPlain === 'function' ? advPlain() : null), advAt: (typeof advAt === 'number' ? advAt : 0), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
   catch(e){ setWho(null, t('who.saveerr')); }
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
@@ -3454,6 +3521,8 @@ function applyData(d){
   renderOptionsA(); renderStatsA(); renderA();
   CARDS = Array.isArray(d.cards) ? JSON.parse(JSON.stringify(d.cards)).filter(c => c && c.k) : [];
   REV = null; renderRevSide(); renderRev(); revBadge();
+  HST = Object.assign({dn:0,ds:0,pn:0,ps:0}, d.hstats ? JSON.parse(JSON.stringify(d.hstats)) : {});
+  renderOptionsH(); renderStatsH(); nextH();
 }
 /* ref: {get(): Promise<{exists, data()}>, set(obj): Promise} */
 async function attachCloud(ref, me){
@@ -3461,11 +3530,11 @@ async function attachCloud(ref, me){
   if (snap.exists) applyData(snap.data());
   cloudRef = ref;
   setWho(me);
-  if (snap.exists || ST.total || VST.total || MST.total || XST.total || CST.total || RST.total || AST.total || CARDS.length || Object.keys(cloudExtra).length) saveCloud();
+  if (snap.exists || ST.total || VST.total || MST.total || XST.total || CST.total || RST.total || AST.total || CARDS.length || HST.dn || HST.pn || Object.keys(cloudExtra).length) saveCloud();
 }
 function detachCloud(){
   cloudRef = null; clearTimeout(cloudTimer);
-  applyData({stats: store.get('stats', {}), vstats: store.get('vstats', {}), mstats: store.get('mstats', {}), xstats: store.get('xstats', {}), cstats: store.get('cstats', {}), rstats: store.get('rstats', {}), astats: store.get('astats', {}), cards: store.get('cards', []), settings: store.get('settings', {})});
+  applyData({stats: store.get('stats', {}), vstats: store.get('vstats', {}), mstats: store.get('mstats', {}), xstats: store.get('xstats', {}), cstats: store.get('cstats', {}), rstats: store.get('rstats', {}), astats: store.get('astats', {}), cards: store.get('cards', []), hstats: store.get('hstats', {}), settings: store.get('settings', {})});
   setWho(null);
 }
 /* AI a Claude-on belül: a néző saját Claude-fiókjával (sample képesség) */
@@ -3497,7 +3566,7 @@ async function initCloud(){
     await attachCloud(db.collection('data/users/' + me.id).doc('coniuga'), me);
   }catch(e){ /* marad a böngészős mentés */ }
 }
-const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rsrc:'ai', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', agenre:'fantasy', atone:'normal', autoForms:true, autoWords:true, rtone:'normal', alevel:'A2', alen:10, atenses:['pres','pp','imp'], ahero:'', ahero2:'', rhero:'', rhero2:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
+const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rsrc:'ai', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', agenre:'fantasy', atone:'normal', autoForms:true, autoWords:true, hmode:'dict', hlevels:[1,2], rtone:'normal', alevel:'A2', alen:10, atenses:['pres','pp','imp'], ahero:'', ahero2:'', rhero:'', rhero2:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
 let S = Object.assign({}, DEF, store.get('settings', {}));
 let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
 let VST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('vstats', {}));
@@ -3507,6 +3576,7 @@ let CST = Object.assign({total:0,sum:0,best:0,recent:[]}, store.get('cstats', {}
 let RST = Object.assign({total:0,q:0,ok:0,recent:[]}, store.get('rstats', {}));
 let AST = Object.assign({total:0,good:0,pages:0,recent:[]}, store.get('astats', {}));
 let CARDS = (store.get('cards', []) || []).filter(c => c && c.k);
+let HST = Object.assign({dn:0,ds:0,pn:0,ps:0}, store.get('hstats', {}));
 let cur = null;
 let lastInput = null;
 const byInf = Object.fromEntries(VERBS.map(v=>[v.inf, v]));
@@ -3763,7 +3833,7 @@ function renderDetail(){
 /* ---- fülek ---- */
 function showTab(name){
   if (typeof hideBubble === 'function') hideBubble();
-  ['practice','vocab','sent','trans','chat','read','adv','rev','browse','teacher'].forEach(n=>{
+  ['practice','vocab','sent','trans','chat','read','adv','rev','hear','browse','teacher'].forEach(n=>{
     const tab = $('tab-'+n), view = $('view-'+n);
     if (tab) tab.setAttribute('aria-selected', n===name);
     if (view) view.hidden = n!==name;
@@ -3778,6 +3848,7 @@ $('tab-chat').onclick = ()=>showTab('chat');
 $('tab-read').onclick = ()=>showTab('read');
 $('tab-adv').onclick = ()=>showTab('adv');
 $('tab-rev').onclick = ()=>{ showTab('rev'); if (!REV) renderRev(); };
+$('tab-hear').onclick = ()=>showTab('hear');
 
 /* ---- Szójelentés: 4 lehetőség közül a jó ---- */
 const DIRS = {get it2hu(){ return t('dir.it2x'); }, get hu2it(){ return t('dir.x2it'); }};
@@ -4860,6 +4931,132 @@ function gradeRev(c, g, keep){
 }
 setInterval(revBadge, 60000);
 
+/* ---- Hallás: diktálás és kiejtés (beszédfelismerés) ---- */
+const SR = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
+let HEAR = null;   // {x, full, done, res, given, heard, listening}
+let recog = null;
+const wtoks = s => String(s||'').toLowerCase().replace(/[’`´]/g, "'").replace(/'/g, "' ").replace(/[.,!?;:«»"()…\-–—]/g, ' ').split(/\s+/).map(w => w.replace(/'/g, '')).filter(Boolean);
+/* szavankénti összevetés (leghosszabb közös részsorozat), ékezet nélküli egyezésnél "acc" */
+function wordDiff(expected, given){
+  const A = wtoks(expected), B = wtoks(given), n = A.length, m = B.length;
+  const eq = (a, b) => a === b || deacc(a) === deacc(b);
+  const L = Array.from({length: n+1}, () => new Array(m+1).fill(0));
+  for (let i = n-1; i >= 0; i--) for (let j = m-1; j >= 0; j--) L[i][j] = eq(A[i], B[j]) ? L[i+1][j+1] + 1 : Math.max(L[i+1][j], L[i][j+1]);
+  const out = []; let i = 0, j = 0;
+  while (i < n || j < m){
+    if (i < n && j < m && eq(A[i], B[j])){ out.push({w: A[i], st: A[i] === B[j] ? 'ok' : 'acc', got: B[j]}); i++; j++; }
+    else if (j < m && (i >= n || L[i][j+1] >= L[i+1][j])){ out.push({w: B[j], st: 'extra'}); j++; }
+    else { out.push({w: A[i], st: 'miss'}); i++; }
+  }
+  const ok = out.filter(x => x.st === 'ok').length, acc = out.filter(x => x.st === 'acc').length;
+  return {out, score: n ? Math.round(100 * (ok + acc * 0.7) / Math.max(n, ok + acc + out.filter(x => x.st === 'extra').length)) : 0, perfect: ok === n && out.length === n, accOnly: ok + acc === n && acc > 0 && out.length === n};
+}
+const diffHtml = d => `<p class="wdiff">${d.out.map(x => `<span class="${x.st}" title="${x.st==='acc' ? esc(x.got) : ''}">${esc(x.st === 'acc' ? x.w : x.w)}</span>`).join(' ')}</p>`;
+function renderOptionsH(){
+  $('h-mode').innerHTML = chk('radio','hmode','dict',S.hmode!=='pron',t('h.dict')) + chk('radio','hmode','pron',S.hmode==='pron',t('h.pron'));
+  $('h-levels').innerHTML = [1,2,3].map(l => chk('checkbox','hlevel',l,(S.hlevels||[1,2]).includes(l),LEVELS[l])).join('');
+}
+$('hside').addEventListener('change', e => {
+  const el = e.target;
+  if (el.name === 'hmode') S.hmode = el.value;
+  else if (el.name === 'hlevel'){ const sel=[...document.querySelectorAll('input[name=hlevel]:checked')].map(x=>+x.value); if(!sel.length){ el.checked=true; return; } S.hlevels = sel; }
+  else return;
+  store.set('settings', S); nextH();
+});
+function renderStatsH(){
+  $('h-a').textContent = HST.dn ? Math.round(HST.ds / HST.dn) + '%' : '–';
+  $('h-b').textContent = HST.pn ? Math.round(HST.ps / HST.pn) + '%' : '–';
+  $('h-c').textContent = HST.dn + HST.pn;
+}
+function nextH(){
+  stopRecog();
+  const pl = SENTS.filter(x => (S.hlevels||[1,2]).includes(VBY[x.inf].lvl));
+  const x = pl[Math.floor(Math.random() * pl.length)];
+  HEAR = {x, full: sentFill(x).full, done: false};
+  renderH();
+}
+const PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14l12-7z" fill="currentColor"/></svg>';
+const MIC = '<svg viewBox="0 0 24 24" aria-hidden="true" width="22" height="22"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function renderH(){
+  hideBubble();
+  const box = $('hcard'), H = HEAR; if (!H) return;
+  const pron = S.hmode === 'pron';
+  const head = `<div class="task"><span class="task-lbl">${t('h.label')}</span><span class="task-tense">${pron ? t('h.pron.title') : t('h.dict.title')}</span><span class="task-extra">${pron ? t('h.pron.extra') : t('h.dict.extra')}</span></div>`;
+  if (!pron){
+    box.innerHTML = head + `<div class="actions" style="margin-top:0"><button type="button" class="bigplay" id="h-play">${PLAY} ${t('h.play')}</button></div>
+      <form id="h-form" autocomplete="off" style="margin-top:14px">
+        <textarea class="xarea" id="h-ans" rows="2" autocapitalize="off" spellcheck="false" placeholder="${t('h.dict.ph')}" ${H.done ? 'readonly' : ''}></textarea>
+        ${keysHtml()}
+        <div class="actions"><button class="btn" type="submit" id="h-go">${H.done ? t('btn.next') : t('btn.check')}</button>${H.done ? '' : `<button class="btn ghost" type="button" id="h-idk">${t('btn.idk')}</button><button class="btn quiet" type="button" id="h-skip">${t('btn.othersent')}</button>`}</div>
+      </form>
+      ${H.done ? `<div class="feedback ${H.res.perfect ? 'ok' : H.res.accOnly || H.res.score >= 70 ? 'acc' : 'bad'}">
+        <p><span class="verdict">${H.res.perfect ? t('v.ok') : H.res.accOnly ? t('v.acc') : t('h.score', {n: H.res.score})}</span></p>
+        ${diffHtml(H.res)}
+        <p class="ex-it" style="margin-top:10px"><span>${esc(H.full)}</span>${sayBtn(H.full)}</p><p class="ex-hu">${esc(H.x.hu)}</p>
+        <p class="muted" style="margin-top:6px">${t('h.legend')}</p></div>` : ''}`;
+    wireCommon(box);
+    $('h-play').onclick = () => speak(H.full);
+    const ta = $('h-ans');
+    if (H.done){ ta.value = H.given || ''; $('h-go').focus({preventScroll:true}); }
+    ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); $('h-form').requestSubmit(); } });
+    $('h-form').onsubmit = e => { e.preventDefault(); if (H.done){ nextH(); return; } const g = ta.value.trim(); if (!g){ ta.focus(); return; } finishH(g); };
+    const idk = $('h-idk'); if (idk) idk.onclick = () => finishH('');
+    const sk = $('h-skip'); if (sk) sk.onclick = nextH;
+    if (!H.done && !H.autoplayed){ H.autoplayed = true; }
+    return;
+  }
+  // kiejtés
+  const supported = !!SR && !window.claude;
+  box.innerHTML = head + `<p class="psent">${glossText(H.full)}</p><p class="ex-hu">${esc(H.x.hu)}</p>
+    <div class="actions"><button type="button" class="btn ghost" id="h-listen">${PLAY.replace('aria-hidden', 'width="18" height="18" aria-hidden')} ${t('h.model')}</button>
+    ${supported ? `<button type="button" class="mic ${H.listening ? 'on' : ''}" id="h-mic">${MIC} ${H.listening ? t('h.listening') : t('h.speak')}</button>` : ''}
+    <button class="btn quiet" type="button" id="h-skip">${t('btn.othersent')}</button></div>
+    ${supported ? '' : `<div class="feedback acc"><p>${t('h.nosr')}</p></div>`}
+    ${H.err ? `<div class="feedback bad"><p>${esc(H.err)}</p></div>` : ''}
+    ${H.done ? `<div class="feedback ${H.res.score >= 90 ? 'ok' : H.res.score >= 60 ? 'acc' : 'bad'}">
+      <p><span class="verdict">${t('h.pscore', {n: H.res.score})}</span></p>
+      <p class="muted" style="margin:6px 0 0">${t('h.heard')} <b>${esc(H.heard || '—')}</b></p>
+      ${diffHtml({out: H.res.out.filter(x => x.st !== 'extra')})}
+      <p class="muted" style="margin-top:6px">${t('h.plegend')}</p>
+      <div class="actions"><button class="btn" type="button" id="h-next">${t('btn.next')}</button></div></div>` : ''}`;
+  $('h-listen').onclick = () => readAll(box.querySelector('.psent')) ;
+  box.querySelector('.psent').id = 'h-psent';
+  $('h-listen').onclick = () => readAll($('h-psent'));
+  const mic = $('h-mic'); if (mic) mic.onclick = toggleRecog;
+  $('h-skip').onclick = nextH;
+  const nx = $('h-next'); if (nx) nx.onclick = nextH;
+}
+function finishH(given){
+  const H = HEAR; H.given = given; H.res = wordDiff(H.full, given); H.done = true;
+  HST.dn++; HST.ds += H.res.score; store.set('hstats', HST); renderStatsH();
+  if (answerHook){ try{ answerHook({kind:'dict', lang: LANG, inf: H.x.inf, sentence: H.full, given, score: H.res.score, ok: H.res.perfect, at: Date.now()}); }catch(e){} }
+  if (typeof logActivity === 'function') logActivity(1);
+  renderH();
+}
+function stopRecog(){ if (recog){ try{ recog.abort(); }catch(e){} recog = null; } if (HEAR) HEAR.listening = false; }
+function toggleRecog(){
+  const H = HEAR;
+  if (H.listening){ try{ recog && recog.stop(); }catch(e){} return; }
+  stopReading(); try{ speechSynthesis.cancel(); }catch(e){}
+  try{
+    recog = new SR();
+    recog.lang = 'it-IT'; recog.interimResults = false; recog.maxAlternatives = 3; recog.continuous = false;
+  }catch(e){ H.err = t('h.nosr'); renderH(); return; }
+  H.listening = true; H.err = null; renderH();
+  recog.onresult = ev => {
+    const alts = [...ev.results[0]].map(a => a.transcript);
+    let best = null;
+    alts.forEach(a => { const d = wordDiff(H.full, a); if (!best || d.score > best.d.score) best = {a, d}; });
+    H.heard = best.a; H.res = best.d; H.done = true;
+    HST.pn++; HST.ps += best.d.score; store.set('hstats', HST); renderStatsH();
+    if (answerHook){ try{ answerHook({kind:'pron', lang: LANG, inf: H.x.inf, sentence: H.full, heard: best.a, score: best.d.score, ok: best.d.score >= 90, at: Date.now()}); }catch(e){} }
+    if (typeof logActivity === 'function') logActivity(1);
+  };
+  recog.onerror = ev => { H.err = ev && (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') ? t('h.denied') : ev && ev.error === 'no-speech' ? t('h.nospeech') : t('h.srerr'); };
+  recog.onend = () => { H.listening = false; recog = null; renderH(); };
+  try{ recog.start(); }catch(e){ H.listening = false; H.err = t('h.srerr'); renderH(); }
+}
+
 /* ---- Mondatok: a hiányzó ige beírása ---- */
 let curM = null;
 function mpool(){ return SENTS.filter(x => S.mtenses.includes(x.t) && S.mlevels.includes(VBY[x.inf].lvl)); }
@@ -4982,6 +5179,7 @@ function setLang(l, opts){
   renderOptionsR(); renderStatsR(); renderR();
   renderOptionsA(); renderStatsA(); renderA();
   renderRevSide(); renderRev(); revBadge();
+  renderOptionsH(); renderStatsH(); nextH();
   renderBrowseKind(); renderList(); renderDetail();
   setAINote(aiNote);
   if (typeof window.onLangChange === 'function') window.onLangChange();
@@ -5002,5 +5200,6 @@ renderOptionsC(); renderStatsC(); renderC();
 renderOptionsR(); renderStatsR(); renderR();
 renderOptionsA(); renderStatsA(); renderA();
 renderRevSide(); renderRev(); revBadge();
+renderOptionsH(); renderStatsH(); nextH();
 initCloud(); initAI();
 </script>
