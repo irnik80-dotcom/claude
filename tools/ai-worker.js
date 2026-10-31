@@ -42,7 +42,17 @@ export default {
     const reply = (status, obj) => new Response(JSON.stringify(obj), { status, headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8' } });
 
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
-    if (request.method === 'GET') return reply(200, { ok: true, service: 'coniuga-ai', configured: !!env.GEMINI_API_KEY });
+    if (request.method === 'GET') {
+      // ?models=1 : az elérhető Gemini-modellek listája (hibakereséshez; a kulcs nem kerül ki)
+      if (new URL(request.url).searchParams.get('models') && env.GEMINI_API_KEY) {
+        try {
+          const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': env.GEMINI_API_KEY } });
+          const j = await r.json();
+          return reply(200, { models: (j.models || []).filter((m) => (m.supportedGenerationMethods || []).includes('generateContent')).map((m) => m.name.replace('models/', '')) });
+        } catch (e) { return reply(502, { error: 'models' }); }
+      }
+      return reply(200, { ok: true, service: 'coniuga-ai', configured: !!env.GEMINI_API_KEY });
+    }
     if (request.method !== 'POST') return reply(405, { error: 'method' });
     if (!ALLOWED_ORIGINS.includes(origin)) return reply(403, { error: 'origin' });
     if (!env.GEMINI_API_KEY) return reply(500, { error: 'not_configured', message: 'Hiányzik a GEMINI_API_KEY titkos változó.' });
