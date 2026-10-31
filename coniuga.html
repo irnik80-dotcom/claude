@@ -65,13 +65,21 @@ button:focus-visible,input:focus-visible,select:focus-visible,label:focus-within
 .side h3{font-size:.72rem; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 10px; font-weight:700}
 
 /* question */
-.q-meta{display:flex; flex-wrap:wrap; gap:6px 12px; align-items:baseline; margin-bottom:6px}
-.tense{font-family:var(--f-mono); font-weight:600; color:var(--accent); font-size:.95rem}
-.tense-hu{color:var(--ink-soft); font-size:.9rem}
+.task{display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 12px; background:var(--accent-soft); border-radius:10px; padding:12px 16px; margin-bottom:16px}
+.task-lbl{flex-basis:100%; font-size:.72rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft)}
+.task-tense{font-family:var(--f-display); font-size:clamp(1.45rem,4.5vw,1.8rem); line-height:1.2; color:var(--accent)}
+.task-hu{font-size:1.05rem; font-weight:600; color:var(--ink)}
+.task-extra{flex-basis:100%; font-size:.85rem; color:var(--ink-soft)}
+.notes{list-style:none; margin:12px 0 20px; padding:0; display:grid; gap:6px; font-size:.9rem; color:var(--ink-soft)}
+.notes li{display:flex; gap:8px; align-items:baseline}
+.notes li::before{content:""; flex:none; width:7px; height:7px; border-radius:50%; background:var(--line); transform:translateY(-1px)}
+.notes li.irr::before{background:var(--pen)} .notes li.ess::before{background:var(--accent)} .notes li.reg::before{background:var(--ok)}
+.notes b{color:var(--ink); font-weight:700} .notes li.irr b{color:var(--pen)}
+.notes .ex{font-family:var(--f-mono); color:var(--ink)}
 .verb-line{display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 14px}
 .inf{font-family:var(--f-display); font-weight:400; font-size:clamp(2rem,6vw,2.9rem); margin:0; line-height:1.15}
 .hu{color:var(--ink-soft); font-size:1.05rem}
-.chips{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 18px}
+.chips{margin:0}
 .chip{font-size:.75rem; font-weight:600; padding:2px 9px; border-radius:999px; border:1px solid var(--line); color:var(--ink-soft); background:var(--paper); white-space:nowrap}
 .chip.irr{color:var(--pen); border-color:var(--pen); background:var(--pen-soft)}
 .chip.ess{color:var(--accent); border-color:var(--accent); background:var(--accent-soft)}
@@ -772,15 +780,17 @@ const nIrr = VERBS.filter(v=>v.irr).length;
 $('subtitle').textContent = `Olasz igeragozás gyakorló · ${VERBS.length} ige, ebből ${nIrr} rendhagyó`;
 
 function tenseOf(id){ return TENSES.find(t=>t.id===id); }
+const TNAME_HU = {pres:'jelen időben', pp:'a múlt idejű alakjában (participio)', imp:'folyamatos múltban', fut:'jövő időben', cond:'feltételes módban', cong:'kötőmódban'};
+const listHu = a => a.length<2 ? a.join('') : a.slice(0,-1).join(', ')+' és '+a[a.length-1];
 function chips(vb){
   const out = [];
-  if (vb.irr) out.push(`<span class="chip irr" title="Rendhagyó alakok: ${esc(vb.irrT.map(t=>TNAME[t]).join(', '))}">rendhagyó · ${esc(vb.irrT.map(t=>TNAME[t]).join(', '))}</span>`);
-  else out.push(`<span class="chip">szabályos</span>`);
-  if (vb.isc) out.push(`<span class="chip" title="A jelen időben és a congiuntivóban -isc- betoldás: finisco, finisci…">-isc- típus</span>`);
-  if (vb.refl) out.push(`<span class="chip ess">visszaható</span>`);
-  else if (vb.aux==='essere') out.push(`<span class="chip ess" title="A passato prossimo segédigéje az essere, a participio egyeztetendő">essere segédige</span>`);
-  out.push(`<span class="chip">${LEVELS[vb.lvl]}</span>`);
-  return out.join('');
+  if (vb.irr) out.push(`<li class="irr"><span><b>Rendhagyó ige:</b> ${esc(listHu(vb.irrT.map(t=>TNAME_HU[t])))} eltér a szabályos ragozástól.</span></li>`);
+  else out.push(`<li class="reg"><span><b>Szabályos ige:</b> a szokásos végződésekkel ragozódik.</span></li>`);
+  if (vb.isc) out.push(`<li><span><b>-isc- betoldás</b> jelen időben és kötőmódban: <span class="ex">${esc(cell(vb,'pres',0).display)}, ${esc(cell(vb,'pres',1).display)}…</span></span></li>`);
+  if (vb.refl) out.push(`<li class="ess"><span><b>Visszaható ige:</b> az ige elé névmás kerül (mi, ti, si, ci, vi, si), múlt időben az essere a segédige: <span class="ex">${esc(cell(vb,'pp',0).display)}</span></span></li>`);
+  else if (vb.aux==='essere') out.push(`<li class="ess"><span><b>Múlt időben az essere a segédige</b>, és a végződés igazodik a nemhez: <span class="ex">${esc(cell(vb,'pp',0).display)}</span></span></li>`);
+  out.push(`<li><span>Nehézség: ${LEVELS[vb.lvl].toLowerCase()}</span></li>`);
+  return '<ul class="notes">'+out.join('')+'</ul>';
 }
 function table(vb, t, hl){
   const rows = PERS.map((p,i)=>{
@@ -870,9 +880,9 @@ function next(){
 
 function head(vb, t, extra){
   const T = tenseOf(t);
-  return `<div class="q-meta"><span class="tense">${T.it}</span><span class="tense-hu">${T.hu}</span>${extra||''}</div>
+  return `<div class="task"><span class="task-lbl">Ragozd ebben az időben</span><span class="task-tense">${T.it}</span><span class="task-hu">${T.hu}</span>${extra?`<span class="task-extra">${extra}</span>`:''}</div>
   <div class="verb-line"><h2 class="inf">${esc(vb.inf)}</h2><span class="hu">${esc(vb.hu)}</span></div>
-  <div class="chips">${chips(vb)}${S.focus?`<span class="chip ess focus-chip">csak ez az ige <button id="unfocus" aria-label="Szűrés törlése">×</button></span>`:''}</div>`;
+  <div class="chips">${chips(vb)}${S.focus?`<p class="muted focus-chip" style="margin:-10px 0 16px">Csak ezt az igét gyakorlod. <button id="unfocus" class="linkbtn" style="font:inherit;color:var(--accent);background:none;border:0;text-decoration:underline;cursor:pointer">Szűrés törlése</button></p>`:''}</div>`;
 }
 const KEYS = ['à','è','é','ì','ò','ù'];
 function keysHtml(){ return `<div class="keys" aria-label="Ékezetes betűk">${KEYS.map(k=>`<button type="button" data-k="${k}">${k}</button>`).join('')}</div>`; }
@@ -932,7 +942,7 @@ function answerSingle(gaveUp){
 
 function renderTableQ(){
   const {vb,t} = cur;
-  $('qcard').innerHTML = head(vb,t,'<span class="tense-hu">· töltsd ki mind a hat alakot</span>') + `
+  $('qcard').innerHTML = head(vb,t,'Töltsd ki mind a hat személyt.') + `
   <form id="qform" autocomplete="off"><div class="trows">
   ${PERS.map((p,i)=>`<div class="trow"><label class="person" for="t${i}">${p}</label><input id="t${i}" autocapitalize="off" spellcheck="false"><div class="sol" id="sol${i}" hidden></div></div>`).join('')}
   </div>${keysHtml()}
