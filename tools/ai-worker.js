@@ -6,7 +6,7 @@
 //   GEMINI_API_KEY  (Secret)  – a Google AI Studióban kapott kulcs
 // Opcionális:
 //   MODEL           (Text)    – alapból: gemini-flash-lite-latest
-//   DAILY_LIMIT     (Text)    – egy felhasználó napi javításainak száma, alapból: 60
+//   DAILY_LIMIT     (Text)    – egy felhasználó napi javításainak száma, alapból: 1000
 
 const FIREBASE_PROJECT = 'coniuga80';
 const ALLOWED_ORIGINS = ['https://irnik80-dotcom.github.io'];
@@ -41,7 +41,7 @@ export default {
     catch (e) { return reply(401, { error: 'auth', message: 'Jelentkezz be újra.' }); }
 
     // 2) napi korlát
-    const limit = parseInt(env.DAILY_LIMIT || '60', 10);
+    const limit = parseInt(env.DAILY_LIMIT || '1000', 10);
     const key = uid + '|' + new Date().toISOString().slice(0, 10);
     const used = usage.get(key) || 0;
     if (used >= limit) return reply(429, { error: 'limit', message: `Mára elérted a napi ${limit} javítást. Holnap folytathatod.` });

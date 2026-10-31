@@ -1781,8 +1781,6 @@ async function askAI(){
     ${r.corrected && r.errors.length ? `<div class="example"><span class="ex-lbl">Javított változat</span><p class="ex-it"><span>${esc(r.corrected)}</span>${sayBtn(r.corrected)}</p></div>` : ''}
     ${r.comment ? `<p style="margin-top:10px">${esc(r.comment)}</p>` : ''}
     ${curX.ref ? `<div class="example"><span class="ex-lbl">Mintafordítás</span><p class="ex-it"><span>${esc(curX.ref)}</span>${sayBtn(curX.ref)}</p></div>` : ''}
-    ${typeof res.left==='number' ? `<p class="muted" style="margin-top:8px">Mára még ${res.left} AI-javítás van hátra.</p>` : ''}
-    <p class="muted" style="margin-top:8px">Az AI tévedhet; ha bizonytalan vagy, kérdezd meg a tanárod.</p>
   </div>`;
   go.focus({preventScroll:true});
 }
