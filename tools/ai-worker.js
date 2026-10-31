@@ -5,7 +5,7 @@
 // Beállítás a Cloudflare-ben: Settings → Variables and Secrets → Add
 //   GEMINI_API_KEY  (Secret)  – a Google AI Studióban kapott kulcs
 // Opcionális:
-//   MODEL           (Text)    – alapból: gemini-flash-latest
+//   MODEL           (Text)    – alapból: gemini-flash-lite-latest
 //   DAILY_LIMIT     (Text)    – egy felhasználó napi javításainak száma, alapból: 60
 
 const FIREBASE_PROJECT = 'coniuga80';
@@ -111,7 +111,7 @@ const SCHEMA = {
 
 async function askGemini(env, hu, ref, given) {
   // ha egy modell túlterhelt vagy nem létezik, a következővel próbálkozik
-  const models = [env.MODEL || 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+  const models = [env.MODEL || 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-flash-latest'];
   const tries = [];
   let lastErr;
   for (const model of [...new Set(models)]) {
