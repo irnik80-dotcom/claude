@@ -1296,7 +1296,7 @@ async function initAI(){
     if (!sample) return;
     aiBackend = async (p) => {
       try{
-        const result = await sample.json(aiPrompt(p.hu, p.ref, p.given) + AI_JSON_SPEC, {modelTier:'quick'});
+        const result = await sample.json(aiPrompt(p.hu, p.ref, p.given, p.form) + AI_JSON_SPEC, {modelTier:'quick'});
         return {result: normAI(result)};
       }catch(e){
         throw new Error(e && e.code==='rate_limited' ? 'Most túl sok kérés érkezett. Próbáld újra egy kicsit később.' : e && e.code==='not_granted' ? 'Az AI-javításhoz engedélyezned kell a Claude használatát ennek az oldalnak.' : 'Az AI most nem válaszolt. Próbáld újra.');
@@ -1672,12 +1672,12 @@ function recordV(vb, dir, chosen, ok){
   store.set('vstats', VST); renderStatsV();
 }
 /* ---- Fordítás: AI-javítással ---- */
-function aiPrompt(hu, ref, given){
+function aiPrompt(hu, ref, given, form){
   return `Olasz nyelvtanár vagy, magyar anyanyelvű tanulóknak segítesz.
 A tanuló olaszra fordította a magyar szöveget. Értékeld a fordítást, és MAGYARUL válaszolj.
 
 Magyar szöveg: ${JSON.stringify(hu)}
-${ref ? `Egy helyes mintafordítás (más is lehet helyes): ${JSON.stringify(ref)}\n` : ''}A tanuló fordítása: ${JSON.stringify(given)}
+${ref ? `Egy helyes mintafordítás (más is lehet helyes): ${JSON.stringify(ref)}\n` : ''}${form ? `A mondat igéjének biztosan helyes alakja (ellenőrzött ragozó program adta, ezt ne bíráld felül, és javításnál pontosan ezt az alakot használd): ${JSON.stringify(form)}\n` : ''}A tanuló fordítása: ${JSON.stringify(given)}
 
 Szabályok:
 - Fogadd el a más szórendet, szinonimát, alany nélküli vagy alannyal írt változatot, ha nyelvtanilag helyes és ugyanazt jelenti.
@@ -1685,6 +1685,7 @@ Szabályok:
 - A magyarázat legyen rövid, érthető, egy-két mondat.
 - Ha nincs hiba, az errors lista legyen üres.
 - A "corrected" mező a tanuló fordításának javított változata legyen (a lehető legkevesebb változtatással).
+- A mintafordítás nyelvtanilag hibátlan: ha a javításod eltérne tőle egy szó alakjában, a mintafordítás alakját használd.
 - A score 0-10 közötti egész szám (10 = hibátlan).`;
 }
 const AI_JSON_SPEC = `
@@ -1723,7 +1724,8 @@ function nextX(){
   if (S.xsrc==='own'){ curX = {own:true, done:false}; renderX(); return; }
   const pl = SENTS.filter(x=>S.xlevels.includes(VBY[x.inf].lvl));
   const x = pl[Math.floor(Math.random()*pl.length)];
-  curX = {x, ref: sentFill(x).full, done:false};
+  const sf = sentFill(x);
+  curX = {x, ref: sf.full, form: sf.form, done:false};
   renderX();
 }
 function renderX(){
@@ -1764,7 +1766,7 @@ async function askAI(){
   const go = $('x-go'); go.disabled = true;
   $('x-fb').innerHTML = '<p class="loading" style="margin-top:16px">Az AI javítja a fordításodat…</p>';
   let res;
-  try{ res = await aiBackend({hu, ref: curX.ref || '', given}); }
+  try{ res = await aiBackend({hu, ref: curX.ref || '', form: curX.form || '', given}); }
   catch(e){ go.disabled = false; $('x-fb').innerHTML = `<div class="feedback bad"><p>${esc(e.message || 'Az AI most nem érhető el.')}</p></div>`; if (curX.ref) showRef(); return; }
   const r = normAI(res.result);
   curX.done = true; go.disabled = false; go.textContent = curX.own ? 'Új szöveg →' : 'Következő →';

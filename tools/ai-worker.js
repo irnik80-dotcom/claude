@@ -52,6 +52,7 @@ export default {
     const hu = String(body.hu || '').slice(0, MAX_LEN).trim();
     const ref = String(body.ref || '').slice(0, MAX_LEN).trim();
     const given = String(body.given || '').slice(0, MAX_LEN).trim();
+    const form = String(body.form || '').slice(0, 80).trim();
     if (!hu || !given) return reply(400, { error: 'input', message: 'Hiányzik a magyar szöveg vagy a fordítás.' });
 
     usage.set(key, used + 1);
@@ -59,7 +60,7 @@ export default {
 
     // 4) Gemini
     try {
-      const result = await askGemini(env, hu, ref, given);
+      const result = await askGemini(env, hu, ref, given, form);
       return reply(200, { result, left: Math.max(0, limit - used - 1) });
     } catch (e) {
       usage.set(key, used); // a sikertelen kérés ne számítson bele
@@ -69,12 +70,12 @@ export default {
   }
 };
 
-function buildPrompt(hu, ref, given) {
+function buildPrompt(hu, ref, given, form) {
   return `Olasz nyelvtanár vagy, magyar anyanyelvű tanulóknak segítesz.
 A tanuló olaszra fordította a magyar szöveget. Értékeld a fordítást, és MAGYARUL válaszolj.
 
 Magyar szöveg: ${JSON.stringify(hu)}
-${ref ? `Egy helyes mintafordítás (más is lehet helyes): ${JSON.stringify(ref)}\n` : ''}A tanuló fordítása: ${JSON.stringify(given)}
+${ref ? `Egy helyes mintafordítás (más is lehet helyes): ${JSON.stringify(ref)}\n` : ''}${form ? `A mondat igéjének biztosan helyes alakja (ellenőrzött ragozó program adta, ezt ne bíráld felül, és javításnál pontosan ezt az alakot használd): ${JSON.stringify(form)}\n` : ''}A tanuló fordítása: ${JSON.stringify(given)}
 
 Szabályok:
 - Fogadd el a más szórendet, szinonimát, alany nélküli vagy alannyal írt változatot, ha nyelvtanilag helyes és ugyanazt jelenti.
@@ -82,6 +83,7 @@ Szabályok:
 - A magyarázat legyen rövid, érthető, egy-két mondat.
 - Ha nincs hiba, az errors lista legyen üres.
 - A "corrected" mező a tanuló fordításának javított változata legyen (a lehető legkevesebb változtatással).
+- A mintafordítás nyelvtanilag hibátlan: ha a javításod eltérne tőle egy szó alakjában, a mintafordítás alakját használd.
 - A score 0-10 közötti egész szám (10 = hibátlan).`;
 }
 
@@ -109,7 +111,7 @@ const SCHEMA = {
   required: ['score', 'correct', 'corrected', 'errors', 'comment']
 };
 
-async function askGemini(env, hu, ref, given) {
+async function askGemini(env, hu, ref, given, form) {
   // ha egy modell túlterhelt vagy nem létezik, a következővel próbálkozik
   const models = [env.MODEL || 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-flash-latest'];
   const tries = [];
@@ -124,7 +126,7 @@ async function askGemini(env, hu, ref, given) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
       body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: buildPrompt(hu, ref, given) }] }],
+        contents: [{ role: 'user', parts: [{ text: buildPrompt(hu, ref, given, form) }] }],
         generationConfig
       })
     });
