@@ -583,25 +583,29 @@ dialog.login .row .btn{flex:1 1 140px}
         <div class="card">
           <h3 data-i18n="settings"></h3>
           <div class="opt">
+            <span class="lbl" data-i18n="opt.rsrc"></span>
+            <div class="checks" id="r-src"></div>
+          </div>
+          <div class="opt r-aionly">
             <span class="lbl" data-i18n="opt.cefr"></span>
             <div class="checks" id="r-level"></div>
           </div>
-          <div class="opt">
+          <div class="opt r-aionly">
             <span class="lbl" data-i18n="r.tenses"></span>
             <div class="checks" id="r-tenses"></div>
           </div>
-          <div class="opt">
+          <div class="opt r-aionly">
             <span class="lbl" data-i18n="opt.tone"></span>
             <div class="checks" id="r-tone"></div>
           </div>
-          <div class="opt">
+          <div class="opt r-aionly">
             <label class="lbl" for="r-hero" data-i18n="opt.rheroes"></label>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <input class="search" id="r-hero" maxlength="40" autocomplete="off" data-i18n-ph="rhero.ph" aria-label="1">
               <input class="search" id="r-hero2" maxlength="40" autocomplete="off" data-i18n-ph="hero2.ph" aria-label="2">
             </div>
           </div>
-          <div class="opt">
+          <div class="opt r-aionly">
             <label class="lbl" for="r-topic" data-i18n="opt.rtopic"></label>
             <input class="search" id="r-topic" maxlength="100" autocomplete="off" data-i18n-ph="rtopic.ph">
           </div>
@@ -3200,6 +3204,19 @@ const I18N = {
   'rv.g5': ['Könnyű','Łatwe','Easy'],
   'rv.min10': ['10 perc','10 min','10 min'],
   'rv.days': ['{n} nap','{n} dni','{n} days'],
+  'opt.rsrc': ['Mit olvasol?','Co czytasz?','What do you read?'],
+  'rsrc.ai': ['AI-történet','historia od AI','AI story'],
+  'rsrc.own': ['saját szöveg','własny tekst','my own text'],
+  'own.title': ['Saját szöveg olvasása','Czytanie własnego tekstu','Read your own text'],
+  'own.extra': ['Másolj be bármilyen olasz szöveget: cikket, dalszöveget, receptet. Utána koppintható szavakkal, felolvasással olvashatod, és az AI lefordítja, kérdéseket is készít hozzá.','Wklej dowolny włoski tekst: artykuł, piosenkę, przepis. Potem przeczytasz go z klikalnymi słowami i odsłuchem, a AI go przetłumaczy i przygotuje pytania.','Paste any Italian text: an article, song lyrics, a recipe. Then read it with tappable words and audio, and the AI translates it and writes questions.'],
+  'own.ttl': ['Cím (nem kötelező)','Tytuł (opcjonalnie)','Title (optional)'],
+  'own.text': ['Olasz szöveg','Tekst po włosku','Italian text'],
+  'own.ph': ['Másold ide az olasz szöveget…','Wklej tutaj tekst po włosku…','Paste the Italian text here…'],
+  'own.go': ['Olvasás','Czytaj','Read'],
+  'own.untitled': ['Saját szöveg','Własny tekst','My text'],
+  'own.help': ['Fordítás és kérdések az AI-tól','Tłumaczenie i pytania od AI','Translation and questions from the AI'],
+  'own.helping': ['Az AI lefordítja a szöveget és kérdéseket ír…','AI tłumaczy tekst i układa pytania…','The AI is translating the text and writing questions…'],
+  'own.edit': ['Másik szöveg','Inny tekst','Another text'],
   'opt.tone': ['Hangulat','Nastrój','Tone'],
   'tone.normal': ['normál','normalny','normal'],
   'tone.funny': ['vicces','zabawny','funny'],
@@ -3519,7 +3536,7 @@ async function initCloud(){
     await attachCloud(db.collection('data/users/' + me.id).doc('coniuga'), me);
   }catch(e){ /* marad a böngészős mentés */ }
 }
-const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', agenre:'fantasy', atone:'normal', autoForms:true, autoWords:true, rtone:'normal', alevel:'A2', alen:10, atenses:['pres','pp','imp'], ahero:'', ahero2:'', rhero:'', rhero2:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
+const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rsrc:'ai', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', agenre:'fantasy', atone:'normal', autoForms:true, autoWords:true, rtone:'normal', alevel:'A2', alen:10, atenses:['pres','pp','imp'], ahero:'', ahero2:'', rhero:'', rhero2:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
 let S = Object.assign({}, DEF, store.get('settings', {}));
 let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
 let VST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('vstats', {}));
@@ -4042,6 +4059,11 @@ function sanitize(body) {
     const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
     return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100), tone: TONES[body.tone] !== undefined ? body.tone : 'normal', hero: str(body.hero, 40), hero2: str(body.hero2, 40) };
   }
+  if (type === 'textq') {
+    const text = str(body.text, 4000);
+    if (!text) return null;
+    return { type, lang, text, title: str(body.title, 120) };
+  }
   if (type === 'adv') {
     const level = CEFR.includes(body.level) ? body.level : 'A2';
     const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
@@ -4102,6 +4124,14 @@ Return:
 - "translation": a faithful translation of the text into ${LN},
 - "questions": exactly 3 multiple-choice comprehension questions in Italian, each with 4 short options in Italian, "answer" = index (0-3) of the correct option, and "explanation" = one short sentence in ${LN}.`;
   }
+  if (p.type === 'textq') {
+    return `A language learner whose native language is ${LN} is reading this Italian text:
+${JSON.stringify(p.text)}
+Return:
+- "title": ${p.title ? `the given title ${JSON.stringify(p.title)}` : 'a short Italian title for the text'},
+- "translation": a faithful translation of the whole text into ${LN} (keep the paragraph breaks),
+- "questions": exactly 3 multiple-choice comprehension questions in Italian about this text, each with 4 short options in Italian, "answer" = index (0-3) of the correct option, and "explanation" = one short sentence in ${LN}.`;
+  }
   if (p.type === 'adv') {
     const len = { A1: '50-70', A2: '70-100', B1: '100-130', B2: '120-160', C1: '140-180' }[p.level];
     const final = p.step >= p.steps;
@@ -4150,6 +4180,7 @@ const SCHEMAS = {
   gloss: OBJ({ translations: S('ARRAY', { items: S('STRING') }) }),
   chat: OBJ({ reply: S('STRING'), translation: S('STRING'), correction: OBJ({ ok: S('BOOLEAN'), corrected: S('STRING'), explanation: S('STRING') }, ['ok']) }),
   chatsum: OBJ({ score: S('INTEGER'), summary: S('STRING'), errors: S('ARRAY', { items: ERR }), tips: S('ARRAY', { items: S('STRING') }) }),
+  textq: OBJ({ title: S('STRING'), translation: S('STRING'), questions: S('ARRAY', { items: OBJ({ q: S('STRING'), options: S('ARRAY', { items: S('STRING') }), answer: S('INTEGER'), explanation: S('STRING') }) }) }),
   adv: OBJ({ title: S('STRING'), text: S('STRING'), translation: S('STRING'), choices: S('ARRAY', { items: OBJ({ text: S('STRING'), translation: S('STRING') }) }), vocab: S('ARRAY', { items: OBJ({ it: S('STRING'), tr: S('STRING') }) }), summary: S('STRING'), ending: S('STRING') }, ['text', 'translation', 'choices', 'vocab', 'summary', 'ending']),
   story: OBJ({ title: S('STRING'), text: S('STRING'), translation: S('STRING'), questions: S('ARRAY', { items: OBJ({ q: S('STRING'), options: S('ARRAY', { items: S('STRING') }), answer: S('INTEGER'), explanation: S('STRING') }) }) })
 };
@@ -4159,6 +4190,7 @@ const JSON_SPEC = {
   gloss: '{"translations": ["...", "..."]}  (exactly as many items as words)',
   chat: '{"reply": "...", "translation": "...", "correction": {"ok": true/false, "corrected": "...", "explanation": "..."}}',
   chatsum: '{"score": 0-10, "summary": "...", "errors": [{"wrong": "...", "fix": "...", "explanation": "..."}], "tips": ["..."]}',
+  textq: '{"title": "...", "translation": "...", "questions": [{"q": "...", "options": ["...", "...", "...", "..."], "answer": 0-3, "explanation": "..."}]}',
   adv: '{"title": "...", "text": "...", "translation": "...", "choices": [{"text": "...", "translation": "..."}], "vocab": [{"it": "...", "tr": "..."}], "summary": "...", "ending": "none|good|bad"}',
   story: '{"title": "...", "text": "...", "translation": "...", "questions": [{"q": "...", "options": ["...", "...", "...", "..."], "answer": 0-3, "explanation": "..."}]}'
 };
@@ -4189,6 +4221,10 @@ function normalize(type, r, p) {
     if (end !== 'none') choices = [];
     return { title: str(clean(r.title), 120), text: str(clean(r.text), 3000), translation: str(r.translation, 3500), choices,
       vocab: (Array.isArray(r.vocab) ? r.vocab : []).slice(0, 6).map((v) => ({ it: str(v && v.it, 80), tr: str(v && v.tr, 120) })).filter((v) => v.it), summary: str(r.summary, 1500), ending: end };
+  }
+  if (type === 'textq') {
+    const st = normalize('story', Object.assign({}, r, { text: p ? p.text : '' }), p);
+    return { title: st.title || (p && p.title) || '', translation: st.translation, questions: st.questions };
   }
   if (type === 'story') {
     const qs = (Array.isArray(r.questions) ? r.questions : []).slice(0, 3).map((q) => {
@@ -4476,6 +4512,8 @@ function recordC(c){
 /* ---- Olvasás: rövid AI-történet kérdésekkel ---- */
 let STORY = null;  // {level, tenses, topic, data, answers:[], showTr, busy, err}
 function renderOptionsR(){
+  $('r-src').innerHTML = chk('radio','rsrc','ai',(S.rsrc||'ai')==='ai',t('rsrc.ai')) + chk('radio','rsrc','own',S.rsrc==='own',t('rsrc.own'));
+  document.querySelectorAll('#rside .r-aionly').forEach(x => x.hidden = S.rsrc === 'own');
   $('r-level').innerHTML = AIP.CEFR.map(l => chk('radio','rlevel',l,S.rlevel===l,t('cefr.'+l))).join('');
   $('r-tenses').innerHTML = TENSES.map(x => chk('checkbox','rtense',x.id,S.rtenses.includes(x.id),x.it)).join('');
   $('r-topic').value = S.rtopic || '';
@@ -4484,6 +4522,7 @@ function renderOptionsR(){
 }
 $('rside').addEventListener('change', e => {
   const el = e.target;
+  if (el.name==='rsrc'){ S.rsrc = el.value; store.set('settings', S); renderOptionsR(); STORY = null; renderR(); return; }
   if (el.name==='rlevel') S.rlevel = el.value;
   else if (el.name==='rtense'){ const sel=[...document.querySelectorAll('input[name=rtense]:checked')].map(x=>x.value); if(!sel.length){ el.checked=true; return; } S.rtenses = sel; }
   else if (el.id==='r-topic') S.rtopic = el.value.trim();
@@ -4504,7 +4543,25 @@ function renderStatsR(){
 function renderR(){
   hideBubble();
   const box = $('rcard');
-  const head = `<div class="task"><span class="task-lbl">${t('r.label')}</span><span class="task-tense">${t('r.title')}</span><span class="task-extra">${t('r.extra')}</span></div>`;
+  const head = STORY && STORY.own ? `<div class="task"><span class="task-lbl">${t('r.label')}</span><span class="task-tense">${t('own.title')}</span></div>`
+    : `<div class="task"><span class="task-lbl">${t('r.label')}</span><span class="task-tense">${t('r.title')}</span><span class="task-extra">${t('r.extra')}</span></div>`;
+  if (S.rsrc === 'own' && (!STORY || !STORY.own)){
+    let draft = ''; try{ draft = localStorage.getItem('coniuga:owntext') || ''; }catch(e){}
+    box.innerHTML = `<div class="task"><span class="task-lbl">${t('r.label')}</span><span class="task-tense">${t('own.title')}</span><span class="task-extra">${t('own.extra')}</span></div>
+      <label class="xlbl" for="o-title">${t('own.ttl')}</label><input class="search" id="o-title" maxlength="120" autocomplete="off">
+      <label class="xlbl" for="o-text">${t('own.text')}</label><textarea class="xarea" id="o-text" rows="10" maxlength="4000" placeholder="${t('own.ph')}" style="font-family:var(--f-body)"></textarea>
+      <p class="muted" id="o-count" style="margin:4px 0 0"></p>
+      <div class="actions"><button class="btn" type="button" id="o-go">${t('own.go')}</button></div>`;
+    const ta = $('o-text'); ta.value = draft;
+    const cnt = () => { $('o-count').textContent = `${ta.value.length} / 4000`; try{ localStorage.setItem('coniuga:owntext', ta.value); }catch(e){} };
+    ta.addEventListener('input', cnt); cnt();
+    $('o-go').onclick = () => {
+      const text = ta.value.trim(); if (!text){ ta.focus(); return; }
+      STORY = {own: true, level: '', tenses: [], tone: 'normal', topic: '', answers: [], data: {title: $('o-title').value.trim() || t('own.untitled'), text, translation: '', questions: []}};
+      renderR();
+    };
+    return;
+  }
   if (!STORY || (!STORY.data && !STORY.busy && !STORY.err)){
     box.innerHTML = head + `<div class="actions"><button class="btn" type="button" id="r-new">${t('r.new')}</button></div>${noteHtml()}`;
     $('r-new').onclick = newStory; return;
@@ -4514,12 +4571,12 @@ function renderR(){
     box.innerHTML = head + `<div class="feedback bad"><p>${esc(STORY.err)}</p></div><div class="actions"><button class="btn" type="button" id="r-new">${t('r.new')}</button></div>`;
     $('r-new').onclick = newStory; return;
   }
-  const d = STORY.data, done = STORY.answers.filter(a => a != null).length === d.questions.length;
+  const d = STORY.data, done = d.questions.length > 0 && STORY.answers.filter(a => a != null).length === d.questions.length;
   const paras = d.text.split(/\n\s*\n/).filter(x => x.trim());
   const good = STORY.answers.filter((a, i) => a === d.questions[i].answer).length;
   box.innerHTML = head + `<div class="story">
     <h2>${esc(d.title)}</h2>
-    <p class="muted" style="margin:0 0 12px">${esc(STORY.level)}${esc(toneTag(STORY.tone))}${STORY.hero || STORY.hero2 ? ' · ' + esc([STORY.hero, STORY.hero2].filter(Boolean).join(' & ')) : ''} · ${STORY.tenses.map(x => tenseOf(x).it).join(', ')} · ${t('x.tap')}</p>
+    <p class="muted" style="margin:0 0 12px">${STORY.own ? t('rsrc.own') : `${esc(STORY.level)}${esc(toneTag(STORY.tone))}${STORY.hero || STORY.hero2 ? ' · ' + esc([STORY.hero, STORY.hero2].filter(Boolean).join(' & ')) : ''} · ${STORY.tenses.map(x => tenseOf(x).it).join(', ')}`} · ${t('x.tap')}</p>
     <div id="r-text">${paras.map(pp => `<p class="para">${glossText(pp)}</p>`).join('')}</div>
     <div class="actions" style="margin-top:4px">
       <button class="btn ghost" type="button" data-readall="r-text">${t('r.listen')}</button>
@@ -4528,20 +4585,35 @@ function renderR(){
       ${pdfBtn('story')}
     </div>
     ${STORY.showTr ? `<p class="trbox" style="margin-top:12px">${esc(d.translation)}</p>` : ''}
-    <h3 class="xlbl" style="margin-top:22px;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase">${t('r.questions')}</h3>
+    ${STORY.own && !d.questions.length ? (STORY.helpBusy ? `<p class="loading" style="margin-top:14px">${t('own.helping')}</p>`
+      : `${STORY.helpErr ? `<div class="feedback bad"><p>${esc(STORY.helpErr)}</p></div>` : ''}<div class="actions"><button class="btn" type="button" id="o-help">${t('own.help')}</button><button class="btn quiet" type="button" id="o-edit">${t('own.edit')}</button></div>${noteHtml()}`) : ''}
+    ${d.questions.length ? `<h3 class="xlbl" style="margin-top:22px;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase">${t('r.questions')}</h3>` : ''}
     ${d.questions.map((q, i) => { const a = STORY.answers[i]; return `<div class="qblock"><h4>${i+1}. ${esc(q.q)}</h4>
       <div class="opts">${q.options.map((o, k) => `<button type="button" class="optbtn ${a!=null ? (k===q.answer ? 'right' : k===a ? 'wrong' : 'dim') : ''}" data-q="${i}" data-k="${k}" ${a!=null?'disabled':''}><span class="k">${'ABCD'[k]}</span><span class="t">${esc(o)}</span></button>`).join('')}</div>
       ${a!=null && q.explanation ? `<p class="qexp">${esc(q.explanation)}</p>` : ''}</div>`; }).join('')}
-    ${done ? `<div class="feedback ${good===d.questions.length?'ok':good>0?'acc':'bad'}"><p><span class="verdict">${t('r.result', {n: good, m: d.questions.length})}</span></p><div class="actions"><button class="btn" type="button" id="r-new">${t('r.new')}</button></div></div>` : ''}
+    ${done ? `<div class="feedback ${good===d.questions.length?'ok':good>0?'acc':'bad'}"><p><span class="verdict">${t('r.result', {n: good, m: d.questions.length})}</span></p><div class="actions"><button class="btn" type="button" id="r-new">${STORY.own ? t('own.edit') : t('r.new')}</button></div></div>` : ''}
   </div>`;
   box.querySelectorAll('.optbtn[data-q]').forEach(b => b.onclick = () => answerR(+b.dataset.q, +b.dataset.k));
   const tr = $('r-tr'); if (tr) tr.onclick = () => { STORY.showTr = !STORY.showTr; renderR(); };
-  const nw = $('r-new'); if (nw) nw.onclick = newStory;
+  const nw = $('r-new'); if (nw) nw.onclick = () => { if (STORY && STORY.own){ STORY = null; renderR(); } else newStory(); };
+  const oh = $('o-help'); if (oh) oh.onclick = ownHelp;
+  const oe = $('o-edit'); if (oe) oe.onclick = () => { STORY = null; renderR(); };
+}
+async function ownHelp(){
+  if (!aiBackend){ const n = $('rcard').querySelector('.ainote'); if (n) n.style.color = 'var(--pen)'; return; }
+  const me = STORY; me.helpBusy = true; me.helpErr = null; renderR();
+  try{
+    const res = await aiBackend({type:'textq', lang: LANG, text: me.data.text, title: me.data.title === t('own.untitled') ? '' : me.data.title});
+    if (STORY !== me) return;
+    me.data.translation = res.result.translation; me.data.questions = res.result.questions;
+    if (res.result.title && me.data.title === t('own.untitled')) me.data.title = res.result.title;
+  }catch(e){ if (STORY === me) me.helpErr = (e && e.message) || t('ai.unavail'); }
+  if (STORY === me){ me.helpBusy = false; renderR(); }
 }
 PDF.story = () => {
   if (!STORY || !STORY.data) return;
   const d = STORY.data;
-  printDoc(d.title, `<p class="pmeta">${esc(t('r.label'))} · ${esc(STORY.level)}${esc(toneTag(STORY.tone))} · ${esc(STORY.tenses.map(x => tenseOf(x).it).join(', '))}${STORY.topic ? ' · ' + esc(STORY.topic) : ''}</p>
+  printDoc(d.title, `<p class="pmeta">${esc(t('r.label'))} · ${STORY.own ? esc(t('rsrc.own')) : `${esc(STORY.level)}${esc(toneTag(STORY.tone))} · ${esc(STORY.tenses.map(x => tenseOf(x).it).join(', '))}${STORY.topic ? ' · ' + esc(STORY.topic) : ''}`}</p>
     ${d.text.split(/\n\s*\n/).filter(x => x.trim()).map(pp => `<p class="pit">${esc(pp)}</p>`).join('')}
     ${d.questions.length ? `<h2>${esc(t('r.questions'))}</h2><ol>${d.questions.map(q => `<li>${esc(q.q)}<br>${q.options.map((o, k) => `${'ABCD'[k]}) ${esc(o)}`).join('&nbsp;&nbsp; ')}</li>`).join('')}</ol>` : ''}
     ${d.translation ? `<h2>${esc(t('pdf.tr'))}</h2>${d.translation.split(/\n\s*\n/).map(pp => `<p class="ptr">${esc(pp)}</p>`).join('')}` : ''}
@@ -4566,9 +4638,9 @@ function answerR(i, k){
   const d = STORY.data;
   if (STORY.answers.filter(a => a != null).length === d.questions.length){
     const good = STORY.answers.filter((a, j) => a === d.questions[j].answer).length;
-    if (answerHook){ try{ answerHook({kind:'read', lang: LANG, title: d.title, tone: STORY.tone || 'normal', level: STORY.level, tenses: STORY.tenses, score: good, total: d.questions.length, ok: good === d.questions.length, at: Date.now()}); }catch(e){} }
+    if (answerHook){ try{ answerHook({kind:'read', lang: LANG, own: !!STORY.own, title: d.title, tone: STORY.tone || 'normal', level: STORY.level || '—', tenses: STORY.tenses, score: good, total: d.questions.length, ok: good === d.questions.length, at: Date.now()}); }catch(e){} }
     RST.total++; RST.q += d.questions.length; RST.ok += good;
-    RST.recent.unshift({title: d.title, level: STORY.level, score: good, n: d.questions.length});
+    RST.recent.unshift({title: d.title, level: STORY.level || t('rsrc.own'), score: good, n: d.questions.length});
     RST.recent = RST.recent.slice(0, 8);
     store.set('rstats', RST); renderStatsR();
   }

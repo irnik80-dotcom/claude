@@ -63,6 +63,11 @@ export function sanitize(body) {
     const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
     return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100), tone: TONES[body.tone] !== undefined ? body.tone : 'normal', hero: str(body.hero, 40), hero2: str(body.hero2, 40) };
   }
+  if (type === 'textq') {
+    const text = str(body.text, 4000);
+    if (!text) return null;
+    return { type, lang, text, title: str(body.title, 120) };
+  }
   if (type === 'adv') {
     const level = CEFR.includes(body.level) ? body.level : 'A2';
     const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
@@ -123,6 +128,14 @@ Return:
 - "translation": a faithful translation of the text into ${LN},
 - "questions": exactly 3 multiple-choice comprehension questions in Italian, each with 4 short options in Italian, "answer" = index (0-3) of the correct option, and "explanation" = one short sentence in ${LN}.`;
   }
+  if (p.type === 'textq') {
+    return `A language learner whose native language is ${LN} is reading this Italian text:
+${JSON.stringify(p.text)}
+Return:
+- "title": ${p.title ? `the given title ${JSON.stringify(p.title)}` : 'a short Italian title for the text'},
+- "translation": a faithful translation of the whole text into ${LN} (keep the paragraph breaks),
+- "questions": exactly 3 multiple-choice comprehension questions in Italian about this text, each with 4 short options in Italian, "answer" = index (0-3) of the correct option, and "explanation" = one short sentence in ${LN}.`;
+  }
   if (p.type === 'adv') {
     const len = { A1: '50-70', A2: '70-100', B1: '100-130', B2: '120-160', C1: '140-180' }[p.level];
     const final = p.step >= p.steps;
@@ -171,6 +184,7 @@ export const SCHEMAS = {
   gloss: OBJ({ translations: S('ARRAY', { items: S('STRING') }) }),
   chat: OBJ({ reply: S('STRING'), translation: S('STRING'), correction: OBJ({ ok: S('BOOLEAN'), corrected: S('STRING'), explanation: S('STRING') }, ['ok']) }),
   chatsum: OBJ({ score: S('INTEGER'), summary: S('STRING'), errors: S('ARRAY', { items: ERR }), tips: S('ARRAY', { items: S('STRING') }) }),
+  textq: OBJ({ title: S('STRING'), translation: S('STRING'), questions: S('ARRAY', { items: OBJ({ q: S('STRING'), options: S('ARRAY', { items: S('STRING') }), answer: S('INTEGER'), explanation: S('STRING') }) }) }),
   adv: OBJ({ title: S('STRING'), text: S('STRING'), translation: S('STRING'), choices: S('ARRAY', { items: OBJ({ text: S('STRING'), translation: S('STRING') }) }), vocab: S('ARRAY', { items: OBJ({ it: S('STRING'), tr: S('STRING') }) }), summary: S('STRING'), ending: S('STRING') }, ['text', 'translation', 'choices', 'vocab', 'summary', 'ending']),
   story: OBJ({ title: S('STRING'), text: S('STRING'), translation: S('STRING'), questions: S('ARRAY', { items: OBJ({ q: S('STRING'), options: S('ARRAY', { items: S('STRING') }), answer: S('INTEGER'), explanation: S('STRING') }) }) })
 };
@@ -180,6 +194,7 @@ export const JSON_SPEC = {
   gloss: '{"translations": ["...", "..."]}  (exactly as many items as words)',
   chat: '{"reply": "...", "translation": "...", "correction": {"ok": true/false, "corrected": "...", "explanation": "..."}}',
   chatsum: '{"score": 0-10, "summary": "...", "errors": [{"wrong": "...", "fix": "...", "explanation": "..."}], "tips": ["..."]}',
+  textq: '{"title": "...", "translation": "...", "questions": [{"q": "...", "options": ["...", "...", "...", "..."], "answer": 0-3, "explanation": "..."}]}',
   adv: '{"title": "...", "text": "...", "translation": "...", "choices": [{"text": "...", "translation": "..."}], "vocab": [{"it": "...", "tr": "..."}], "summary": "...", "ending": "none|good|bad"}',
   story: '{"title": "...", "text": "...", "translation": "...", "questions": [{"q": "...", "options": ["...", "...", "...", "..."], "answer": 0-3, "explanation": "..."}]}'
 };
@@ -210,6 +225,10 @@ export function normalize(type, r, p) {
     if (end !== 'none') choices = [];
     return { title: str(clean(r.title), 120), text: str(clean(r.text), 3000), translation: str(r.translation, 3500), choices,
       vocab: (Array.isArray(r.vocab) ? r.vocab : []).slice(0, 6).map((v) => ({ it: str(v && v.it, 80), tr: str(v && v.tr, 120) })).filter((v) => v.it), summary: str(r.summary, 1500), ending: end };
+  }
+  if (type === 'textq') {
+    const st = normalize('story', Object.assign({}, r, { text: p ? p.text : '' }), p);
+    return { title: st.title || (p && p.title) || '', translation: st.translation, questions: st.questions };
   }
   if (type === 'story') {
     const qs = (Array.isArray(r.questions) ? r.questions : []).slice(0, 3).map((q) => {

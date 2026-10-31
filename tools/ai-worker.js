@@ -96,7 +96,7 @@ export default {
 // Modellek (2026. októberi mérés alapján): a gyors feladatokhoz a 3.1 flash-lite (~1 mp),
 // a hosszabb szövegíráshoz a jobb minőségű 3.5 flash (~3 mp). Ha egy modell túlterhelt,
 // nem létezik vagy túl lassú, a következővel próbálkozik – összesen legfeljebb ~50 mp-ig.
-const LONG_TASKS = ['story', 'adv', 'chatsum'];
+const LONG_TASKS = ['story', 'adv', 'chatsum', 'textq'];
 const THINK_MINIMAL = ['gemini-3.1-flash-lite', 'gemini-3.5-flash', 'gemini-3.5-flash-lite'];
 function modelsFor(type, env) {
   const list = LONG_TASKS.includes(type)
