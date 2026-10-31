@@ -104,6 +104,9 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .optbtn.wrong{border-color:var(--pen); background:var(--pen-soft)}
 .optbtn.dim{opacity:.55}
 .vprompt{font-family:var(--f-display); font-weight:400; font-size:clamp(2rem,7vw,2.9rem); margin:0 0 16px; line-height:1.15; overflow-wrap:anywhere}
+.langs{display:flex; gap:2px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:3px}
+.langs button{font:inherit; font-size:.8rem; font-weight:700; letter-spacing:.04em; border:0; background:transparent; color:var(--ink-soft); padding:6px 9px; border-radius:7px; cursor:pointer}
+.langs button[aria-pressed="true"]{background:var(--accent-soft); color:var(--accent)}
 nav.tabs{display:flex; flex-wrap:wrap; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:4px}
 nav.tabs button{font:inherit; font-weight:600; border:0; background:transparent; color:var(--ink-soft); padding:8px 16px; border-radius:7px; cursor:pointer}
 nav.tabs button[aria-selected="true"]{background:var(--accent); color:var(--on-accent)}
@@ -262,16 +265,17 @@ dialog.login .row .btn{flex:1 1 140px}
     <div class="brand">
       <h1>Coniuga<em>!</em></h1>
       <p id="subtitle">Olasz igeragozás gyakorló</p>
-      <p class="who" id="who"><span class="who-dot" aria-hidden="true"></span><span id="who-text">Az eredményeid ebben a böngészőben maradnak.</span></p>
+      <p class="who" id="who"><span class="who-dot" aria-hidden="true"></span><span id="who-text" data-i18n="who.local">Az eredményeid ebben a böngészőben maradnak.</span></p>
     </div>
-    <div class="auth" id="auth" hidden><button class="btn ghost" id="login-open" type="button">Bejelentkezés</button><button class="btn quiet" id="logout" type="button" hidden>Kijelentkezés</button></div>
+    <div class="langs" id="langs" role="group" aria-label="Nyelv / Język / Language"></div>
+    <div class="auth" id="auth" hidden><button class="btn ghost" id="login-open" type="button" data-i18n="auth.login">Bejelentkezés</button><button class="btn quiet" id="logout" type="button" hidden data-i18n="auth.logout">Kijelentkezés</button></div>
     <nav class="tabs" role="tablist">
-      <button id="tab-practice" role="tab" aria-selected="true">Ragozás</button>
-      <button id="tab-vocab" role="tab" aria-selected="false">Szójelentés</button>
-      <button id="tab-sent" role="tab" aria-selected="false">Mondatok</button>
-      <button id="tab-trans" role="tab" aria-selected="false">Fordítás</button>
-      <button id="tab-browse" role="tab" aria-selected="false">Igetár</button>
-      <button id="tab-teacher" role="tab" aria-selected="false" hidden>Tanári nézet</button>
+      <button id="tab-practice" role="tab" aria-selected="true" data-i18n="tab.practice">Ragozás</button>
+      <button id="tab-vocab" role="tab" aria-selected="false" data-i18n="tab.vocab">Szójelentés</button>
+      <button id="tab-sent" role="tab" aria-selected="false" data-i18n="tab.sent">Mondatok</button>
+      <button id="tab-trans" role="tab" aria-selected="false" data-i18n="tab.trans">Fordítás</button>
+      <button id="tab-browse" role="tab" aria-selected="false" data-i18n="tab.browse">Igetár</button>
+      <button id="tab-teacher" role="tab" aria-selected="false" hidden data-i18n="tab.teacher">Tanári nézet</button>
     </nav>
   </header>
 
@@ -280,45 +284,45 @@ dialog.login .row .btn{flex:1 1 140px}
       <div class="card" id="qcard"></div>
       <aside class="side">
         <div class="card">
-          <h3>Eredmény · ragozás</h3>
+          <h3 data-i18n="res.conj">Eredmény · ragozás</h3>
           <div class="stats">
-            <div class="stat"><b id="s-pct">–</b><span>helyes</span></div>
-            <div class="stat"><b id="s-streak">0</b><span>sorozat</span></div>
-            <div class="stat"><b id="s-best">0</b><span>legjobb</span></div>
+            <div class="stat"><b id="s-pct">–</b><span data-i18n="st.correct">helyes</span></div>
+            <div class="stat"><b id="s-streak">0</b><span data-i18n="st.streak">sorozat</span></div>
+            <div class="stat"><b id="s-best">0</b><span data-i18n="st.best">legjobb</span></div>
           </div>
           <p class="muted" id="s-total" style="margin:10px 0 0;text-align:center"></p>
         </div>
         <div class="card">
-          <h3>Beállítások</h3>
+          <h3 data-i18n="settings">Beállítások</h3>
           <div class="opt">
-            <span class="lbl">Feladattípus</span>
+            <span class="lbl" data-i18n="opt.mode">Feladattípus</span>
             <div class="checks" id="o-mode"></div>
           </div>
           <div class="opt">
-            <span class="lbl">Igeidők, módok</span>
+            <span class="lbl" data-i18n="opt.tenses">Igeidők, módok</span>
             <div class="checks" id="o-tenses"></div>
           </div>
           <div class="opt">
-            <span class="lbl">Szint</span>
+            <span class="lbl" data-i18n="opt.level">Szint</span>
             <div class="checks" id="o-levels"></div>
           </div>
           <div class="opt">
-            <span class="lbl">Igék</span>
+            <span class="lbl" data-i18n="opt.verbs">Igék</span>
             <div class="checks" id="o-kind"></div>
           </div>
           <div class="opt">
             <div class="checks">
-              <label><input type="checkbox" id="o-refl"> visszaható igék is</label>
-              <label><input type="checkbox" id="o-lenient"> ékezethiba elfogadva</label>
+              <label><input type="checkbox" id="o-refl"> <span data-i18n="opt.refl">visszaható igék is</span></label>
+              <label><input type="checkbox" id="o-lenient"> <span data-i18n="opt.lenient">ékezethiba elfogadva</span></label>
             </div>
             <span class="pool" id="o-pool"></span>
           </div>
         </div>
         <div class="card">
-          <h3>Legutóbbi hibák</h3>
+          <h3 data-i18n="mist.title">Legutóbbi hibák</h3>
           <ul class="mist" id="mistakes"></ul>
-          <div class="actions" style="margin-top:12px"><button class="btn quiet" id="reset">Eredmények törlése</button></div>
-          <p class="muted" id="reset-confirm" hidden style="margin:8px 0 0">Biztosan? <button class="btn quiet" id="reset-yes" style="padding:3px 10px">Igen, törlöm</button></p>
+          <div class="actions" style="margin-top:12px"><button class="btn quiet" id="reset" data-i18n="reset">Eredmények törlése</button></div>
+          <p class="muted" id="reset-confirm" hidden style="margin:8px 0 0"><span data-i18n="sure">Biztosan?</span> <button class="btn quiet" id="reset-yes" style="padding:3px 10px" data-i18n="reset.yes">Igen, törlöm</button></p>
         </div>
       </aside>
     </div>
@@ -329,35 +333,35 @@ dialog.login .row .btn{flex:1 1 140px}
       <div class="card" id="vcard"></div>
       <aside class="side" id="vside">
         <div class="card">
-          <h3>Eredmény · szójelentés</h3>
+          <h3 data-i18n="res.vocab">Eredmény · szójelentés</h3>
           <div class="stats">
-            <div class="stat"><b id="v-pct">–</b><span>helyes</span></div>
-            <div class="stat"><b id="v-streak">0</b><span>sorozat</span></div>
-            <div class="stat"><b id="v-best">0</b><span>legjobb</span></div>
+            <div class="stat"><b id="v-pct">–</b><span data-i18n="st.correct">helyes</span></div>
+            <div class="stat"><b id="v-streak">0</b><span data-i18n="st.streak">sorozat</span></div>
+            <div class="stat"><b id="v-best">0</b><span data-i18n="st.best">legjobb</span></div>
           </div>
           <p class="muted" id="v-total" style="margin:10px 0 0;text-align:center"></p>
         </div>
         <div class="card">
-          <h3>Beállítások</h3>
+          <h3 data-i18n="settings">Beállítások</h3>
           <div class="opt">
-            <span class="lbl">Irány</span>
+            <span class="lbl" data-i18n="opt.dir">Irány</span>
             <div class="checks" id="v-dir"></div>
           </div>
           <div class="opt">
-            <span class="lbl">Szint</span>
+            <span class="lbl" data-i18n="opt.level">Szint</span>
             <div class="checks" id="v-levels"></div>
           </div>
           <div class="opt">
-            <span class="lbl">Igék</span>
+            <span class="lbl" data-i18n="opt.verbs">Igék</span>
             <div class="checks" id="v-kind"></div>
             <span class="pool" id="v-pool"></span>
           </div>
         </div>
         <div class="card">
-          <h3>Legutóbbi hibák</h3>
+          <h3 data-i18n="mist.title">Legutóbbi hibák</h3>
           <ul class="mist" id="v-mistakes"></ul>
-          <div class="actions" style="margin-top:12px"><button class="btn quiet" id="v-reset">Eredmények törlése</button></div>
-          <p class="muted" id="v-reset-confirm" hidden style="margin:8px 0 0">Biztosan? <button class="btn quiet" id="v-reset-yes" style="padding:3px 10px">Igen, törlöm</button></p>
+          <div class="actions" style="margin-top:12px"><button class="btn quiet" id="v-reset" data-i18n="reset">Eredmények törlése</button></div>
+          <p class="muted" id="v-reset-confirm" hidden style="margin:8px 0 0"><span data-i18n="sure">Biztosan?</span> <button class="btn quiet" id="v-reset-yes" style="padding:3px 10px" data-i18n="reset.yes">Igen, törlöm</button></p>
         </div>
       </aside>
     </div>
@@ -368,34 +372,34 @@ dialog.login .row .btn{flex:1 1 140px}
       <div class="card" id="mcard"></div>
       <aside class="side" id="mside">
         <div class="card">
-          <h3>Eredmény · mondatok</h3>
+          <h3 data-i18n="res.sent">Eredmény · mondatok</h3>
           <div class="stats">
-            <div class="stat"><b id="m-pct">–</b><span>helyes</span></div>
-            <div class="stat"><b id="m-streak">0</b><span>sorozat</span></div>
-            <div class="stat"><b id="m-best">0</b><span>legjobb</span></div>
+            <div class="stat"><b id="m-pct">–</b><span data-i18n="st.correct">helyes</span></div>
+            <div class="stat"><b id="m-streak">0</b><span data-i18n="st.streak">sorozat</span></div>
+            <div class="stat"><b id="m-best">0</b><span data-i18n="st.best">legjobb</span></div>
           </div>
           <p class="muted" id="m-total" style="margin:10px 0 0;text-align:center"></p>
         </div>
         <div class="card">
-          <h3>Beállítások</h3>
+          <h3 data-i18n="settings">Beállítások</h3>
           <div class="opt">
-            <span class="lbl">Igeidők, módok</span>
+            <span class="lbl" data-i18n="opt.tenses">Igeidők, módok</span>
             <div class="checks" id="m-tenses"></div>
           </div>
           <div class="opt">
-            <span class="lbl">Szint</span>
+            <span class="lbl" data-i18n="opt.level">Szint</span>
             <div class="checks" id="m-levels"></div>
           </div>
           <div class="opt">
-            <div class="checks"><label><input type="checkbox" id="m-hu"> magyar fordítás mutatása</label></div>
+            <div class="checks"><label><input type="checkbox" id="m-hu"> <span data-i18n="opt.mhu">fordítás mutatása</span></label></div>
             <span class="pool" id="m-pool"></span>
           </div>
         </div>
         <div class="card">
-          <h3>Legutóbbi hibák</h3>
+          <h3 data-i18n="mist.title">Legutóbbi hibák</h3>
           <ul class="mist" id="m-mistakes"></ul>
-          <div class="actions" style="margin-top:12px"><button class="btn quiet" id="m-reset">Eredmények törlése</button></div>
-          <p class="muted" id="m-reset-confirm" hidden style="margin:8px 0 0">Biztosan? <button class="btn quiet" id="m-reset-yes" style="padding:3px 10px">Igen, törlöm</button></p>
+          <div class="actions" style="margin-top:12px"><button class="btn quiet" id="m-reset" data-i18n="reset">Eredmények törlése</button></div>
+          <p class="muted" id="m-reset-confirm" hidden style="margin:8px 0 0"><span data-i18n="sure">Biztosan?</span> <button class="btn quiet" id="m-reset-yes" style="padding:3px 10px" data-i18n="reset.yes">Igen, törlöm</button></p>
         </div>
       </aside>
     </div>
@@ -406,29 +410,29 @@ dialog.login .row .btn{flex:1 1 140px}
       <div class="card" id="xcard"></div>
       <aside class="side" id="xside">
         <div class="card">
-          <h3>Eredmény · fordítás</h3>
+          <h3 data-i18n="res.trans">Eredmény · fordítás</h3>
           <div class="stats">
-            <div class="stat"><b id="x-avg">–</b><span>átlag pont</span></div>
-            <div class="stat"><b id="x-perfect">–</b><span>hibátlan</span></div>
-            <div class="stat"><b id="x-count">0</b><span>javítás</span></div>
+            <div class="stat"><b id="x-avg">–</b><span data-i18n="st.avg">átlag pont</span></div>
+            <div class="stat"><b id="x-perfect">–</b><span data-i18n="st.perfect">hibátlan</span></div>
+            <div class="stat"><b id="x-count">0</b><span data-i18n="st.count">javítás</span></div>
           </div>
         </div>
         <div class="card">
-          <h3>Beállítások</h3>
+          <h3 data-i18n="settings">Beállítások</h3>
           <div class="opt">
-            <span class="lbl">Mit fordítasz?</span>
+            <span class="lbl" data-i18n="opt.xsrc">Mit fordítasz?</span>
             <div class="checks" id="x-src"></div>
           </div>
           <div class="opt">
-            <span class="lbl">Szint (mondattárnál)</span>
+            <span class="lbl" data-i18n="opt.xlevel">Szint (mondattárnál)</span>
             <div class="checks" id="x-levels"></div>
           </div>
         </div>
         <div class="card">
-          <h3>Legutóbbi hibás fordítások</h3>
+          <h3 data-i18n="mist.trans">Legutóbbi hibás fordítások</h3>
           <ul class="mist" id="x-mistakes"></ul>
-          <div class="actions" style="margin-top:12px"><button class="btn quiet" id="x-reset">Eredmények törlése</button></div>
-          <p class="muted" id="x-reset-confirm" hidden style="margin:8px 0 0">Biztosan? <button class="btn quiet" id="x-reset-yes" style="padding:3px 10px">Igen, törlöm</button></p>
+          <div class="actions" style="margin-top:12px"><button class="btn quiet" id="x-reset" data-i18n="reset">Eredmények törlése</button></div>
+          <p class="muted" id="x-reset-confirm" hidden style="margin:8px 0 0"><span data-i18n="sure">Biztosan?</span> <button class="btn quiet" id="x-reset-yes" style="padding:3px 10px" data-i18n="reset.yes">Igen, törlöm</button></p>
         </div>
       </aside>
     </div>
@@ -437,7 +441,7 @@ dialog.login .row .btn{flex:1 1 140px}
   <section id="view-browse" hidden>
     <div class="browser">
       <div class="card">
-        <input class="search" id="b-search" type="search" placeholder="Keresés: olaszul vagy magyarul" autocomplete="off">
+        <input class="search" id="b-search" type="search" placeholder="Keresés: olaszul vagy magyarul" data-i18n-ph="search.ph" autocomplete="off">
         <div class="checks" id="b-kind" style="margin-top:10px"></div>
         <div class="count" id="b-count"></div>
         <ul class="vlist" id="b-list"></ul>
@@ -1224,14 +1228,930 @@ function sentFill(x){
   const [a, b] = x.it.split('___');
   return {form, accept: c.accept, irr: c.irr, before: a, after: b, shown: a ? form : capFirst(form), full: a + (a ? form : capFirst(form)) + b};
 }
-if (typeof module!=='undefined') module.exports = {VERBS, cell, check, TENSES, SENTS, sentFill};
+/* fordítások: ige jelentése és példamondat lengyelül, angolul (inf|pl|en) */
+const VERB_TR = `
+abbracciare|przytulać, obejmować|to hug, to embrace
+abitare|mieszkać|to live (somewhere)
+accendere|włączać, zapalać|to switch on, to light
+accogliere|przyjmować, witać|to welcome, to receive
+accompagnare|odprowadzać, towarzyszyć|to accompany
+accorgersi|zauważać, spostrzegać|to notice, to realize
+addormentarsi|zasypiać|to fall asleep
+affittare|wynajmować|to rent, to let
+aggiungere|dodawać|to add
+agire|działać, postępować|to act
+aiutare|pomagać|to help
+alzarsi|wstawać|to get up
+amare|kochać|to love
+ammettere|przyznawać, dopuszczać|to admit
+andare|iść, jechać|to go
+annoiarsi|nudzić się|to get bored
+apparire|pojawiać się|to appear
+apprendere|dowiadywać się, uczyć się|to learn, to find out
+approfondire|pogłębiać|to deepen, to study in depth
+aprire|otwierać|to open
+arrabbiarsi|złościć się|to get angry
+arrivare|przyjeżdżać, przychodzić|to arrive
+arrossire|rumienić się|to blush
+ascoltare|słuchać|to listen (to)
+aspettare|czekać|to wait (for)
+assaggiare|próbować, kosztować|to taste
+assistere|uczestniczyć, pomagać|to attend, to assist
+assumere|zatrudniać, przyjmować|to hire, to take on
+attendere|czekać|to wait (for), to await
+attrarre|przyciągać|to attract
+avere|mieć|to have
+avvertire|ostrzegać, uprzedzać|to warn
+baciare|całować|to kiss
+ballare|tańczyć|to dance
+battere|bić, uderzać|to beat, to hit
+bere|pić|to drink
+cadere|spadać, upadać|to fall
+cambiare|zmieniać, wymieniać|to change
+camminare|chodzić, spacerować|to walk
+cantare|śpiewać|to sing
+capire|rozumieć|to understand
+cedere|ustępować, oddawać|to give up, to yield
+cenare|jeść kolację|to have dinner
+cercare|szukać|to look for
+chiamare|wołać, dzwonić do|to call
+chiamarsi|nazywać się|to be called
+chiarire|wyjaśniać|to clarify
+chiedere|pytać, prosić|to ask
+chiudere|zamykać|to close
+cogliere|zrywać, chwytać|to pick, to seize
+colpire|uderzać, trafiać|to hit, to strike
+cominciare|zaczynać|to begin, to start
+completare|uzupełniać, kończyć|to complete
+comporre|komponować, układać|to compose
+comprare|kupować|to buy
+comprendere|rozumieć, obejmować|to understand, to include
+concludere|kończyć, zamykać|to conclude
+condurre|prowadzić, kierować|to lead, to conduct
+conoscere|znać|to know (someone, something)
+consentire|pozwalać, umożliwiać|to allow
+consigliare|radzić, polecać|to advise, to recommend
+contenere|zawierać|to contain
+continuare|kontynuować|to continue
+contribuire|przyczyniać się, dokładać się|to contribute
+controllare|sprawdzać|to check
+convertire|przeliczać, przekształcać|to convert
+convincere|przekonywać|to convince
+coprire|przykrywać|to cover
+correggere|poprawiać|to correct
+correre|biegać|to run
+costruire|budować|to build
+creare|tworzyć|to create
+credere|wierzyć|to believe
+crescere|rosnąć, dorastać|to grow, to grow up
+criticare|krytykować|to criticize
+cucinare|gotować|to cook
+cuocere|gotować, piec|to cook, to bake
+dare|dawać|to give
+decidere|decydować|to decide
+definire|definiować, określać|to define
+deludere|rozczarowywać|to disappoint
+descrivere|opisywać|to describe
+desiderare|pragnąć, życzyć sobie|to wish, to desire
+difendere|bronić|to defend
+dimagrire|chudnąć|to lose weight
+dimenticare|zapominać|to forget
+dipendere|zależeć|to depend
+dipingere|malować|to paint
+dire|mówić, powiedzieć|to say, to tell
+discutere|dyskutować, kłócić się|to discuss, to argue
+disegnare|rysować|to draw
+dispiacere|być przykro (mi dispiace = przykro mi)|to be sorry (mi dispiace = I'm sorry)
+distrarre|rozpraszać|to distract
+distribuire|rozdawać|to distribute, to hand out
+distruggere|niszczyć|to destroy
+diventare|stawać się|to become
+divertirsi|bawić się|to have fun
+dividere|dzielić|to divide, to share
+domandare|pytać|to ask
+dormire|spać|to sleep
+dovere|musieć|to have to, must
+durare|trwać|to last
+entrare|wchodzić|to enter, to go in
+escludere|wykluczać|to exclude, to rule out
+esistere|istnieć|to exist
+esporre|wystawiać, przedstawiać|to exhibit, to expose
+esprimere|wyrażać|to express
+essere|być|to be
+evitare|unikać|to avoid
+fare|robić|to do, to make
+favorire|sprzyjać|to favour, to promote
+ferire|ranić|to wound, to hurt
+fermare|zatrzymywać|to stop (someone/something)
+fermarsi|zatrzymywać się|to stop
+festeggiare|świętować|to celebrate
+finire|kończyć|to finish
+fornire|dostarczać|to provide, to supply
+fuggire|uciekać|to flee, to escape
+fumare|palić (papierosy)|to smoke
+funzionare|działać|to work, to function
+garantire|gwarantować|to guarantee
+gestire|prowadzić, zarządzać|to manage, to run
+giocare|bawić się, grać|to play
+girare|skręcać, kręcić|to turn
+giungere|docierać, przybywać|to arrive, to reach
+godere|cieszyć się, rozkoszować się|to enjoy
+gridare|krzyczeć|to shout
+guardare|patrzeć, oglądać|to look at, to watch
+guarire|wyzdrowieć|to recover, to heal
+guidare|prowadzić (samochód)|to drive
+imparare|uczyć się|to learn
+impedire|uniemożliwiać|to prevent
+imporre|narzucać, nakazywać|to impose
+includere|zawierać, obejmować|to include
+incontrare|spotykać|to meet
+ingrassare|tyć|to put on weight
+iniziare|zaczynać|to begin, to start
+innamorarsi|zakochiwać się|to fall in love
+insegnare|uczyć (kogoś)|to teach
+inserire|wpisywać, wkładać|to insert, to enter
+insistere|nalegać|to insist
+introdurre|wprowadzać|to introduce
+invecchiare|starzeć się|to grow old
+investire|inwestować; potrącić|to invest; to run over
+inviare|wysyłać|to send
+iscriversi|zapisywać się|to enrol, to sign up
+lamentarsi|narzekać|to complain
+lanciare|rzucać|to throw
+lasciare|zostawiać|to leave
+laurearsi|kończyć studia|to graduate
+lavare|myć, prać|to wash
+lavarsi|myć się|to wash (oneself)
+lavorare|pracować|to work
+leggere|czytać|to read
+mancare|brakować, tęsknić|to be missing, to miss
+mandare|wysyłać|to send
+mangiare|jeść|to eat
+mantenere|dotrzymywać, utrzymywać|to keep, to maintain
+mentire|kłamać|to lie
+mettere|kłaść, stawiać|to put
+mettersi|zakładać (ubranie), zabierać się do|to put on (clothes), to start
+migliorare|poprawiać, ulepszać|to improve
+mordere|gryźć|to bite
+morire|umierać|to die
+mostrare|pokazywać|to show
+muovere|ruszać, poruszać|to move
+nascere|rodzić się|to be born
+nascondere|chować, ukrywać|to hide
+nuotare|pływać|to swim
+obbedire|słuchać, być posłusznym|to obey
+odiare|nienawidzić|to hate
+offendere|obrażać|to offend
+offrire|oferować, częstować|to offer
+ordinare|zamawiać|to order
+organizzare|organizować|to organize
+osservare|obserwować|to observe
+ottenere|otrzymywać, uzyskiwać|to obtain, to get
+pagare|płacić|to pay
+parcheggiare|parkować|to park
+parlare|mówić|to speak, to talk
+partecipare|uczestniczyć|to take part
+partire|wyjeżdżać, odjeżdżać|to leave, to depart
+passare|przechodzić, spędzać|to pass, to spend (time)
+pensare|myśleć|to think
+pentirsi|żałować|to regret
+perdere|tracić, gubić|to lose, to miss
+permettere|pozwalać|to allow
+pettinarsi|czesać się|to comb one's hair
+piacere|podobać się|to be liked (mi piace = I like)
+piangere|płakać|to cry
+porre|stawiać, zadawać (pytanie)|to put, to ask (a question)
+portare|nosić, przynosić|to bring, to carry
+possedere|posiadać|to own, to possess
+potere|móc|can, to be able to
+pranzare|jeść obiad|to have lunch
+preferire|woleć|to prefer
+pregare|modlić się, prosić|to pray, to beg
+prendere|brać|to take
+prenotare|rezerwować|to book
+preoccuparsi|martwić się|to worry
+preparare|przygotowywać|to prepare
+prepararsi|przygotowywać się|to get ready
+prestare|pożyczać (komuś)|to lend
+prevedere|przewidywać|to foresee, to forecast
+produrre|produkować|to produce
+promettere|obiecywać|to promise
+proporre|proponować|to propose, to suggest
+proteggere|chronić|to protect
+provare|próbować, przymierzać|to try, to try on
+pulire|sprzątać, czyścić|to clean
+punire|karać|to punish
+raccogliere|zbierać|to gather, to collect
+raccontare|opowiadać|to tell (a story)
+raggiungere|dołączać, docierać|to reach, to join
+reagire|reagować|to react
+realizzare|realizować, spełniać|to realize, to fulfil
+regalare|dawać w prezencie|to give (as a gift)
+rendere|oddawać; czynić|to give back; to make
+resistere|opierać się|to resist
+restare|zostawać|to stay
+restituire|zwracać, oddawać|to return, to give back
+ricevere|otrzymywać|to receive
+ricordare|pamiętać, przypominać|to remember, to remind
+ricordarsi|pamiętać|to remember
+ridere|śmiać się|to laugh
+ridurre|zmniejszać|to reduce
+rilassarsi|relaksować się|to relax
+rimanere|zostawać|to stay, to remain
+ringraziare|dziękować|to thank
+ripetere|powtarzać|to repeat
+riposarsi|odpoczywać|to rest
+riprendere|wznawiać, odbierać|to resume, to take back
+risolvere|rozwiązywać|to solve
+risparmiare|oszczędzać|to save (money)
+rispondere|odpowiadać|to answer
+riuscire|udawać się, zdołać|to manage, to succeed
+rivedere|zobaczyć ponownie|to see again
+rompere|łamać, tłuc|to break
+salire|wchodzić (w górę)|to go up, to get on
+salutare|witać, pozdrawiać|to greet, to say goodbye
+sapere|wiedzieć, umieć|to know (a fact), to know how
+sbagliare|mylić się, popełniać błąd|to make a mistake
+sbrigarsi|spieszyć się|to hurry up
+scegliere|wybierać|to choose
+scendere|schodzić, wysiadać|to go down, to get off
+scherzare|żartować|to joke
+sciare|jeździć na nartach|to ski
+scomparire|znikać|to disappear
+scoprire|odkrywać|to discover
+scrivere|pisać|to write
+sedersi|siadać|to sit down
+seguire|śledzić, chodzić na (kurs)|to follow, to attend
+sembrare|wydawać się|to seem
+sentire|słyszeć, czuć|to hear, to feel
+sentirsi|czuć się|to feel (well/ill)
+servire|służyć; być potrzebnym|to serve; to be needed
+significare|znaczyć|to mean
+sistemare|porządkować, załatwiać|to tidy up, to arrange
+smettere|przestawać|to stop (doing)
+soffrire|cierpieć|to suffer
+sognare|marzyć, śnić|to dream
+sorprendere|zaskakiwać|to surprise
+sorridere|uśmiechać się|to smile
+sospendere|zawieszać, odwoływać|to suspend, to cancel
+sostenere|wspierać, twierdzić|to support, to claim
+sostituire|zastępować|to replace, to substitute
+sparire|znikać|to disappear
+spedire|wysyłać (pocztą)|to send, to post
+spegnere|wyłączać, gasić|to switch off, to put out
+spendere|wydawać (pieniądze)|to spend (money)
+sperare|mieć nadzieję|to hope
+spiegare|wyjaśniać|to explain
+spingere|pchać|to push
+sposarsi|brać ślub|to get married
+spostare|przesuwać, przekładać|to move, to postpone
+stabilire|ustalać|to establish, to set
+stare|być (jakoś), stać, przebywać|to be (feeling), to stay
+stringere|ściskać|to squeeze, to shake (hands)
+studiare|uczyć się, studiować|to study
+succedere|zdarzać się|to happen
+suggerire|sugerować, podpowiadać|to suggest
+suonare|grać (na instrumencie), dzwonić|to play (an instrument), to ring
+superare|zdawać, pokonywać|to pass, to overcome
+supporre|przypuszczać|to suppose
+svegliarsi|budzić się|to wake up
+svolgere|wykonywać|to carry out, to do
+tacere|milczeć|to be silent
+tagliare|ciąć, obcinać|to cut
+telefonare|dzwonić (telefonować)|to phone
+temere|obawiać się|to fear
+tenere|trzymać|to hold, to keep
+toccare|dotykać|to touch
+togliere|zdejmować, zabierać|to take off, to remove
+tornare|wracać|to return, to come back
+tradire|zdradzać|to betray
+tradurre|tłumaczyć|to translate
+trarre|wyciągać (wnioski)|to draw (a conclusion)
+trasferirsi|przeprowadzać się|to move (house)
+trasformare|przekształcać|to transform
+trasmettere|transmitować, nadawać|to broadcast
+trovare|znajdować|to find
+trovarsi|znajdować się, czuć się|to be (somewhere), to feel
+truccarsi|malować się|to put on make-up
+uccidere|zabijać|to kill
+unire|łączyć|to join, to unite
+usare|używać|to use
+uscire|wychodzić|to go out
+vedere|widzieć|to see
+vendere|sprzedawać|to sell
+venire|przychodzić|to come
+vestirsi|ubierać się|to get dressed
+viaggiare|podróżować|to travel
+vietare|zabraniać|to forbid
+vincere|wygrywać|to win
+visitare|zwiedzać, odwiedzać|to visit
+vivere|żyć|to live
+volare|latać|to fly
+volere|chcieć|to want
+votare|głosować|to vote
+`;
+const SENT_TR = `
+essere|Jako dziecko byłem bardzo nieśmiały.|As a child I was very shy.
+avere|Ile masz lat?|How old are you?
+fare|Wczoraj wieczorem poszliśmy na długi spacer.|Last night we went for a long walk.
+andare|Zeszłego lata pojechaliśmy na Sycylię.|Last summer we went to Sicily.
+venire|Jutro Marco przyjdzie do nas na kolację.|Tomorrow Marco will come to us for dinner.
+dire|Nie powiedział mi prawdy.|He didn't tell me the truth.
+dare|Chcę, żebyś dał mi odpowiedź.|I want you to give me an answer.
+stare|Cześć, jak się masz?|Hi, how are you?
+potere|Mógłbyś otworzyć okno?|Could you open the window, please?
+volere|Jako mały chłopiec chciałem zostać astronautą.|As a little boy I wanted to become an astronaut.
+dovere|Jutro będziemy musieli wcześnie wstać.|Tomorrow we will have to get up early.
+sapere|Nie wiem, gdzie mieszka Luca.|I don't know where Luca lives.
+bere|Dziś rano wypiłem dwie kawy.|This morning I drank two coffees.
+uscire|Chłopcy wyszli o ósmej.|The boys went out at eight.
+rimanere|Wczoraj zostałem w domu cały dzień.|Yesterday I stayed at home all day.
+tenere|Anna trzyma dziecko na rękach.|Anna is holding the baby in her arms.
+piacere|Bardzo lubię pizzę.|I really like pizza.
+morire|Dziadek zmarł w 1990 roku.|Grandpa died in 1990.
+sedersi|Zwykle siadam przy oknie.|I usually sit by the window.
+vedere|Wczoraj wieczorem obejrzeliśmy dobry film.|Last night we saw a good film.
+vivere|Moi dziadkowie mieszkali na wsi.|My grandparents lived in the countryside.
+prendere|Codziennie rano jeżdżę autobusem.|Every morning I take the bus.
+mettere|Gdzie położyłeś klucze?|Where did you put the keys?
+leggere|Moja mama czyta jedną książkę w tygodniu.|My mother reads a book every week.
+scrivere|Wczoraj napisałem list do babci.|Yesterday I wrote a letter to my grandmother.
+aprire|Otworzyłbyś drzwi, proszę?|Would you open the door, please?
+chiudere|Sklepikarz zamknął sklep o siódmej.|The shopkeeper closed the shop at seven.
+chiedere|Zapytałem policjanta o drogę.|I asked the traffic warden for directions.
+rispondere|Dyrektor odpowie jutro.|The director will answer tomorrow.
+perdere|Jestem spóźniony, bo uciekł mi pociąg.|I'm late because I missed the train.
+nascere|Urodziłem się w Budapeszcie w 1995 roku.|I was born in Budapest in 1995.
+conoscere|Nie znałem nikogo w tym mieście.|I didn't know anyone in that city.
+parlare|Na zajęciach mówimy tylko po włosku.|In class we only speak Italian.
+mangiare|Dziś wieczorem zjemy w restauracji.|Tonight we will eat at a restaurant.
+lavorare|Kiedyś mój tata pracował w banku.|My father used to work in a bank.
+studiare|Co studiujesz na uniwersytecie?|What do you study at university?
+abitare|Moi przyjaciele mieszkają w Rzymie.|My friends live in Rome.
+comprare|W sobotę kupiliśmy nowy samochód.|On Saturday we bought a new car.
+pagare|Dziś wieczorem ja zapłacę rachunek.|Tonight I will pay the bill.
+cercare|Szukam mieszkania w centrum.|I'm looking for a flat in the centre.
+trovare|Luca znalazł nową pracę.|Luca has found a new job.
+pensare|O czym myślisz?|What are you thinking about?
+aspettare|Czekam na autobus od dwudziestu minut.|I've been waiting for the bus for twenty minutes.
+ascoltare|Jako młody chłopak zawsze słuchałem rocka.|When I was young I always listened to rock music.
+guardare|Wczoraj wieczorem oglądaliśmy mecz w telewizji.|Last night we watched the match on TV.
+giocare|Dzieci bawiły się w ogrodzie.|The children were playing in the garden.
+cominciare|Kurs zacznie się w przyszły poniedziałek.|The course will start next Monday.
+portare|Przyniosłeś wino na kolację?|Did you bring the wine for dinner?
+imparare|W tym roku nauczyłem się pływać.|This year I learned to swim.
+amare|Paolo kocha swoją rodzinę.|Paolo loves his family.
+cucinare|Gdybym miał więcej czasu, gotowałbym co wieczór.|With more time I would cook every evening.
+viaggiare|Mam nadzieję, że moi rodzice pojadą pociągiem.|I hope my parents travel by train.
+arrivare|Pociąg przyjechał z opóźnieniem.|The train arrived late.
+tornare|Wrócę do domu około szóstej.|I will be back home around six.
+entrare|Studenci weszli do sali.|The students went into the classroom.
+restare|Wolę, żebyś został tutaj.|I'd rather you stayed here.
+chiamarsi|Jak się nazywasz?|What's your name?
+alzarsi|Dziś rano wstałem o szóstej.|This morning I got up at six.
+lavarsi|Dzieci myją ręce przed jedzeniem.|The children wash their hands before eating.
+svegliarsi|Jako student zawsze budziłem się późno.|As a student I always woke up late.
+credere|Nie wierzę ci!|I don't believe you!
+vendere|Moi sąsiedzi sprzedali dom.|My neighbours have sold their house.
+dormire|Wyglądasz na zmęczonego: dobrze spałeś tej nocy?|You look tired: did you sleep well last night?
+sentire|Słyszałeś ten hałas?|Did you hear that noise?
+partire|Jutro rano wyjedziemy do Florencji.|We will leave for Florence tomorrow morning.
+capire|Rozumiesz, co mówię?|Do you understand what I'm saying?
+finire|Wreszcie skończyłem pracę domową.|I've finally finished my homework.
+preferire|Wolę herbatę od kawy.|I prefer tea to coffee.
+salire|Weszliśmy na szczyt wieży.|We climbed to the top of the tower.
+riuscire|W końcu udało mi się znaleźć drogę.|I finally managed to find the way.
+scegliere|Którą sukienkę wybrałaś?|Which dress did you choose?
+togliere|Kiedy wchodzę do domu, zdejmuję buty.|When I come into the house I take off my shoes.
+raccogliere|Każdej jesieni zbieraliśmy kasztany w lesie.|Every autumn we used to gather chestnuts in the woods.
+spegnere|Przed wyjściem zgasiłem światło.|Before going out I switched off the light.
+cadere|Dziecko spadło z roweru.|The child fell off the bike.
+dispiacere|Przykro mi, ale nie mogę przyjść.|I'm sorry, but I can't come.
+tradurre|Zawodowo tłumaczę książki z angielskiego.|For work I translate books from English.
+produrre|Ten region produkuje doskonałe wino.|This region produces an excellent wine.
+proporre|Profesor zaproponował wycieczkę do Rzymu.|The teacher suggested a trip to Rome.
+ottenere|Moja siostra dostała stypendium.|My sister got a scholarship.
+mantenere|Dotrzymam obietnicy.|I will keep my promise.
+prevedere|Na jutro zapowiadają deszcz.|They are forecasting rain for tomorrow.
+rivedere|Chętnie obejrzałbym ten film jeszcze raz.|I'd gladly watch that film again.
+scendere|Wysiedliśmy z autobusu na placu.|We got off the bus in the square.
+correre|Jako młody chłopak biegałem każdego ranka.|When I was young I used to run every morning.
+decidere|Postanowiliśmy się przeprowadzić.|We decided to move house.
+ridere|Wszyscy śmiali się z jego żartu.|Everyone laughed at his joke.
+sorridere|Dziewczynka zawsze się uśmiecha.|The little girl always smiles.
+piangere|Dziecko płakało, bo było głodne.|The baby was crying because it was hungry.
+vincere|Nasza drużyna wygrała mecz.|Our team won the match.
+spendere|Na wakacjach wydałem za dużo.|On holiday I spent too much.
+accendere|Zapaliłbyś światło, proszę?|Would you switch on the light, please?
+promettere|Obiecałeś mi to!|You promised me!
+permettere|Rodzice nie pozwalają mi wychodzić wieczorami.|My parents don't let me go out in the evening.
+smettere|Mój tata rzucił palenie.|My father has stopped smoking.
+comprendere|Nie rozumiem, dlaczego jesteś zły.|I don't understand why you're angry.
+sorprendere|Zaskoczyłeś mnie swoim prezentem.|You surprised me with your present.
+descrivere|Jak opisałbyś swoje miasto?|How would you describe your town?
+iscriversi|W tym roku zapisałem się na kurs włoskiego.|This year I signed up for an Italian course.
+mettersi|Kiedy jest zimno, zakładam płaszcz.|When it's cold I put on my coat.
+rompere|Przepraszam, stłukłem twoją szklankę.|Sorry, I broke your glass.
+muovere|Wiatr poruszył liśćmi.|The wind moved the leaves.
+discutere|Chłopcy dyskutowali o polityce.|The boys were discussing politics.
+rendere|Muzyka sprawia, że jestem szczęśliwy.|Music makes me happy.
+nascondere|Marco schował prezent w szafie.|Marco hid the present in the wardrobe.
+aggiungere|Dodałbym trochę soli.|I would add a little salt.
+raggiungere|Dołączymy do was w barze za dziesięć minut.|We'll join you at the bar in ten minutes.
+dipingere|Mój dziadek malował pejzaże.|My grandfather used to paint landscapes.
+spingere|Pchnąłem drzwi, ale były zamknięte.|I pushed the door, but it was locked.
+risolvere|W końcu rozwiązaliśmy problem.|We finally solved the problem.
+accorgersi|Nie zauważyłem błędu.|I didn't notice the mistake.
+offrire|Dziś ja stawiam kawę.|Today the coffee is on me.
+soffrire|Moja babcia cierpiała na bóle głowy.|My grandmother suffered from headaches.
+scoprire|Kolumb odkrył Amerykę w 1492 roku.|Columbus discovered America in 1492.
+coprire|Śnieg pokrywa góry.|Snow covers the mountains.
+crescere|Dorastałem w małej miejscowości.|I grew up in a small town.
+esistere|Twoim zdaniem duchy istnieją?|Do you think ghosts exist?
+insistere|Upierał się, że to on zapłaci.|He insisted on paying.
+ricevere|Dziś dostałem dobrą wiadomość.|Today I received some good news.
+ripetere|Przepraszam, powtórzyłbyś pytanie?|Sorry, would you repeat the question?
+temere|Obawiam się, że nie będę miał dość czasu.|I'm afraid I won't have enough time.
+ballare|Jako młodzi tańczyliśmy całą noc.|When we were young we danced all night.
+cantare|Moja siostra śpiewa w chórze.|My sister sings in a choir.
+camminare|Dziś szliśmy pieszo przez trzy godziny.|Today we walked for three hours.
+chiamare|Zadzwonię do ciebie dziś wieczorem.|I'll call you tonight.
+insegnare|Pani Rossi uczy matematyki.|Mrs Rossi teaches maths.
+lavare|Umyłeś naczynia?|Did you wash the dishes?
+nuotare|Latem dzieci pływały w jeziorze.|In summer the children used to swim in the lake.
+preparare|Dziś wieczorem Giulia przygotuje kolację.|Tonight Giulia will make dinner.
+provare|Chętnie przymierzyłbym tę kurtkę.|I'd like to try on that jacket.
+ricordare|Jako dziecko nigdy nie pamiętałem imion.|As a child I never remembered names.
+suonare|Grasz na pianinie?|Do you play the piano?
+telefonare|Wczoraj wieczorem zadzwoniłem do mamy.|Last night I phoned my mother.
+usare|Dziś wszyscy używają smartfona.|Today everyone uses a smartphone.
+visitare|W przyszłym roku zwiedzimy Wenecję.|Next year we will visit Venice.
+passare|Spędziliśmy wakacje nad morzem.|We spent our holidays at the seaside.
+lasciare|Anna zostawiła dla ciebie wiadomość.|Anna left a message for you.
+sperare|Mam nadzieję, że niedługo się zobaczymy.|I hope to see you soon.
+sognare|Jako dziecko marzyłem, żeby zostać pilotem.|As a child I dreamed of becoming a pilot.
+sbagliare|Przepraszam, pomyliłem numer.|Sorry, I dialled the wrong number.
+spiegare|Wyjaśniłbyś mi tę zasadę?|Would you explain this rule to me?
+mandare|Jutro wyślę ci zdjęcia.|I'll send you the photos tomorrow.
+regalare|Na urodziny dostałem od nich książkę.|For my birthday they gave me a book.
+prenotare|Zarezerwowałem stolik dla dwóch osób.|I booked a table for two.
+incontrare|Wczoraj spotkałem starego przyjaciela.|Yesterday I ran into an old friend.
+aiutare|Pomógłbyś mi z bagażami?|Would you help me with the luggage?
+ringraziare|Dziękuję ci za pomoc.|Thank you for your help.
+salutare|Marco się ze mną nie przywitał.|Marco didn't say hello to me.
+cambiare|W przyszłym roku zmienię pracę.|Next year I'll change jobs.
+fermare|Policjant zatrzymał samochód.|The traffic warden stopped the car.
+guidare|Jedziesz za szybko!|You're driving too fast!
+iniziare|Profesor rozpoczął lekcję o dziewiątej.|The teacher started the lesson at nine.
+continuare|Jutro będziemy kontynuować naszą pracę.|Tomorrow we will continue our work.
+dimenticare|Zostawiłem parasol w pociągu.|I left my umbrella on the train.
+mostrare|Pokazałbyś mi zdjęcia z podróży?|Would you show me the photos from the trip?
+raccontare|Babcia zawsze opowiadała nam bajki.|Grandma always used to tell us fairy tales.
+ordinare|Zamówiliśmy pizzę i dwa piwa.|We ordered a pizza and two beers.
+affittare|Tego lata wynajmiemy dom nad morzem.|This summer we will rent a house by the sea.
+accompagnare|Chętnie odprowadziłbym cię na dworzec.|I'd gladly walk you to the station.
+parcheggiare|Zaparkowałem samochód przed kinem.|I parked the car in front of the cinema.
+festeggiare|W sobotę będziemy świętować urodziny Luki.|On Saturday we'll celebrate Luca's birthday.
+pranzare|Zwykle jemy obiad o pierwszej.|We usually have lunch at one.
+cenare|Moi dziadkowie zawsze jedli kolację o siódmej.|My grandparents always had dinner at seven.
+tagliare|Fryzjer obciął mi włosy na krótko.|The hairdresser cut my hair short.
+toccare|Nie chcę, żeby dzieci dotykały piekarnika.|I don't want the children to touch the oven.
+volare|Jutro lecę do Paryża.|Tomorrow I'm flying to Paris.
+disegnare|Mój syn bardzo dobrze rysuje.|My son draws very well.
+fumare|Mój dziadek palił fajkę.|My grandfather smoked a pipe.
+girare|Na światłach skręcasz w prawo.|At the traffic lights you turn right.
+gridare|Kibice krzyczeli z radości.|The fans shouted with joy.
+odiare|Nienawidzę wstawać wcześnie rano.|I hate getting up early in the morning.
+risparmiare|Pociągiem zaoszczędzilibyśmy dużo pieniędzy.|By train we would save a lot of money.
+controllare|Dwa razy sprawdziłem adres.|I checked the address twice.
+funzionare|Komputer nie działa.|The computer isn't working.
+migliorare|Bardzo poprawiłeś swój włoski.|Your Italian has improved a lot.
+organizzare|Zorganizujemy imprezę na zakończenie kursu.|We will organize a party for the end of the course.
+pregare|Babcia modliła się co wieczór.|Grandma used to pray every evening.
+prestare|Pożyczyłbyś mi swój rower?|Would you lend me your bike?
+consigliare|Polecam ci tę restaurację.|I recommend this restaurant to you.
+desiderare|Czego byś sobie życzył na urodziny?|What would you like for your birthday?
+domandare|Zapytaliśmy przechodnia o drogę.|We asked a passer-by for directions.
+creare|Architekt stworzył nowoczesny budynek.|The architect created a modern building.
+evitare|Na twoim miejscu unikałbym tej drogi.|If I were you I'd avoid that road.
+baciare|Romeo pocałował Julię.|Romeo kissed Juliet.
+abbracciare|Mama przytula dziecko.|The mother hugs the child.
+assaggiare|Chcę, żebyś spróbował tego ciasta.|I want you to taste this cake.
+inviare|Wysłałem ci dziś rano e-maila.|I sent you an e-mail this morning.
+sciare|Zimą jeździliśmy na nartach w Alpach.|In winter we used to ski in the Alps.
+diventare|Moja córka zostanie lekarką.|My daughter will become a doctor.
+sembrare|Ta książka wydaje się ciekawa.|This book seems interesting.
+ingrassare|Podczas wakacji przytyłem trzy kilo.|During the holidays I put on three kilos.
+durare|Film trwał trzy godziny.|The film lasted three hours.
+mancare|Bardzo mi ciebie brakuje!|I miss you a lot!
+invecchiare|Zestarzejemy się razem.|We will grow old together.
+riposarsi|W weekend dużo odpoczywałem.|At the weekend I rested a lot.
+prepararsi|Dziewczyny szykują się na imprezę.|The girls are getting ready for the party.
+sposarsi|Anna i Marco pobiorą się w czerwcu.|Anna and Marco will get married in June.
+arrabbiarsi|Mój tata łatwo się złościł.|My father used to get angry easily.
+annoiarsi|Na tej imprezie bardzo się nudzę.|I'm very bored at this party.
+fermarsi|Zatrzymaliśmy się, żeby zjeść w gospodzie.|We stopped to eat at an inn.
+ricordarsi|Pamiętasz mnie?|Do you remember me?
+trovarsi|Bardzo dobrze czuję się we Włoszech.|I feel very much at home in Italy.
+preoccuparsi|Nie chcę, żebyś się o mnie martwił.|I don't want you to worry about me.
+innamorarsi|Giulia zakochała się we francuskim chłopaku.|Giulia fell in love with a French boy.
+addormentarsi|Jako dziecko zawsze zasypiałem na kanapie.|As a child I always fell asleep on the sofa.
+rilassarsi|Na wakacjach wreszcie odpoczniemy.|On holiday we'll finally relax.
+pettinarsi|Ona czesze się przed lustrem.|She combs her hair in front of the mirror.
+sbrigarsi|Lepiej się pospiesz: pociąg zaraz odjeżdża.|You'd better hurry: the train is leaving soon.
+divertirsi|Na imprezie świetnie się bawiliśmy.|We had a great time at the party.
+vestirsi|Rano ubieram się w pośpiechu.|In the morning I get dressed in a hurry.
+sentirsi|Jak się dziś czujesz?|How do you feel today?
+seguire|Chodzę na kurs gotowania.|I'm taking a cooking course.
+servire|Potrzebujesz pomocy?|Do you need help?
+fuggire|Złodziej uciekł przez okno.|The thief escaped through the window.
+pulire|W soboty sprzątamy dom.|On Saturdays we clean the house.
+spedire|Jutro wyślę paczkę.|I'll send the parcel tomorrow.
+costruire|Tutaj zbudowali nowy szpital.|They built a new hospital here.
+suggerire|Co byś mi zasugerował?|What would you suggest?
+unire|Łączymy stoły na imprezę.|We're putting the tables together for the party.
+impedire|Deszcz nie pozwolił nam wyjść.|The rain prevented us from going out.
+restituire|Oddam ci książkę w poniedziałek.|I'll give you the book back on Monday.
+sparire|Zniknęły moje okulary!|My glasses have disappeared!
+guarire|Z tymi lekami szybko wyzdrowiejesz.|With these medicines you'll soon get better.
+dimagrire|Mój tata schudł dziesięć kilo.|My father has lost ten kilos.
+trasferirsi|W zeszłym roku przeprowadziliśmy się do Mediolanu.|Last year we moved to Milan.
+porre|Dziennikarz zadaje trudne pytanie.|The journalist asks a difficult question.
+comporre|Mozart komponował muzykę już jako dziecko.|Mozart composed music even as a child.
+supporre|Przypuszczam, że masz rację.|I suppose you're right.
+esporre|Muzeum wystawiło obrazy Caravaggia.|The museum exhibited paintings by Caravaggio.
+imporre|Lekarz zaleca mi ścisłą dietę.|The doctor puts me on a strict diet.
+condurre|Kto prowadził program?|Who presented the programme?
+ridurre|Ograniczymy wydatki.|We will cut our expenses.
+introdurre|Rząd wprowadził nową ustawę.|The government introduced a new law.
+trarre|Z tego doświadczenia wyciągamy ważną lekcję.|We draw an important lesson from this experience.
+attrarre|Rzym przyciąga miliony turystów.|Rome attracts millions of tourists.
+distrarre|Nie chcę, żebyś mnie rozpraszał, kiedy się uczę.|I don't want you to distract me while I'm studying.
+contenere|Ta butelka zawiera litr wody.|This bottle holds a litre of water.
+sostenere|Rodzice zawsze mnie wspierali.|My parents have always supported me.
+cogliere|Zerwaliśmy jabłka z drzewa.|We picked the apples from the tree.
+accogliere|Nasi przyjaciele przyjęli nas serdecznie.|Our friends welcomed us warmly.
+possedere|Mój wujek ma trzy domy.|My uncle owns three houses.
+apparire|Nagle pojawiła się tęcza.|Suddenly a rainbow appeared.
+scomparire|Słońce schowało się za chmurami.|The sun disappeared behind the clouds.
+cuocere|Gotuję makaron przez dziesięć minut.|I cook the pasta for ten minutes.
+tacere|Wszyscy milczeli i słuchali.|Everyone was silent and listening.
+giungere|Wiadomość dotarła wczoraj wieczorem.|The news arrived last night.
+dipendere|To zależy od pogody.|It depends on the weather.
+succedere|Co się stało?|What happened?
+convincere|Przekonałeś mnie!|You've convinced me!
+esprimere|Ten wiersz wyraża głębokie uczucie.|This poem expresses a deep feeling.
+correggere|Pani profesor poprawi jutro sprawdziany.|The teacher will mark the tests tomorrow.
+proteggere|Rodzice chronią swoje dzieci.|Parents protect their children.
+distruggere|Trzęsienie ziemi zniszczyło miasto.|The earthquake destroyed the city.
+assumere|Firma zatrudniła dziesięciu nowych pracowników.|The company hired ten new employees.
+stringere|Uścisnąłem mu rękę.|I shook his hand.
+svolgere|Wykonujemy bardzo ciekawą pracę.|We do very interesting work.
+includere|Cena obejmuje śniadanie.|The price includes breakfast.
+concludere|Prezes zakończy zebranie o piątej.|The chairman will close the meeting at five.
+escludere|Nie wykluczałbym tej możliwości.|I wouldn't rule out this possibility.
+deludere|Bardzo mnie rozczarowałeś.|You have really disappointed me.
+uccidere|Kto w powieści zabił hrabiego?|In the novel, who killed the count?
+dividere|Dzielimy pizzę na cztery części.|We cut the pizza into four.
+difendere|W szkole zawsze broniłem brata.|At school I always defended my brother.
+offendere|Przepraszam, jeśli cię uraziłem.|Sorry if I offended you.
+attendere|Czekamy na odpowiedź do piątku.|We expect an answer by Friday.
+sospendere|Z powodu mgły odwołali lot.|The flight was cancelled because of the fog.
+mordere|Pies ugryzł mnie w rękę.|The dog bit my hand.
+ammettere|Przyznaję, że popełniłem błąd.|I admit I made a mistake.
+trasmettere|Dziś wieczorem będą transmitować mecz na żywo.|Tonight they will broadcast the match live.
+riprendere|Po przerwie wznowimy lekcję.|After the break we'll carry on with the lesson.
+apprendere|Dowiedziałem się o tym z gazety.|I learned the news from the paper.
+resistere|Nie oparłem się pokusie.|I couldn't resist the temptation.
+assistere|Wczoraj wieczorem byliśmy na pięknym koncercie.|Last night we attended a lovely concert.
+battere|Serce mocno mi bije.|My heart is pounding.
+godere|Goście cieszą się wspaniałym widokiem.|The guests enjoy a splendid view.
+cedere|W autobusie ustąpiłem miejsca starszej pani.|On the bus I gave up my seat to an elderly lady.
+superare|Gratulacje, zdałeś egzamin!|Congratulations, you passed the exam!
+realizzare|Luca wreszcie spełnił swoje marzenie.|Luca has finally made his dream come true.
+scherzare|Nie wierzę ci, żartujesz!|I don't believe you, you're joking!
+criticare|Mój dziadek zawsze krytykował rząd.|My grandfather was always criticizing the government.
+significare|Co znaczy to słowo?|What does this word mean?
+partecipare|Weźmiemy udział w niedzielnych zawodach.|We will take part in Sunday's race.
+osservare|Z okna obserwowaliśmy ludzi na ulicy.|From the window we watched the people in the street.
+votare|W niedzielę głosowaliśmy na nowego burmistrza.|On Sunday we voted for the new mayor.
+vietare|Regulamin zabrania używania telefonu na lekcji.|The rules forbid using phones in class.
+trasformare|Stary magazyn przerobili na restaurację.|They turned the old warehouse into a restaurant.
+spostare|Przełożyliśmy zebranie na poniedziałek.|We moved the meeting to Monday.
+sistemare|Jutro posprzątam swój pokój.|Tomorrow I'll tidy up my room.
+completare|Skończyłeś ćwiczenie?|Have you finished the exercise?
+lanciare|Dzieci rzucały kamienie do rzeki.|The children were throwing stones into the river.
+laurearsi|W przyszłym roku skończę medycynę.|Next year I'll graduate in medicine.
+lamentarsi|Moja ciocia ciągle narzeka na pogodę.|My aunt is always complaining about the weather.
+truccarsi|Ona nigdy się nie maluje.|She never wears make-up.
+avvertire|Ostrzegałem cię: to niebezpieczne!|I warned you: it's dangerous!
+consentire|Bilet uprawnia do wejścia do muzeum.|The ticket allows entry to the museum.
+convertire|W banku wymieniamy euro na forinty.|At the bank we change euros into forints.
+investire|Mój tata zainwestował oszczędności w dom.|My father invested his savings in a house.
+mentire|Okłamałeś mnie!|You lied to me!
+pentirsi|Nie żałuję swojego wyboru.|I don't regret my choice.
+gestire|Moja mama prowadzi mały hotel.|My mother runs a small hotel.
+fornire|Przewodnicy udzielają informacji o mieście.|The guides provide information about the city.
+garantire|Gwarantuję ci, że to działa.|I guarantee you it works.
+inserire|Wpisałeś poprawne hasło?|Did you enter the right password?
+obbedire|Kiedyś małe dzieci zawsze słuchały rodziców.|Little children always used to obey their parents.
+punire|Nauczyciel ukarze tych, którzy ściągają.|The teacher will punish anyone who copies.
+reagire|Jak Marco zareagował na tę wiadomość?|How did Marco react to the news?
+sostituire|Dziś pani Bianchi zastępuje chorego kolegę.|Today Mrs Bianchi is standing in for her sick colleague.
+stabilire|Ustaliliśmy datę ślubu.|We set the date of the wedding.
+tradire|Jego najlepszy przyjaciel go zdradził.|His best friend betrayed him.
+approfondire|Chętnie zgłębiłbym ten temat.|I'd like to explore this topic in more depth.
+definire|Jak definiujemy to pojęcie?|How do we define this concept?
+distribuire|Nauczyciel rozdał uczniom kartki.|The teacher handed out the sheets to the students.
+contribuire|Wszyscy dokładają się do wydatków.|Everyone contributes to the expenses.
+chiarire|Ważne, żebyś wyjaśnił sytuację.|It's important that you clear up the situation.
+agire|Co byś zrobił na moim miejscu?|What would you do in my place?
+ferire|Jego słowa mnie zraniły.|His words hurt me.
+favorire|Łagodny klimat sprzyja turystyce.|The mild climate favours tourism.
+colpire|Piłka trafiła w okno.|The ball hit the window.
+arrossire|Kiedy przemawiał publicznie, zawsze się rumienił.|When he spoke in public, he always blushed.
+`;
+VERBS.forEach(v => { v.mean = {hu: v.hu}; v.mhu = v.hu; });
+VERB_TR.trim().split('\n').forEach(l => { const [inf, pl, en] = l.split('|'); if (VBY[inf]) Object.assign(VBY[inf].mean, {pl, en}); });
+SENTS.forEach(x => { x.tr = {hu: x.hu}; });
+SENT_TR.trim().split('\n').forEach(l => { const [inf, pl, en] = l.split('|'); if (SENT_BY[inf]) Object.assign(SENT_BY[inf].tr, {pl, en}); });
+/* a megjelenített jelentés / fordítás a választott nyelven (vb.hu, x.hu mindig az aktuális nyelvű szöveg) */
+function setContentLang(l){
+  VERBS.forEach(v => { v.hu = v.mean[l] || v.mean.hu; });
+  SENTS.forEach(x => { x.hu = x.tr[l] || x.tr.hu; });
+}
+if (typeof module!=='undefined') module.exports = {VERBS, cell, check, TENSES, SENTS, sentFill, setContentLang};
 </script>
 
 <script>
 /* ---------- Felület ---------- */
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const LEVELS = {1:'Alap', 2:'Középhaladó', 3:'Haladó'};
+/* ---- Nyelvek / Języki / Languages ---- */
+const LANGS = ['hu','pl','en'];
+const LANG_LABEL = {hu:'Magyar', pl:'Polski', en:'English'};
+const LANG_EN = {hu:'Hungarian', pl:'Polish', en:'English'};
+const I18N = {
+  'sub': ['Olasz igeragozás gyakorló · {n} ige, ebből {k} rendhagyó','Trener włoskich czasowników · {n} czasowników, w tym {k} nieregularnych','Italian verb trainer · {n} verbs, {k} of them irregular'],
+  'lang': ['Nyelv','Język','Language'],
+  'who.local': ['Az eredményeid ebben a böngészőben maradnak.','Twoje wyniki zostają w tej przeglądarce.','Your results stay in this browser.'],
+  'who.saveerr': ['Most nem sikerült menteni a fiókodba; a böngészőben megvan.','Nie udało się zapisać na koncie; dane są w przeglądarce.','Could not save to your account; it is kept in this browser.'],
+  'who.profile': ['{name} profilja · az eredmények a fiókodba mentődnek','Profil: {name} · wyniki zapisują się na twoim koncie','{name}’s profile · results are saved to your account'],
+  'who.self': ['Saját','Mój','My'],
+  'tab.practice': ['Ragozás','Odmiana','Conjugation'],
+  'tab.vocab': ['Szójelentés','Znaczenie','Meaning'],
+  'tab.sent': ['Mondatok','Zdania','Sentences'],
+  'tab.trans': ['Fordítás','Tłumaczenie','Translation'],
+  'tab.browse': ['Igetár','Czasowniki','Verb list'],
+  'tab.teacher': ['Tanári nézet','Widok nauczyciela','Teacher view'],
+  'res.conj': ['Eredmény · ragozás','Wyniki · odmiana','Results · conjugation'],
+  'res.vocab': ['Eredmény · szójelentés','Wyniki · znaczenie','Results · meaning'],
+  'res.sent': ['Eredmény · mondatok','Wyniki · zdania','Results · sentences'],
+  'res.trans': ['Eredmény · fordítás','Wyniki · tłumaczenie','Results · translation'],
+  'st.correct': ['helyes','poprawne','correct'],
+  'st.streak': ['sorozat','seria','streak'],
+  'st.best': ['legjobb','rekord','best'],
+  'st.avg': ['átlag pont','średnia','avg. score'],
+  'st.perfect': ['hibátlan','bezbłędne','perfect'],
+  'st.count': ['javítás','sprawdzeń','checks'],
+  'settings': ['Beállítások','Ustawienia','Settings'],
+  'opt.mode': ['Feladattípus','Rodzaj zadania','Exercise type'],
+  'opt.tenses': ['Igeidők, módok','Czasy i tryby','Tenses and moods'],
+  'opt.level': ['Szint','Poziom','Level'],
+  'opt.verbs': ['Igék','Czasowniki','Verbs'],
+  'opt.refl': ['visszaható igék is','także czasowniki zwrotne','include reflexive verbs'],
+  'opt.lenient': ['ékezethiba elfogadva','akceptuj błędy akcentu','accept accent mistakes'],
+  'opt.dir': ['Irány','Kierunek','Direction'],
+  'opt.mhu': ['fordítás mutatása','pokaż tłumaczenie','show translation'],
+  'opt.xsrc': ['Mit fordítasz?','Co tłumaczysz?','What are you translating?'],
+  'opt.xlevel': ['Szint (mondattárnál)','Poziom (baza zdań)','Level (sentence bank)'],
+  'mist.title': ['Legutóbbi hibák','Ostatnie błędy','Recent mistakes'],
+  'mist.trans': ['Legutóbbi hibás fordítások','Ostatnie błędne tłumaczenia','Recent mistranslations'],
+  'mist.empty': ['Itt jelennek meg a hibás válaszaid.','Tu pojawią się twoje błędne odpowiedzi.','Your wrong answers will appear here.'],
+  'mist.xempty': ['Itt jelennek meg a hibás fordításaid.','Tu pojawią się twoje błędne tłumaczenia.','Your mistranslations will appear here.'],
+  'reset': ['Eredmények törlése','Wyczyść wyniki','Reset results'],
+  'sure': ['Biztosan?','Na pewno?','Are you sure?'],
+  'reset.yes': ['Igen, törlöm','Tak, wyczyść','Yes, reset'],
+  'search.ph': ['Keresés: olaszul vagy magyarul','Szukaj po włosku lub po polsku','Search in Italian or English'],
+  'level.1': ['Alap','Podstawowy','Basic'],
+  'level.2': ['Középhaladó','Średni','Intermediate'],
+  'level.3': ['Haladó','Zaawansowany','Advanced'],
+  'td.pres': ['jelen idő','czas teraźniejszy','present tense'],
+  'td.pp': ['összetett múlt idő','czas przeszły złożony','compound past'],
+  'td.imp': ['folyamatos múlt idő','czas przeszły niedokonany','imperfect (past continuous)'],
+  'td.fut': ['jövő idő','czas przyszły','future tense'],
+  'td.cond': ['feltételes mód','tryb przypuszczający','conditional'],
+  'td.cong': ['kötőmód, jelen','tryb łączący, teraźniejszy','present subjunctive'],
+  'tin.pres': ['jelen időben','w czasie teraźniejszym','in the present'],
+  'tin.pp': ['a múlt idejű alakjában (participio)','w imiesłowie (participio)','in the past participle'],
+  'tin.imp': ['folyamatos múltban','w czasie przeszłym niedokonanym','in the imperfect'],
+  'tin.fut': ['jövő időben','w czasie przyszłym','in the future'],
+  'tin.cond': ['feltételes módban','w trybie przypuszczającym','in the conditional'],
+  'tin.cong': ['kötőmódban','w trybie łączącym','in the subjunctive'],
+  'and': [' és ',' i ',' and '],
+  'note.irr': ['<b>Rendhagyó ige:</b> {list} eltér a szabályos ragozástól.','<b>Czasownik nieregularny:</b> {list} odbiega od regularnej odmiany.','<b>Irregular verb:</b> differs from the regular pattern {list}.'],
+  'note.reg': ['<b>Szabályos ige:</b> a szokásos végződésekkel ragozódik.','<b>Czasownik regularny:</b> odmienia się według typowych końcówek.','<b>Regular verb:</b> follows the usual endings.'],
+  'note.isc': ['<b>-isc- betoldás</b> jelen időben és kötőmódban:','<b>wstawka -isc-</b> w czasie teraźniejszym i w trybie łączącym:','<b>-isc- insert</b> in the present and the subjunctive:'],
+  'note.refl': ['<b>Visszaható ige:</b> az ige elé névmás kerül (mi, ti, si, ci, vi, si), múlt időben az essere a segédige:','<b>Czasownik zwrotny:</b> przed czasownikiem stoi zaimek (mi, ti, si, ci, vi, si), w czasie przeszłym posiłkowym jest essere:','<b>Reflexive verb:</b> a pronoun goes before the verb (mi, ti, si, ci, vi, si); the past tense uses essere:'],
+  'note.ess': ['<b>Múlt időben az essere a segédige</b>, és a végződés igazodik a nemhez:','<b>W czasie przeszłym posiłkowym jest essere</b>, a końcówka zgadza się z rodzajem:','<b>The past tense uses essere</b>, and the ending agrees with gender:'],
+  'note.level': ['Nehézség: {l}','Poziom: {l}','Level: {l}'],
+  'irr': ['rendhagyó','nieregularny','irregular'],
+  'irr.form': ['rendhagyó alak','forma nieregularna','irregular form'],
+  'irr.this': ['Ez az alak rendhagyó.','Ta forma jest nieregularna.','This form is irregular.'],
+  'irr.pp': [' (a participio rendhagyó: {pp})',' (nieregularny imiesłów: {pp})',' (irregular participle: {pp})'],
+  'irr.tense': ['ebben az időben rendhagyó','w tym czasie nieregularny','irregular in this tense'],
+  'mode.single': ['egy alak','jedna forma','single form'],
+  'mode.table': ['teljes ragozás','cała odmiana','full table'],
+  'kind.all': ['mind','wszystkie','all'],
+  'kind.irr': ['csak rendhagyó','tylko nieregularne','irregular only'],
+  'kind.reg': ['csak szabályos','tylko regularne','regular only'],
+  'b.irr': ['rendhagyó','nieregularne','irregular'],
+  'b.reg': ['szabályos','regularne','regular'],
+  'pool.focus': ['Csak ezt az igét gyakorlod: {v}','Ćwiczysz tylko ten czasownik: {v}','You are practising only this verb: {v}'],
+  'pool.n': ['{n} ige felel meg a szűrésnek.','Filtr spełnia {n} czasowników.','{n} verbs match the filter.'],
+  'pool.m': ['{n} mondat felel meg a szűrésnek.','Filtr spełnia {n} zdań.','{n} sentences match the filter.'],
+  'total': ['{ok} helyes / {n} válasz','{ok} poprawnych / {n} odpowiedzi','{ok} correct / {n} answers'],
+  'none': ['Még nincs válasz.','Brak odpowiedzi.','No answers yet.'],
+  'empty.verbs': ['Nincs a szűrésnek megfelelő ige. Válassz más szintet vagy igetípust.','Żaden czasownik nie pasuje do filtra. Wybierz inny poziom lub rodzaj.','No verbs match the filter. Choose another level or type.'],
+  'task.conj': ['Ragozd ebben az időben','Odmień w tym czasie','Conjugate in this tense'],
+  'focus.only': ['Csak ezt az igét gyakorlod.','Ćwiczysz tylko ten czasownik.','You are practising only this verb.'],
+  'focus.clear': ['Szűrés törlése','Wyczyść filtr','Clear filter'],
+  'keys.aria': ['Ékezetes betűk','Litery z akcentem','Accented letters'],
+  'ph.refl': ['pl. mi …','np. mi …','e.g. mi …'],
+  'ph.form': ['írd be az alakot','wpisz formę','type the form'],
+  'btn.check': ['Ellenőrzés','Sprawdź','Check'],
+  'btn.idk': ['Nem tudom','Nie wiem','I don’t know'],
+  'btn.other': ['Másik kérdés','Inne pytanie','Another question'],
+  'btn.next': ['Következő →','Dalej →','Next →'],
+  'btn.solution': ['Megoldás','Rozwiązanie','Solution'],
+  'btn.otherverb': ['Másik ige','Inny czasownik','Another verb'],
+  'btn.hint': ['Súgó','Podpowiedź','Hint'],
+  'btn.othersent': ['Másik mondat','Inne zdanie','Another sentence'],
+  'v.ok': ['Helyes!','Dobrze!','Correct!'],
+  'v.acc': ['Majdnem: figyelj az ékezetre!','Prawie: uważaj na akcent!','Almost: watch the accent!'],
+  'v.accbad': ['Ékezethiba','Błąd akcentu','Accent mistake'],
+  'v.giveup': ['A helyes alak:','Poprawna forma:','The correct form:'],
+  'v.giveup2': ['A helyes megoldás:','Poprawna odpowiedź:','The correct answer:'],
+  'v.bad': ['Nem jó.','Źle.','Not quite.'],
+  'aux.note': ['Essere segédigével a participio egyezik az alannyal (-o/-a, -i/-e).','Z essere imiesłów zgadza się z podmiotem (-o/-a, -i/-e).','With essere the participle agrees with the subject (-o/-a, -i/-e).'],
+  'table.fill': ['Töltsd ki mind a hat személyt.','Uzupełnij wszystkie sześć osób.','Fill in all six persons.'],
+  'good6': ['{n}/6 helyes','{n}/6 poprawnie','{n}/6 correct'],
+  'b.count': ['{n} ige · a piros pont rendhagyót jelöl','{n} czasowników · czerwona kropka = nieregularny','{n} verbs · red dot = irregular'],
+  'b.none': ['Nincs találat.','Brak wyników.','No results.'],
+  'b.aux': ['segédige','czasownik posiłkowy','auxiliary'],
+  'b.underlined': ['aláhúzva','podkreślone','underlined'],
+  'b.practice': ['Ennek az igének a gyakorlása','Ćwicz ten czasownik','Practise this verb'],
+  'example': ['Példamondat','Przykładowe zdanie','Example sentence'],
+  'say': ['Meghallgatom','Odsłuchaj','Listen'],
+  'dir.mix': ['vegyes','mieszany','mixed'],
+  'dir.it2x.btn': ['olasz → magyar','włoski → polski','Italian → English'],
+  'dir.x2it.btn': ['magyar → olasz','polski → włoski','English → Italian'],
+  'dir.it2x': ['olaszból magyarra','z włoskiego na polski','Italian to English'],
+  'dir.x2it': ['magyarból olaszra','z polskiego na włoski','English to Italian'],
+  'task.it2x': ['Olaszból magyarra','Z włoskiego na polski','Italian to English'],
+  'task.x2it': ['Magyarból olaszra','Z polskiego na włoski','English to Italian'],
+  'q.it2x': ['Mit jelent magyarul?','Co to znaczy po polsku?','What does it mean in English?'],
+  'q.x2it': ['Hogy mondják olaszul?','Jak to powiedzieć po włosku?','How do you say it in Italian?'],
+  'v.pick': ['Válaszd ki a jó megoldást (billentyűzeten: 1–4).','Wybierz poprawną odpowiedź (klawiatura: 1–4).','Pick the right answer (keyboard: 1–4).'],
+  'v.need4': ['Ehhez legalább 4 ige kell. Válassz több szintet vagy igetípust.','Potrzeba co najmniej 4 czasowników. Wybierz więcej poziomów lub rodzajów.','You need at least 4 verbs. Choose more levels or types.'],
+  'v.yours': ['A te választásod:','Twój wybór:','Your choice:'],
+  'm.label': ['Mondatban','W zdaniu','In a sentence'],
+  'm.title': ['Írd be a hiányzó igét','Wpisz brakujący czasownik','Fill in the missing verb'],
+  'm.extra': ['A zárójelben lévő igét abban az alakban, ahogy a mondatba illik. Az igeidőt a mondatból kell kitalálni.','Wpisz czasownik z nawiasu w formie pasującej do zdania. Czas trzeba odgadnąć z kontekstu.','Write the verb in brackets in the form that fits the sentence. Work out the tense from the context.'],
+  'm.verb': ['Ige:','Czasownik:','Verb:'],
+  'm.ph.refl': ['a névmással együtt, pl. mi …','razem z zaimkiem, np. mi …','with the pronoun, e.g. mi …'],
+  'm.ph': ['a ragozott alak','odmieniona forma','the conjugated form'],
+  'm.hint': ['Súgó: <b>{t}</b> ({d}), személy: <b>{p}</b>','Podpowiedź: <b>{t}</b> ({d}), osoba: <b>{p}</b>','Hint: <b>{t}</b> ({d}), person: <b>{p}</b>'],
+  'm.alts': ['Ez is jó:','To też jest dobrze:','Also correct:'],
+  'm.info': ['Igeidő: <b>{t}</b> ({d}) · személy: <b>{p}</b> · ige: <b>{v}</b> = {m}','Czas: <b>{t}</b> ({d}) · osoba: <b>{p}</b> · czasownik: <b>{v}</b> = {m}','Tense: <b>{t}</b> ({d}) · person: <b>{p}</b> · verb: <b>{v}</b> = {m}'],
+  'm.empty': ['Nincs a szűrésnek megfelelő mondat. Válassz más igeidőt vagy szintet.','Żadne zdanie nie pasuje do filtra. Wybierz inny czas lub poziom.','No sentences match the filter. Choose another tense or level.'],
+  'x.src.bank': ['mondattárból','z bazy zdań','sentence bank'],
+  'x.src.own': ['saját szöveg','własny tekst','my own text'],
+  'x.label': ['Fordítás · AI-javítással','Tłumaczenie · z korektą AI','Translation · AI-checked'],
+  'x.title': ['Fordítsd olaszra','Przetłumacz na włoski','Translate into Italian'],
+  'x.extra.own': ['Írj be egy magyar szöveget és a saját olasz fordításodat. Az AI megmutatja, hol hibáztál.','Wpisz tekst po polsku i swoje tłumaczenie na włoski. AI pokaże, gdzie są błędy.','Enter an English text and your Italian translation. The AI shows where you went wrong.'],
+  'x.extra': ['Írd le olaszul. Az AI megmutatja, hol hibáztál és mit javíts.','Napisz to po włosku. AI pokaże, gdzie są błędy i co poprawić.','Write it in Italian. The AI shows your mistakes and what to fix.'],
+  'x.srclabel': ['Magyar szöveg','Tekst po polsku','English text'],
+  'x.srcph': ['pl. Tegnap a barátaimmal moziba mentem.','np. Wczoraj poszedłem z przyjaciółmi do kina.','e.g. Yesterday I went to the cinema with my friends.'],
+  'x.tap': ['Koppints egy szóra, és megmutatom a jelentését.','Dotknij słowa, aby zobaczyć jego znaczenie.','Tap a word to see its meaning.'],
+  'x.yours': ['Olasz fordításod','Twoje tłumaczenie na włoski','Your Italian translation'],
+  'x.go': ['Javíttatás AI-val','Sprawdź z AI','Check with AI'],
+  'x.show': ['Mintamegoldás','Przykładowe rozwiązanie','Model answer'],
+  'x.newtext': ['Új szöveg','Nowy tekst','New text'],
+  'x.possible': ['Egy lehetséges fordítás','Możliwe tłumaczenie','A possible translation'],
+  'x.loading': ['Az AI javítja a fordításodat…','AI sprawdza twoje tłumaczenie…','The AI is checking your translation…'],
+  'x.fix1': ['Egy dolgot javíts:','Popraw jedną rzecz:','Fix one thing:'],
+  'x.fixn': ['{n} dolgot javíts:','Popraw rzeczy: {n}','Fix {n} things:'],
+  'x.perfect': ['Hibátlan fordítás!','Bezbłędne tłumaczenie!','Perfect translation!'],
+  'x.corrected': ['Javított változat','Poprawiona wersja','Corrected version'],
+  'x.model': ['Mintafordítás','Wzorcowe tłumaczenie','Model translation'],
+  'ai.unavail': ['Az AI most nem érhető el.','AI jest teraz niedostępne.','The AI is not available right now.'],
+  'ai.off.view': ['Az AI-javítás ebben a nézetben nem érhető el.','Korekta AI nie jest dostępna w tym widoku.','AI checking is not available in this view.'],
+  'ai.claude': ['Az AI-javítást a Claude végzi, a saját Claude-fiókod keretéből.','Korektę wykonuje Claude, w ramach twojego konta Claude.','Checking is done by Claude, using your own Claude account.'],
+  'ai.gemini': ['Az AI-javítást a Google Gemini végzi.','Korektę wykonuje Google Gemini.','Checking is done by Google Gemini.'],
+  'ai.login': ['Az AI-javításhoz és a szófordításhoz jelentkezz be (fent: Bejelentkezés).','Zaloguj się, aby korzystać z korekty AI i tłumaczenia słów (u góry: Zaloguj się).','Sign in to use AI checking and word translations (top: Sign in).'],
+  'ai.notset': ['Az AI-javítás még nincs beállítva.','Korekta AI nie jest jeszcze skonfigurowana.','AI checking is not set up yet.'],
+  'ai.rate': ['Most túl sok kérés érkezett. Próbáld újra egy kicsit később.','Za dużo zapytań. Spróbuj ponownie za chwilę.','Too many requests. Try again a bit later.'],
+  'ai.grant': ['Az AI-javításhoz engedélyezned kell a Claude használatát ennek az oldalnak.','Aby korzystać z korekty AI, zezwól tej stronie na użycie Claude.','To use AI checking, allow this page to use Claude.'],
+  'ai.noreply': ['Az AI most nem válaszolt. Próbáld újra.','AI nie odpowiedziało. Spróbuj ponownie.','The AI did not respond. Please try again.'],
+  'ai.network': ['Nem sikerült elérni az AI-t. Ellenőrizd az internetkapcsolatot.','Nie udało się połączyć z AI. Sprawdź połączenie z internetem.','Could not reach the AI. Check your internet connection.'],
+  'gl.login': ['A szavak fordításához jelentkezz be.','Zaloguj się, aby zobaczyć tłumaczenia słów.','Sign in to see word translations.'],
+  'gl.na': ['A szófordítás itt nem érhető el.','Tłumaczenie słów nie jest tu dostępne.','Word translation is not available here.'],
+  'gl.err': ['Most nem érhető el.','Teraz niedostępne.','Not available right now.'],
+  /* bejelentkezés (webes változat) */
+  'auth.login': ['Bejelentkezés','Zaloguj się','Sign in'],
+  'auth.logout': ['Kijelentkezés','Wyloguj się','Sign out'],
+  'auth.title': ['Bejelentkezés','Logowanie','Sign in'],
+  'auth.why': ['Így minden eszközödön megmaradnak az eredményeid.','Dzięki temu twoje wyniki będą dostępne na każdym urządzeniu.','This keeps your results on all your devices.'],
+  'auth.google': ['Belépés Google-fiókkal','Zaloguj przez Google','Sign in with Google'],
+  'auth.or': ['vagy e-maillel','lub e-mailem','or with e-mail'],
+  'auth.email': ['E-mail-cím','Adres e-mail','E-mail address'],
+  'auth.pass': ['Jelszó (legalább 6 karakter)','Hasło (co najmniej 6 znaków)','Password (at least 6 characters)'],
+  'auth.submit': ['Belépés','Zaloguj','Sign in'],
+  'auth.register': ['Regisztráció','Załóż konto','Create account'],
+  'auth.forgot': ['Elfelejtettem a jelszavam','Nie pamiętam hasła','I forgot my password'],
+  'auth.cancel': ['Mégse','Anuluj','Cancel'],
+  'auth.privacy': ['Bejelentkezve a neved, az e-mail-címed és a gyakorlási válaszaid mentésre kerülnek, és ezeket az oldal üzemeltetője (a tanár) is láthatja. Az AI-javításhoz a fordításod a Google Gemini szolgáltatásához kerül.','Po zalogowaniu zapisujemy twoje imię, adres e-mail i odpowiedzi; widzi je też prowadzący stronę (nauczyciel). Do korekty AI twoje tłumaczenie trafia do usługi Google Gemini.','When signed in, your name, e-mail and answers are saved, and the site owner (the teacher) can see them. For AI checking your translation is sent to Google Gemini.'],
+  'auth.resetmail': ['Írd be az e-mail-címed, és oda küldjük a jelszó-visszaállító levelet.','Wpisz swój adres e-mail, a wyślemy link do zmiany hasła.','Enter your e-mail address and we will send you a reset link.'],
+  'auth.resetsent': ['Elküldtük a levelet. Nézd meg a postafiókod.','Wysłaliśmy wiadomość. Sprawdź skrzynkę.','We sent the e-mail. Check your inbox.'],
+  'auth.unavail': ['A bejelentkezés most nem érhető el; az eredményeid ebben a böngészőben maradnak.','Logowanie jest teraz niedostępne; wyniki zostają w tej przeglądarce.','Sign-in is not available right now; your results stay in this browser.'],
+  'auth.loaderr': ['Belépve, de a mentett adataidat most nem sikerült betölteni.','Zalogowano, ale nie udało się wczytać zapisanych danych.','Signed in, but your saved data could not be loaded.'],
+  'auth.failed': ['Nem sikerült. ','Nie udało się. ','That did not work. '],
+  'auth/invalid-email': ['Ez nem érvényes e-mail-cím.','To nie jest poprawny adres e-mail.','That is not a valid e-mail address.'],
+  'auth/missing-password': ['Add meg a jelszót.','Podaj hasło.','Enter your password.'],
+  'auth/weak-password': ['A jelszó legyen legalább 6 karakter.','Hasło musi mieć co najmniej 6 znaków.','The password must be at least 6 characters.'],
+  'auth/email-already-in-use': ['Ezzel az e-mail-címmel már van fiók. Lépj be helyette.','Konto z tym adresem już istnieje. Zaloguj się.','An account with this e-mail already exists. Sign in instead.'],
+  'auth/invalid-credential': ['Hibás e-mail-cím vagy jelszó.','Błędny e-mail lub hasło.','Wrong e-mail or password.'],
+  'auth/wrong-password': ['Hibás jelszó.','Błędne hasło.','Wrong password.'],
+  'auth/user-not-found': ['Nincs fiók ezzel az e-mail-címmel. Regisztrálj!','Nie ma konta z tym adresem. Załóż konto!','No account with this e-mail. Create one!'],
+  'auth/too-many-requests': ['Túl sok próbálkozás. Várj pár percet.','Zbyt wiele prób. Odczekaj kilka minut.','Too many attempts. Wait a few minutes.'],
+  'auth/popup-closed-by-user': ['Bezártad a Google-ablakot, mielőtt befejeződött volna a belépés.','Zamknięto okno Google przed zakończeniem logowania.','You closed the Google window before signing in finished.'],
+  'auth/popup-blocked': ['A böngésző letiltotta a felugró ablakot. Engedélyezd, majd próbáld újra.','Przeglądarka zablokowała wyskakujące okno. Zezwól na nie i spróbuj ponownie.','The browser blocked the pop-up. Allow it and try again.'],
+  'auth/unauthorized-domain': ['Ez a webcím nincs engedélyezve a Firebase-ben (Authentication → Settings → Authorized domains).','Ten adres nie jest dozwolony w Firebase (Authentication → Settings → Authorized domains).','This address is not authorized in Firebase (Authentication → Settings → Authorized domains).'],
+  'auth/network-request-failed': ['Nincs internetkapcsolat.','Brak połączenia z internetem.','No internet connection.'],
+  /* tanári nézet */
+  't.loading': ['Betöltés…','Wczytywanie…','Loading…'],
+  't.loaderr': ['Nem sikerült betölteni a felhasználókat. ','Nie udało się wczytać użytkowników. ','Could not load the users. '],
+  't.users': ['{n} felhasználó','Użytkownicy: {n}','{n} users'],
+  't.refresh': ['Frissítés','Odśwież','Refresh'],
+  't.name': ['Név','Imię','Name'],
+  't.email': ['E-mail','E-mail','E-mail'],
+  't.answers': ['Válasz','Odp.','Answers'],
+  't.correct': ['Helyes','Popr.','Correct'],
+  't.count': ['Darab','Liczba','Count'],
+  't.avg': ['Átlag','Średnia','Avg.'],
+  't.last': ['Utoljára','Ostatnio','Last seen'],
+  't.nobody': ['Még senki sem lépett be.','Nikt się jeszcze nie zalogował.','Nobody has signed in yet.'],
+  't.tap': ['Koppints egy sorra a részletekért.','Dotknij wiersza, aby zobaczyć szczegóły.','Tap a row for details.'],
+  't.noname': ['(név nélkül)','(bez imienia)','(no name)'],
+  't.back': ['← Vissza a listához','← Wróć do listy','← Back to the list'],
+  't.lastseen': ['Utoljára: {d}','Ostatnio: {d}','Last seen: {d}'],
+  't.log': ['Napló','Dziennik','Log'],
+  't.byTense': ['Igeidők szerint','Według czasów','By tense'],
+  't.byDir': ['Irány szerint','Według kierunku','By direction'],
+  't.missed': ['Legtöbbet rontott igék','Najczęściej mylone czasowniki','Most missed verbs'],
+  't.nomiss': ['Nincs hibája.','Brak błędów.','No mistakes.'],
+  't.nolog': ['Még nincs naplózott válasz.','Brak zapisanych odpowiedzi.','No logged answers yet.'],
+  't.recent': ['Legutóbbi válaszok ({n})','Ostatnie odpowiedzi ({n})','Recent answers ({n})'],
+  't.recentx': ['Legutóbbi fordítások ({n})','Ostatnie tłumaczenia ({n})','Recent translations ({n})'],
+  't.noxlog': ['Még nincs naplózott fordítás.','Brak zapisanych tłumaczeń.','No logged translations yet.'],
+  't.time': ['Időpont','Czas','Time'],
+  't.verb': ['Ige','Czasownik','Verb'],
+  't.tense': ['Idő','Czas gram.','Tense'],
+  't.person': ['Személy','Osoba','Person'],
+  't.typed': ['Beírta','Wpisał(a)','Typed'],
+  't.right': ['Helyes alak','Poprawna forma','Correct form'],
+  't.question': ['Kérdés','Pytanie','Question'],
+  't.dir': ['Irány','Kierunek','Direction'],
+  't.chose': ['Választotta','Wybrał(a)','Chose'],
+  't.rightans': ['Helyes','Poprawnie','Correct'],
+  't.sentence': ['Mondat','Zdanie','Sentence'],
+  't.source': ['Eredeti','Oryginał','Original'],
+  't.theirs': ['Fordítása','Tłumaczenie','Their translation'],
+  't.aifix': ['AI javítása','Korekta AI','AI correction'],
+  't.score': ['Pont','Punkty','Score'],
+  't.summary': ['{n} válasz · {p} helyes · legjobb sorozat: {b} · {d} napon gyakorolt (a naplóban)','{n} odpowiedzi · {p} poprawnych · rekord serii: {b} · ćwiczono w {d} dni (w dzienniku)','{n} answers · {p} correct · best streak: {b} · practised on {d} days (in the log)'],
+  't.xsummary': ['{n} fordítás · átlag: {a}/10 · hibátlan: {p}','{n} tłumaczeń · średnia: {a}/10 · bezbłędne: {p}','{n} translations · average: {a}/10 · perfect: {p}'],
+  't.transAI': ['Fordítás (AI-javítással)','Tłumaczenie (z korektą AI)','Translation (AI-checked)']
+};
+let LANG = 'hu';
+function t(key, vars){
+  const row = I18N[key];
+  let s = row ? (row[LANGS.indexOf(LANG)] ?? row[0]) : key;
+  if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
+  return s;
+}
+
+const LEVELS = {get 1(){ return t('level.1'); }, get 2(){ return t('level.2'); }, get 3(){ return t('level.3'); }};
+const tdesc = id => t('td.' + id);
+function applyStatic(){
+  document.documentElement.lang = LANG;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  const box = document.getElementById('langs');
+  if (box) box.innerHTML = LANGS.map(l => `<button type="button" data-lang="${l}" aria-pressed="${l===LANG}" title="${LANG_LABEL[l]}">${l.toUpperCase()}</button>`).join('');
+}
+document.addEventListener('DOMContentLoaded', () => applyStatic());
 
 /* ---- kiejtés (a böngésző beépített olasz felolvasója) ---- */
 const TTS = typeof window!=='undefined' && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance!=='undefined';
@@ -1250,7 +2170,7 @@ function speak(t){
   }catch(e){}
 }
 const SPK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-const sayBtn = t => `<button type="button" class="say" data-say="${esc(t)}" aria-label="Meghallgatom: ${esc(t)}" title="Meghallgatom">${SPK}</button>`;
+const sayBtn = t_ => `<button type="button" class="say" data-say="${esc(t_)}" aria-label="${t('say')}: ${esc(t_)}" title="${t('say')}">${SPK}</button>`;
 document.addEventListener('click', e=>{ const b = e.target.closest && e.target.closest('[data-say]'); if (b){ e.preventDefault(); speak(b.dataset.say); } });
 /* a felolvasó gomb ne „nyelje el” az Entert: felolvasás után is a feladat következő lépése jöjjön */
 document.addEventListener('keydown', e=>{
@@ -1261,7 +2181,7 @@ document.addEventListener('keydown', e=>{
 function exampleHtml(vb){
   const x = SENT_BY[vb.inf]; if (!x) return '';
   const f = sentFill(x);
-  return `<div class="example"><span class="ex-lbl">Példamondat</span>
+  return `<div class="example"><span class="ex-lbl">${t('example')}</span>
     <p class="ex-it"><span>${esc(capFirst(f.before))}<b>${esc(f.shown)}</b>${esc(f.after)}</span>${sayBtn(f.full)}</p>
     <p class="ex-hu">${esc(x.hu)}</p></div>`;
 }
@@ -1276,8 +2196,9 @@ let cloudRef = null, cloudBusy = false, cloudDirty = false, cloudTimer = null;
 let cloudExtra = {};      // a profilhoz mentett további mezők (pl. név, e-mail a webes változatban)
 let answerHook = null;    // ha be van állítva, minden válasz naplózásra kerül
 let aiBackend = null;     // AI-javítás: async ({hu, ref, given}) => ({result, left?})
-let aiNote = 'Az AI-javítás ebben a nézetben nem érhető el.';
-function setAINote(msg){ aiNote = msg; const n = document.getElementById('x-note'); if (n){ n.textContent = msg; n.style.color = ''; } }
+let aiNote = 'ai.off.view';
+/* aiNote: fordítási kulcs */
+function setAINote(key){ aiNote = key; const n = document.getElementById('x-note'); if (n){ n.textContent = t(key); n.style.color = ''; } }
 function scheduleCloud(){
   if (!cloudRef) return;
   clearTimeout(cloudTimer);
@@ -1288,22 +2209,24 @@ async function saveCloud(){
   if (cloudBusy){ cloudDirty = true; return; }
   cloudBusy = true;
   try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
-  catch(e){ setWho(null, 'Most nem sikerült menteni a fiókodba; a böngészőben megvan.'); }
+  catch(e){ setWho(null, t('who.saveerr')); }
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
 }
-const WHO_LOCAL = 'Az eredményeid ebben a böngészőben maradnak.';
+let whoState = {me:null, msg:null};
 function setWho(me, msg){
+  whoState = {me, msg};
   const w = $('who');
   if (me){
     w.classList.add('on');
+    const parts = t('who.profile').split('{name}');
     w.innerHTML = (me.avatarUrl ? `<img alt="" src="${esc(me.avatarUrl)}">` : '<span class="who-dot" aria-hidden="true"></span>') +
-      '<span><b></b> profilja · az eredmények a fiókodba mentődnek</span>';
-    w.querySelector('b').textContent = me.name || 'Saját';
+      `<span>${esc(parts[0])}<b></b>${esc(parts[1]||'')}</span>`;
+    w.querySelector('b').textContent = me.name || t('who.self');
   } else {
     w.classList.remove('on');
     w.innerHTML = '<span class="who-dot" aria-hidden="true"></span><span></span>';
-    w.lastElementChild.textContent = msg || WHO_LOCAL;
+    w.lastElementChild.textContent = msg || t('who.local');
   }
 }
 const BLANK_STATS = () => ({ok:0,total:0,streak:0,best:0,miss:{},recent:[]});
@@ -1313,6 +2236,7 @@ function applyData(d){
   S = Object.assign({}, DEF, d.settings ? JSON.parse(JSON.stringify(d.settings)) : {});
   VST = Object.assign(BLANK_STATS(), d.vstats ? JSON.parse(JSON.stringify(d.vstats)) : {});
   if (S.focus && !byInf[S.focus]) S.focus = null;
+  if (S.lang !== LANG){ LANG = S.lang; setContentLang(LANG); applyStatic(); subtitle(); renderBrowseKind(); renderList(); renderDetail(); if (typeof window.onLangChange === 'function') window.onLangChange(); }
   renderOptions(); renderStats(); next();
   MST = Object.assign(BLANK_STATS(), d.mstats ? JSON.parse(JSON.stringify(d.mstats)) : {});
   renderOptionsV(); renderStatsV(); nextV();
@@ -1342,17 +2266,17 @@ async function initAI(){
     aiBackend = async (p) => {
       try{
         if (p.type === 'gloss'){
-          const out = await sample.json(glossPromptClient(p.text, p.from, p.ref, p.words) + '\n\nCsak egy JSON objektummal válaszolj: {"translations": ["...", ...]} (pontosan annyi elem, ahány szó).', {modelTier:'quick'});
+          const out = await sample.json(glossPromptClient(p.text, p.from, p.ref, p.words, p.lang) + '\n\nAnswer with a single JSON object only: {"translations": ["...", ...]} (exactly as many items as words).', {modelTier:'quick'});
           const t = out && Array.isArray(out.translations) ? out.translations : [];
           return {result: {translations: p.words.map((_, i) => String(t[i] || ''))}};
         }
-        const result = await sample.json(aiPrompt(p.hu, p.ref, p.given, p.form) + AI_JSON_SPEC, {modelTier:'quick'});
+        const result = await sample.json(aiPrompt(p.hu, p.ref, p.given, p.form, p.lang) + AI_JSON_SPEC, {modelTier:'quick'});
         return {result: normAI(result)};
       }catch(e){
-        throw new Error(e && e.code==='rate_limited' ? 'Most túl sok kérés érkezett. Próbáld újra egy kicsit később.' : e && e.code==='not_granted' ? 'Az AI-javításhoz engedélyezned kell a Claude használatát ennek az oldalnak.' : 'Az AI most nem válaszolt. Próbáld újra.');
+        throw new Error(e && e.code==='rate_limited' ? t('ai.rate') : e && e.code==='not_granted' ? t('ai.grant') : t('ai.noreply'));
       }
     };
-    setAINote('Az AI-javítást a Claude végzi, a saját Claude-fiókod keretéből.');
+    setAINote('ai.claude');
   }catch(e){}
 }
 async function initCloud(){
@@ -1365,7 +2289,7 @@ async function initCloud(){
     await attachCloud(db.collection('data/users/' + me.id).doc('coniuga'), me);
   }catch(e){ /* marad a böngészős mentés */ }
 }
-const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2]};
+const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
 let S = Object.assign({}, DEF, store.get('settings', {}));
 let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
 let VST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('vstats', {}));
@@ -1377,28 +2301,28 @@ const byInf = Object.fromEntries(VERBS.map(v=>[v.inf, v]));
 if (S.focus && !byInf[S.focus]) S.focus = null;
 
 const nIrr = VERBS.filter(v=>v.irr).length;
-$('subtitle').textContent = `Olasz igeragozás gyakorló · ${VERBS.length} ige, ebből ${nIrr} rendhagyó`;
+
 
 function tenseOf(id){ return TENSES.find(t=>t.id===id); }
-const TNAME_HU = {pres:'jelen időben', pp:'a múlt idejű alakjában (participio)', imp:'folyamatos múltban', fut:'jövő időben', cond:'feltételes módban', cong:'kötőmódban'};
-const listHu = a => a.length<2 ? a.join('') : a.slice(0,-1).join(', ')+' és '+a[a.length-1];
+const listHu = a => a.length<2 ? a.join('') : a.slice(0,-1).join(', ')+t('and')+a[a.length-1];
 function chips(vb){
   const out = [];
-  if (vb.irr) out.push(`<li class="irr"><span><b>Rendhagyó ige:</b> ${esc(listHu(vb.irrT.map(t=>TNAME_HU[t])))} eltér a szabályos ragozástól.</span></li>`);
-  else out.push(`<li class="reg"><span><b>Szabályos ige:</b> a szokásos végződésekkel ragozódik.</span></li>`);
-  if (vb.isc) out.push(`<li><span><b>-isc- betoldás</b> jelen időben és kötőmódban: <span class="ex">${esc(cell(vb,'pres',0).display)}, ${esc(cell(vb,'pres',1).display)}…</span></span></li>`);
-  if (vb.refl) out.push(`<li class="ess"><span><b>Visszaható ige:</b> az ige elé névmás kerül (mi, ti, si, ci, vi, si), múlt időben az essere a segédige: <span class="ex">${esc(cell(vb,'pp',0).display)}</span></span></li>`);
-  else if (vb.aux==='essere') out.push(`<li class="ess"><span><b>Múlt időben az essere a segédige</b>, és a végződés igazodik a nemhez: <span class="ex">${esc(cell(vb,'pp',0).display)}</span></span></li>`);
-  out.push(`<li><span>Nehézség: ${LEVELS[vb.lvl].toLowerCase()}</span></li>`);
+  if (vb.irr) out.push(`<li class="irr"><span>${t('note.irr', {list: esc(listHu(vb.irrT.map(x=>t('tin.'+x))))})}</span></li>`);
+  else out.push(`<li class="reg"><span>${t('note.reg')}</span></li>`);
+  if (vb.isc) out.push(`<li><span>${t('note.isc')} <span class="ex">${esc(cell(vb,'pres',0).display)}, ${esc(cell(vb,'pres',1).display)}…</span></span></li>`);
+  if (vb.refl) out.push(`<li class="ess"><span>${t('note.refl')} <span class="ex">${esc(cell(vb,'pp',0).display)}</span></span></li>`);
+  else if (vb.aux==='essere') out.push(`<li class="ess"><span>${t('note.ess')} <span class="ex">${esc(cell(vb,'pp',0).display)}</span></span></li>`);
+  out.push(`<li><span>${t('note.level', {l: LEVELS[vb.lvl].toLowerCase()})}</span></li>`);
   return '<ul class="notes">'+out.join('')+'</ul>';
 }
-function table(vb, t, hl){
+function table(vb, tn, hl){ const t_ = tn; return tableImpl(vb, t_, hl); }
+function tableImpl(vb, tn, hl){
   const rows = PERS.map((p,i)=>{
-    const c = cell(vb,t,i);
-    return `<tr class="${i===hl?'hl':''}"><td class="p">${p}</td><td>${c.irr?`<span class="irrf" title="rendhagyó alak">${esc(c.display)}</span>`:esc(c.display)}${sayBtn(c.display)}</td></tr>`;
+    const c = cell(vb,tn,i);
+    return `<tr class="${i===hl?'hl':''}"><td class="p">${p}</td><td>${c.irr?`<span class="irrf" title="${t('irr.form')}">${esc(c.display)}</span>`:esc(c.display)}${sayBtn(c.display)}</td></tr>`;
   }).join('');
-  const T = tenseOf(t), irr = vb.irrT.includes(t);
-  return `<div class="tbox"><h4>${T.it}<span>${T.hu}${irr?' · <span class="irrtag">rendhagyó</span>':''}</span></h4><table class="ttable"><tbody>${rows}</tbody></table></div>`;
+  const T = tenseOf(tn), irr = vb.irrT.includes(tn);
+  return `<div class="tbox"><h4>${T.it}<span>${tdesc(tn)}${irr?` · <span class="irrtag">${t('irr')}</span>`:''}</span></h4><table class="ttable"><tbody>${rows}</tbody></table></div>`;
 }
 
 /* ---- beállítások panel ---- */
@@ -1406,10 +2330,10 @@ function chk(type, name, val, checked, label){
   return `<label><input type="${type}" name="${name}" value="${val}" ${checked?'checked':''}> ${label}</label>`;
 }
 function renderOptions(){
-  $('o-mode').innerHTML = chk('radio','mode','single',S.mode==='single','egy alak') + chk('radio','mode','table',S.mode==='table','teljes ragozás');
+  $('o-mode').innerHTML = chk('radio','mode','single',S.mode==='single',t('mode.single')) + chk('radio','mode','table',S.mode==='table',t('mode.table'));
   $('o-tenses').innerHTML = TENSES.map(t=>chk('checkbox','tense',t.id,S.tenses.includes(t.id),t.it)).join('');
   $('o-levels').innerHTML = [1,2,3].map(l=>chk('checkbox','level',l,S.levels.includes(l),LEVELS[l])).join('');
-  $('o-kind').innerHTML = chk('radio','kind','all',S.kind==='all','mind') + chk('radio','kind','irr',S.kind==='irr','csak rendhagyó') + chk('radio','kind','reg',S.kind==='reg','csak szabályos');
+  $('o-kind').innerHTML = chk('radio','kind','all',S.kind==='all',t('kind.all')) + chk('radio','kind','irr',S.kind==='irr',t('kind.irr')) + chk('radio','kind','reg',S.kind==='reg',t('kind.reg'));
   $('o-refl').checked = S.refl; $('o-lenient').checked = S.lenient;
   updatePool();
 }
@@ -1420,7 +2344,7 @@ function pool(){
 }
 function updatePool(){
   const n = pool().length;
-  $('o-pool').textContent = S.focus ? `Csak ezt az igét gyakorlod: ${S.focus}` : `${n} ige felel meg a szűrésnek.`;
+  $('o-pool').textContent = S.focus ? t('pool.focus', {v: S.focus}) : t('pool.n', {n});
 }
 document.querySelector('.side').addEventListener('change', e=>{
   const el = e.target; if (!el.name && !el.id) return;
@@ -1438,12 +2362,13 @@ document.querySelector('.side').addEventListener('change', e=>{
 function renderStats(){
   $('s-pct').textContent = ST.total ? Math.round(100*ST.ok/ST.total)+'%' : '–';
   $('s-streak').textContent = ST.streak; $('s-best').textContent = ST.best;
-  $('s-total').textContent = ST.total ? `${ST.ok} helyes / ${ST.total} válasz` : 'Még nincs válasz.';
+  $('s-total').textContent = ST.total ? t('total', {ok: ST.ok, n: ST.total}) : t('none');
   $('mistakes').innerHTML = ST.recent.length ? ST.recent.map(m=>
     `<li><span><b>${esc(m.inf)}</b> · ${esc(m.p)} · ${esc(tenseOf(m.t).it)}<br><span class="w">${esc(m.given||'—')}</span></span><span class="c">${esc(m.right)}</span></li>`).join('')
-    : '<li class="muted">Itt jelennek meg a hibás válaszaid.</li>';
+    : `<li class="muted">${t('mist.empty')}</li>`;
 }
-function record(vb, t, i, res, given){
+function record(vb, tn, i, res, given){ const t_ = tn; return recordImpl(vb, t_, i, res, given); }
+function recordImpl(vb, t, i, res, given){
   if (answerHook){
     try{ answerHook({kind:'conj', inf:vb.inf, t, p:i, given:given||'', right:cell(vb,t,i).display, res, ok: res==='ok' || (res==='acc' && S.lenient), at: Date.now()}); }catch(e){}
   }
@@ -1471,21 +2396,21 @@ const rnd = a => a[Math.floor(Math.random()*a.length)];
 
 function next(){
   const vb = pickVerb();
-  if (!vb){ $('qcard').innerHTML = '<p>Nincs a szűrésnek megfelelő ige. Válassz más szintet vagy igetípust.</p>'; return; }
+  if (!vb){ $('qcard').innerHTML = `<p>${t('empty.verbs')}</p>`; return; }
   let t = rnd(S.tenses);
   if (S.kind==='irr' && Math.random()<.7){ const it = S.tenses.filter(x=>vb.irrT.includes(x)); if (it.length) t = rnd(it); }
   cur = {vb, t, i: Math.floor(Math.random()*6), done:false};
   S.mode==='table' ? renderTableQ() : renderSingleQ();
 }
 
-function head(vb, t, extra){
-  const T = tenseOf(t);
-  return `<div class="task"><span class="task-lbl">Ragozd ebben az időben</span><span class="task-tense">${T.it}</span><span class="task-hu">${T.hu}</span>${extra?`<span class="task-extra">${extra}</span>`:''}</div>
+function head(vb, tn, extra){
+  const T = tenseOf(tn);
+  return `<div class="task"><span class="task-lbl">${t('task.conj')}</span><span class="task-tense">${T.it}</span><span class="task-hu">${tdesc(tn)}</span>${extra?`<span class="task-extra">${extra}</span>`:''}</div>
   <div class="verb-line"><h2 class="inf">${esc(vb.inf)}</h2>${sayBtn(vb.inf)}<span class="hu">${esc(vb.hu)}</span></div>
-  <div class="chips">${chips(vb)}${S.focus?`<p class="muted focus-chip" style="margin:-10px 0 16px">Csak ezt az igét gyakorlod. <button id="unfocus" class="linkbtn" style="font:inherit;color:var(--accent);background:none;border:0;text-decoration:underline;cursor:pointer">Szűrés törlése</button></p>`:''}</div>`;
+  <div class="chips">${chips(vb)}${S.focus?`<p class="muted focus-chip" style="margin:-10px 0 16px">${t('focus.only')} <button id="unfocus" class="linkbtn" style="font:inherit;color:var(--accent);background:none;border:0;text-decoration:underline;cursor:pointer">${t('focus.clear')}</button></p>`:''}</div>`;
 }
 const KEYS = ['à','è','é','ì','ò','ù'];
-function keysHtml(){ return `<div class="keys" aria-label="Ékezetes betűk">${KEYS.map(k=>`<button type="button" data-k="${k}">${k}</button>`).join('')}</div>`; }
+function keysHtml(){ return `<div class="keys" aria-label="${t('keys.aria')}">${KEYS.map(k=>`<button type="button" data-k="${k}">${k}</button>`).join('')}</div>`; }
 function wireCommon(root){
   root = root || $('qcard');
   const u = $('unfocus'); if (u) u.onclick = ()=>{ S.focus=null; store.set('settings',S); updatePool(); next(); };
@@ -1503,16 +2428,16 @@ function wireCommon(root){
 }
 
 function renderSingleQ(){
-  const {vb,t,i} = cur;
-  $('qcard').innerHTML = head(vb,t) + `
+  const {vb,i} = cur, tn = cur.t;
+  $('qcard').innerHTML = head(vb,tn) + `
   <form id="qform" autocomplete="off">
     <div class="answer-row"><label class="person" for="ans">${PERS[i]}</label>
-    <input id="ans" autocapitalize="off" spellcheck="false" placeholder="${vb.refl?'pl. mi …':'írd be az alakot'}"></div>
+    <input id="ans" autocapitalize="off" spellcheck="false" placeholder="${vb.refl?t('ph.refl'):t('ph.form')}"></div>
     ${keysHtml()}
     <div class="actions">
-      <button class="btn" type="submit" id="go">Ellenőrzés</button>
-      <button class="btn ghost" type="button" id="idk">Nem tudom</button>
-      <button class="btn quiet" type="button" id="skip">Másik kérdés</button>
+      <button class="btn" type="submit" id="go">${t('btn.check')}</button>
+      <button class="btn ghost" type="button" id="idk">${t('btn.idk')}</button>
+      <button class="btn quiet" type="button" id="skip">${t('btn.other')}</button>
     </div>
   </form><div id="fb"></div>`;
   wireCommon();
@@ -1522,34 +2447,34 @@ function renderSingleQ(){
   $('qform').onsubmit = e=>{ e.preventDefault(); cur.done ? next() : answerSingle(false); };
 }
 function answerSingle(gaveUp){
-  const {vb,t,i} = cur, c = cell(vb,t,i), inp = $('ans');
+  const {vb,i} = cur, tn = cur.t, c = cell(vb,tn,i), inp = $('ans');
   const given = inp.value;
   if (!gaveUp && !norm(given)){ inp.focus(); return; }
   const res = gaveUp ? 'bad' : check(given, c.accept);
-  cur.done = true; record(vb,t,i,res,gaveUp?'':given);
+  cur.done = true; record(vb,tn,i,res,gaveUp?'':given);
   inp.readOnly = true;
   inp.classList.add(res==='ok'?'is-ok':res==='acc'?(S.lenient?'is-acc':'is-bad'):'is-bad');
-  $('go').textContent = 'Következő →'; $('idk').disabled = true; $('skip').hidden = true;
+  $('go').textContent = t('btn.next'); $('idk').disabled = true; $('skip').hidden = true;
   const cls = res==='ok'?'ok':res==='acc'?'acc':'bad';
-  const verdict = res==='ok'?'Helyes!':res==='acc'?(S.lenient?'Majdnem: figyelj az ékezetre!':'Ékezethiba'):(gaveUp?'A helyes alak:':'Nem jó.');
-  const note = c.irr ? `<p><span class="irrf">Ez az alak rendhagyó.</span>${t==='pp'?' (a participio rendhagyó: '+esc(vb.F.pp.split('/')[0])+')':''}</p>` : '';
-  const auxNote = (t==='pp' && vb.aux==='essere') ? `<p class="muted">Essere segédigével a participio egyezik az alannyal (-o/-a, -i/-e).</p>` : '';
+  const verdict = res==='ok'?t('v.ok'):res==='acc'?(S.lenient?t('v.acc'):t('v.accbad')):(gaveUp?t('v.giveup'):t('v.bad'));
+  const note = c.irr ? `<p><span class="irrf">${t('irr.this')}</span>${tn==='pp'?t('irr.pp', {pp: esc(vb.F.pp.split('/')[0])}):''}</p>` : '';
+  const auxNote = (tn==='pp' && vb.aux==='essere') ? `<p class="muted">${t('aux.note')}</p>` : '';
   $('fb').innerHTML = `<div class="feedback ${cls}">
     <p><span class="verdict">${verdict}</span> ${res!=='ok'?`<strong class="big">${esc(PERS[i])} ${esc(c.display)}</strong>`:''} ${sayBtn(c.display)}</p>
     ${note}${auxNote}
-    <div class="after-table">${table(vb,t,i)}</div>${exampleHtml(vb)}</div>`;
+    <div class="after-table">${table(vb,tn,i)}</div>${exampleHtml(vb)}</div>`;
   $('go').focus({preventScroll:true});
 }
 
 function renderTableQ(){
-  const {vb,t} = cur;
-  $('qcard').innerHTML = head(vb,t,'Töltsd ki mind a hat személyt.') + `
+  const {vb} = cur, tn = cur.t;
+  $('qcard').innerHTML = head(vb,tn,t('table.fill')) + `
   <form id="qform" autocomplete="off"><div class="trows">
   ${PERS.map((p,i)=>`<div class="trow"><label class="person" for="t${i}">${p}</label><input id="t${i}" autocapitalize="off" spellcheck="false"><div class="sol" id="sol${i}" hidden></div></div>`).join('')}
   </div>${keysHtml()}
-  <div class="actions"><button class="btn" type="submit" id="go">Ellenőrzés</button>
-  <button class="btn ghost" type="button" id="idk">Megoldás</button>
-  <button class="btn quiet" type="button" id="skip">Másik ige</button></div></form><div id="fb"></div>`;
+  <div class="actions"><button class="btn" type="submit" id="go">${t('btn.check')}</button>
+  <button class="btn ghost" type="button" id="idk">${t('btn.solution')}</button>
+  <button class="btn quiet" type="button" id="skip">${t('btn.otherverb')}</button></div></form><div id="fb"></div>`;
   wireCommon();
   $('t0').focus({preventScroll:true});
   for (let i=0;i<5;i++) $('t'+i).addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); $('t'+(i+1)).focus(); } });
@@ -1558,28 +2483,28 @@ function renderTableQ(){
   $('qform').onsubmit = e=>{ e.preventDefault(); cur.done ? next() : answerTable(false); };
 }
 function answerTable(gaveUp){
-  const {vb,t} = cur; let good = 0;
+  const {vb} = cur, tn = cur.t; let good = 0;
   cur.done = true;
   PERS.forEach((p,i)=>{
-    const c = cell(vb,t,i), inp = $('t'+i), given = inp.value;
+    const c = cell(vb,tn,i), inp = $('t'+i), given = inp.value;
     const res = gaveUp ? 'bad' : check(given, c.accept);
     const ok = res==='ok' || (res==='acc' && S.lenient);
     if (ok) good++;
-    record(vb,t,i,res,gaveUp?'':given);
+    record(vb,tn,i,res,gaveUp?'':given);
     inp.readOnly = true;
     inp.classList.add(res==='ok'?'is-ok':(res==='acc'&&S.lenient)?'is-acc':'is-bad');
     if (res!=='ok'){ const s=$('sol'+i); s.hidden=false; s.innerHTML = c.irr?`<span class="irrf">${esc(c.display)}</span>`:esc(c.display); }
   });
-  $('go').textContent = 'Következő →'; $('idk').disabled = true; $('skip').hidden = true;
+  $('go').textContent = t('btn.next'); $('idk').disabled = true; $('skip').hidden = true;
   const cls = good===6?'ok':good>=4?'acc':'bad';
-  $('fb').innerHTML = `<div class="feedback ${cls}"><p><span class="verdict">${good}/6 helyes</span>${vb.irrT.includes(t)?' · <span class="irrf">ebben az időben rendhagyó</span>':''}</p><div class="after-table">${table(vb,t,-1)}</div>${exampleHtml(vb)}</div>`;
+  $('fb').innerHTML = `<div class="feedback ${cls}"><p><span class="verdict">${t('good6', {n: good})}</span>${vb.irrT.includes(tn)?` · <span class="irrf">${t('irr.tense')}</span>`:''}</p><div class="after-table">${table(vb,tn,-1)}</div>${exampleHtml(vb)}</div>`;
   $('go').focus({preventScroll:true});
 }
 
 /* ---- Igetár ---- */
 let B = {q:'', kind:'all', sel: 'andare'};
 function renderBrowseKind(){
-  $('b-kind').innerHTML = [['all','mind'],['irr','rendhagyó'],['reg','szabályos'],['1','alap'],['2','középhaladó'],['3','haladó']]
+  $('b-kind').innerHTML = [['all',t('kind.all')],['irr',t('b.irr')],['reg',t('b.reg')],['1',LEVELS[1].toLowerCase()],['2',LEVELS[2].toLowerCase()],['3',LEVELS[3].toLowerCase()]]
     .map(([v,l])=>chk('radio','bkind',v,B.kind===v,l)).join('');
 }
 $('b-kind').addEventListener('change', e=>{ B.kind = e.target.value; renderList(); });
@@ -1590,10 +2515,10 @@ function renderList(){
     if (B.kind==='irr' && !v.irr) return false;
     if (B.kind==='reg' && v.irr) return false;
     if (/^[123]$/.test(B.kind) && v.lvl!==+B.kind) return false;
-    return !q || deacc(v.inf).includes(q) || deacc(v.hu.toLowerCase()).includes(q);
+    return !q || deacc(v.inf).includes(q) || deacc(v.hu.toLowerCase()).includes(q) || deacc(v.mhu.toLowerCase()).includes(q);
   });
-  $('b-count').textContent = `${list.length} ige · a piros pont rendhagyót jelöl`;
-  $('b-list').innerHTML = list.map(v=>`<li><button data-inf="${v.inf}" aria-current="${v.inf===B.sel}"><span class="vi">${v.irr?'<span class="dot" aria-label="rendhagyó">• </span>':''}${esc(v.inf)}</span><span class="vh">${esc(v.hu)}</span></button></li>`).join('') || '<li class="muted" style="padding:10px 4px">Nincs találat.</li>';
+  $('b-count').textContent = t('b.count', {n: list.length});
+  $('b-list').innerHTML = list.map(v=>`<li><button data-inf="${v.inf}" aria-current="${v.inf===B.sel}"><span class="vi">${v.irr?`<span class="dot" aria-label="${t('irr')}">• </span>`:''}${esc(v.inf)}</span><span class="vh">${esc(v.hu)}</span></button></li>`).join('') || `<li class="muted" style="padding:10px 4px">${t('b.none')}</li>`;
 }
 $('b-list').addEventListener('click', e=>{
   const b = e.target.closest('button[data-inf]'); if(!b) return;
@@ -1606,9 +2531,9 @@ function renderDetail(){
   $('b-detail').innerHTML = `
     <div class="verb-line"><h2 class="inf">${esc(vb.inf)}</h2>${sayBtn(vb.inf)}<span class="hu">${esc(vb.hu)}</span></div>
     <div class="chips">${chips(vb)}</div>
-    <p class="legend">Participio passato: <b style="font-family:var(--f-mono)">${vb.irrT.includes('pp')?`<span class="irrf">${esc(pp.join(' / '))}</span>`:esc(pp.join(' / '))}</b> · segédige: <b>${vb.aux}</b>${vb.irr?' · <span class="irrf">aláhúzva</span> = rendhagyó alak':''}</p>
+    <p class="legend">Participio passato: <b style="font-family:var(--f-mono)">${vb.irrT.includes('pp')?`<span class="irrf">${esc(pp.join(' / '))}</span>`:esc(pp.join(' / '))}</b> · ${t('b.aux')}: <b>${vb.aux}</b>${vb.irr?` · <span class="irrf">${t('b.underlined')}</span> = ${t('irr.form')}`:''}</p>
     ${exampleHtml(vb)}
-    <div class="actions"><button class="btn ghost" id="practice-this">Ennek az igének a gyakorlása</button></div>
+    <div class="actions"><button class="btn ghost" id="practice-this">${t('b.practice')}</button></div>
     <div class="tgrid">${TENSES.map(t=>table(vb,t.id,-1)).join('')}</div>`;
   $('practice-this').onclick = ()=>{ S.focus = vb.inf; store.set('settings',S); updatePool(); showTab('practice'); next(); };
 }
@@ -1629,17 +2554,17 @@ $('tab-sent').onclick = ()=>showTab('sent');
 $('tab-trans').onclick = ()=>showTab('trans');
 
 /* ---- Szójelentés: 4 lehetőség közül a jó ---- */
-const DIRS = {it2hu:'olaszból magyarra', hu2it:'magyarból olaszra'};
+const DIRS = {get it2hu(){ return t('dir.it2x'); }, get hu2it(){ return t('dir.x2it'); }};
 let curV = null;
 const huTokens = hu => hu.toLowerCase().split(/[,;()]/).map(x=>x.trim()).filter(Boolean);
-const sameMeaning = (a,b) => { const A = huTokens(a.hu); return huTokens(b.hu).some(t=>A.includes(t)); };
+const sameMeaning = (a,b) => { const A = huTokens(a.hu).concat(huTokens(a.mhu)); return huTokens(b.hu).concat(huTokens(b.mhu)).some(x=>A.includes(x)); };
 function shuffle(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
 function renderOptionsV(){
-  $('v-dir').innerHTML = chk('radio','vdir','mix',S.vdir==='mix','vegyes') + chk('radio','vdir','it2hu',S.vdir==='it2hu','olasz → magyar') + chk('radio','vdir','hu2it',S.vdir==='hu2it','magyar → olasz');
+  $('v-dir').innerHTML = chk('radio','vdir','mix',S.vdir==='mix',t('dir.mix')) + chk('radio','vdir','it2hu',S.vdir==='it2hu',t('dir.it2x.btn')) + chk('radio','vdir','hu2it',S.vdir==='hu2it',t('dir.x2it.btn'));
   $('v-levels').innerHTML = [1,2,3].map(l=>chk('checkbox','vlevel',l,S.vlevels.includes(l),LEVELS[l])).join('');
-  $('v-kind').innerHTML = chk('radio','vkind','all',S.vkind==='all','mind') + chk('radio','vkind','irr',S.vkind==='irr','csak rendhagyó') + chk('radio','vkind','reg',S.vkind==='reg','csak szabályos');
-  $('v-pool').textContent = `${vpool().length} ige felel meg a szűrésnek.`;
+  $('v-kind').innerHTML = chk('radio','vkind','all',S.vkind==='all',t('kind.all')) + chk('radio','vkind','irr',S.vkind==='irr',t('kind.irr')) + chk('radio','vkind','reg',S.vkind==='reg',t('kind.reg'));
+  $('v-pool').textContent = t('pool.n', {n: vpool().length});
 }
 function vpool(){
   return VERBS.filter(v => S.vlevels.includes(v.lvl) && (S.vkind==='all' || (S.vkind==='irr' ? v.irr : !v.irr)));
@@ -1655,17 +2580,17 @@ $('vside').addEventListener('change', e=>{
 function renderStatsV(){
   $('v-pct').textContent = VST.total ? Math.round(100*VST.ok/VST.total)+'%' : '–';
   $('v-streak').textContent = VST.streak; $('v-best').textContent = VST.best;
-  $('v-total').textContent = VST.total ? `${VST.ok} helyes / ${VST.total} válasz` : 'Még nincs válasz.';
+  $('v-total').textContent = VST.total ? t('total', {ok: VST.ok, n: VST.total}) : t('none');
   $('v-mistakes').innerHTML = VST.recent.length ? VST.recent.map(m=>
     `<li><span><b>${esc(m.prompt)}</b> · ${esc(DIRS[m.dir]||'')}<br><span class="w">${esc(m.given||'—')}</span></span><span class="c">${esc(m.right)}</span></li>`).join('')
-    : '<li class="muted">Itt jelennek meg a hibás válaszaid.</li>';
+    : `<li class="muted">${t('mist.empty')}</li>`;
 }
 $('v-reset').onclick = ()=>{ $('v-reset-confirm').hidden = false; };
 $('v-reset-yes').onclick = ()=>{ VST={ok:0,total:0,streak:0,best:0,miss:{},recent:[]}; store.set('vstats',VST); renderStatsV(); $('v-reset-confirm').hidden = true; };
 
 function nextV(){
   const pl = vpool();
-  if (pl.length < 4){ $('vcard').innerHTML = '<p>Ehhez legalább 4 ige kell. Válassz több szintet vagy igetípust.</p>'; curV=null; return; }
+  if (pl.length < 4){ $('vcard').innerHTML = `<p>${t('v.need4')}</p>`; curV=null; return; }
   const w = pl.map(v=>1+Math.min(4,(VST.miss[v.inf]||0))*1.5);
   let r = Math.random()*w.reduce((a,b)=>a+b,0), vb = pl[pl.length-1];
   for (let k=0;k<pl.length;k++){ r-=w[k]; if (r<=0){ vb = pl[k]; break; } }
@@ -1681,10 +2606,10 @@ const optText = (o, dir) => dir==='it2hu' ? o.hu : o.inf;
 function renderV(){
   const {vb, dir, opts} = curV;
   $('vcard').innerHTML = `
-    <div class="task"><span class="task-lbl">${dir==='it2hu'?'Olaszból magyarra':'Magyarból olaszra'}</span><span class="task-tense">${dir==='it2hu'?'Mit jelent magyarul?':'Hogy mondják olaszul?'}</span><span class="task-extra">Válaszd ki a jó megoldást (billentyűzeten: 1–4).</span></div>
+    <div class="task"><span class="task-lbl">${dir==='it2hu'?t('task.it2x'):t('task.x2it')}</span><span class="task-tense">${dir==='it2hu'?t('q.it2x'):t('q.x2it')}</span><span class="task-extra">${t('v.pick')}</span></div>
     <h2 class="vprompt">${esc(dir==='it2hu'?vb.inf:vb.hu)} ${dir==='it2hu'?sayBtn(vb.inf):''}</h2>
     <div class="opts">${opts.map((o,k)=>`<button type="button" class="optbtn ${dir==='hu2it'?'it':''}" data-k="${k}"><span class="k">${k+1}</span><span class="t">${esc(optText(o,dir))}</span></button>`).join('')}</div>
-    <div class="actions"><button class="btn quiet" type="button" id="v-skip">Másik kérdés</button></div>
+    <div class="actions"><button class="btn quiet" type="button" id="v-skip">${t('btn.other')}</button></div>
     <div id="v-fb"></div>`;
   $('vcard').querySelectorAll('.optbtn').forEach(b=>b.onclick=()=>answerV(+b.dataset.k));
   $('v-skip').onclick = nextV;
@@ -1699,13 +2624,13 @@ function answerV(k){
   });
   recordV(vb, dir, chosen, ok);
   $('v-skip').hidden = true;
-  const other = ok ? '' : `<p>A te választásod: <b>${esc(chosen.inf)}</b> = ${esc(chosen.hu)}</p>`;
+  const other = ok ? '' : `<p>${t('v.yours')} <b>${esc(chosen.inf)}</b> = ${esc(chosen.hu)}</p>`;
   $('v-fb').innerHTML = `<div class="feedback ${ok?'ok':'bad'}">
-    <p><span class="verdict">${ok?'Helyes!':'Nem jó.'}</span> <strong class="big">${esc(vb.inf)}</strong> = ${esc(vb.hu)} ${sayBtn(vb.inf)}</p>
+    <p><span class="verdict">${ok?t('v.ok'):t('v.bad')}</span> <strong class="big">${esc(vb.inf)}</strong> = ${esc(vb.hu)} ${sayBtn(vb.inf)}</p>
     ${other}
     ${chips(vb)}
     ${exampleHtml(vb)}
-    <div class="actions" style="margin-top:4px"><button class="btn" type="button" id="v-next">Következő →</button></div></div>`;
+    <div class="actions" style="margin-top:4px"><button class="btn" type="button" id="v-next">${t('btn.next')}</button></div></div>`;
   $('v-next').onclick = nextV;
   $('v-next').focus({preventScroll:true});
 }
@@ -1728,16 +2653,16 @@ const glossCache = new Map();        // from|text -> Promise<string[]>
 let glossStore = {};
 try{ glossStore = JSON.parse(localStorage.getItem('coniuga:gloss') || '{}') || {}; }catch(e){ glossStore = {}; }
 const WORD_RE = /[\p{L}\p{M}]+(?:['’][\p{L}\p{M}]+)*/gu;
-function glossPromptClient(text, from, ref, words){
-  const list = JSON.stringify(words);
-  if (from === 'hu') return `Egy magyar anyanyelvű olasztanuló ezt a magyar mondatot fordítja olaszra: ${JSON.stringify(text)}
-${ref ? `A mondat helyes olasz fordítása: ${JSON.stringify(ref)}\n` : ''}Az alábbi magyar szavakhoz (sorrendben, pontosan ugyanennyi elemmel) add meg az olasz megfelelőt, ahogy ebben a mondatban értendő${ref ? ', lehetőleg a fenti fordításból véve' : ''}.
-Igéknél a ragozott olasz alakot add, zárójelben az alapalakkal (pl. "mentünk" -> "siamo andati (andare)"). Legyen tömör (1-4 szó). Ha egy szónak nincs külön olasz megfelelője, írd le röviden a szerepét magyarul (pl. "névelő").
-Szavak: ${list}`;
-  return `Egy magyar anyanyelvű olasztanuló ezt az olasz mondatot olvassa: ${JSON.stringify(text)}
-Az alábbi olasz szavakhoz (sorrendben, pontosan ugyanennyi elemmel) add meg a magyar jelentést, ahogy ebben a mondatban értendő.
-Igéknél zárójelben add meg az olasz alapalakot is (pl. "siamo" -> "vagyunk (essere)", "andati" -> "mentünk (andare)"). Névelőknél, elöljárószóknál röviden a szerepét (pl. "a (hímnemű névelő)"). Legyen tömör (1-5 szó).
-Szavak: ${list}`;
+function glossPromptClient(text, from, ref, words, lang){
+  const LN = LANG_EN[lang] || 'Hungarian', list = JSON.stringify(words);
+  if (from !== 'it') return `A learner whose native language is ${LN} is translating this ${LN} sentence into Italian: ${JSON.stringify(text)}
+${ref ? `Its correct Italian translation: ${JSON.stringify(ref)}\n` : ''}For each of the following ${LN} words (in order, with exactly the same number of items) give the Italian equivalent as used in this sentence${ref ? ', preferably taken from the translation above' : ''}.
+For verbs give the conjugated Italian form with the infinitive in brackets (e.g. "siamo andati (andare)"). Be concise (1-4 words). If a word has no separate Italian equivalent, briefly describe its role, written in ${LN}.
+Words: ${list}`;
+  return `A learner whose native language is ${LN} is reading this Italian sentence: ${JSON.stringify(text)}
+For each of the following Italian words (in order, with exactly the same number of items) give its meaning in ${LN} as used in this sentence.
+For verbs add the Italian infinitive in brackets (e.g. "siamo" -> "<meaning in ${LN}> (essere)"). For articles and prepositions briefly give their role, written in ${LN}. Be concise (1-5 words).
+Words: ${list}`;
 }
 /* szöveg -> HTML, minden szó koppintható gomb */
 function glossify(text, from, ref){
@@ -1751,15 +2676,15 @@ function glossify(text, from, ref){
     words.push(m[0]); last = m.index + m[0].length;
   }
   parts.push(esc(text.slice(last)));
-  GL.push({text, from, ref: ref || '', words});
+  GL.push({text, from, ref: ref || '', words, lang: LANG});
   return parts.join('');
 }
 function getGloss(e){
-  const key = e.from + '|' + e.text;
+  const key = e.lang + '|' + e.from + '|' + e.text;
   if (glossStore[key] && glossStore[key].length === e.words.length) return Promise.resolve(glossStore[key]);
   if (glossCache.has(key)) return glossCache.get(key);
-  if (!aiBackend) return Promise.reject(new Error(aiNote.includes('jelentkezz') ? 'A szavak fordításához jelentkezz be.' : 'A szófordítás itt nem érhető el.'));
-  const pr = aiBackend({type:'gloss', text: e.text, from: e.from, ref: e.ref, words: e.words}).then(res => {
+  if (!aiBackend) return Promise.reject(new Error(aiNote === 'ai.login' ? t('gl.login') : t('gl.na')));
+  const pr = aiBackend({type:'gloss', text: e.text, from: e.from, ref: e.ref, words: e.words, lang: e.lang}).then(res => {
     const t = (res && res.result && res.result.translations) || [];
     glossStore[key] = t;
     const keys = Object.keys(glossStore); if (keys.length > 400) delete glossStore[keys[0]];
@@ -1796,7 +2721,7 @@ function showBubble(btn){
   };
   document.body.appendChild(bubble);
   fill('…', 'muted');
-  getGloss(e).then(t => fill(t[i] || '—')).catch(err => fill(err.message || 'Most nem érhető el.', 'muted'));
+  getGloss(e).then(t => fill(t[i] || '—')).catch(err => fill(err.message || t('gl.err'), 'muted'));
 }
 document.addEventListener('click', ev => {
   const w = ev.target.closest && ev.target.closest('.wd');
@@ -1807,26 +2732,27 @@ window.addEventListener('resize', () => { if (bubble && bubbleFor) placeBubble(b
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape') hideBubble(); });
 
 /* ---- Fordítás: AI-javítással ---- */
-function aiPrompt(hu, ref, given, form){
-  return `Olasz nyelvtanár vagy, magyar anyanyelvű tanulóknak segítesz.
-A tanuló olaszra fordította a magyar szöveget. Értékeld a fordítást, és MAGYARUL válaszolj.
+function aiPrompt(src, ref, given, form, lang){
+  const LN = LANG_EN[lang] || 'Hungarian';
+  return `You are an Italian teacher helping learners whose native language is ${LN}.
+The learner translated the following ${LN} text into Italian. Evaluate the translation. Write ALL explanations, error types and the comment in ${LN}.
 
-Magyar szöveg: ${JSON.stringify(hu)}
-${ref ? `Egy helyes mintafordítás (más is lehet helyes): ${JSON.stringify(ref)}\n` : ''}${form ? `A mondat igéjének biztosan helyes alakja (ellenőrzött ragozó program adta, ezt ne bíráld felül, és javításnál pontosan ezt az alakot használd): ${JSON.stringify(form)}\n` : ''}A tanuló fordítása: ${JSON.stringify(given)}
+${LN} text: ${JSON.stringify(src)}
+${ref ? `A correct model translation (other answers may also be correct): ${JSON.stringify(ref)}\n` : ''}${form ? `The verb form in this sentence that is certainly correct (from a verified conjugation engine; do not override it, and use exactly this form in corrections): ${JSON.stringify(form)}\n` : ''}The learner's translation: ${JSON.stringify(given)}
 
-Szabályok:
-- Fogadd el a más szórendet, szinonimát, alany nélküli vagy alannyal írt változatot, ha nyelvtanilag helyes és ugyanazt jelenti.
-- A hibáknál nevezd meg a típusát (pl. igeidő, igeragozás, nem/szám egyeztetés, névelő, elöljárószó, szórend, szóválasztás, helyesírás/ékezet).
-- A magyarázat legyen rövid, érthető, egy-két mondat.
-- Ha nincs hiba, az errors lista legyen üres.
-- A "corrected" mező a tanuló fordításának javított változata legyen (a lehető legkevesebb változtatással).
-- A mintafordítás nyelvtanilag hibátlan: ha a javításod eltérne tőle egy szó alakjában, a mintafordítás alakját használd.
-- A score 0-10 közötti egész szám (10 = hibátlan).`;
+Rules:
+- Accept a different word order, synonyms, and versions with or without a subject pronoun, if they are grammatical and mean the same.
+- For each error name its type (e.g. tense, conjugation, gender/number agreement, article, preposition, word order, word choice, spelling/accent), written in ${LN}.
+- Keep each explanation short and clear (one or two sentences), written in ${LN}.
+- If there are no errors, the errors list must be empty.
+- "corrected" is the learner's translation corrected with as few changes as possible.
+- The model translation is grammatically correct: if your correction would differ from it in the form of a word, use the model translation's form.
+- score is an integer from 0 to 10 (10 = perfect).`;
 }
 const AI_JSON_SPEC = `
 
-Csak egy JSON objektummal válaszolj, más szöveg nélkül, ebben a formában:
-{"score": 0-10, "correct": true/false, "corrected": "...", "errors": [{"wrong": "hibás rész", "fix": "javítás", "type": "hibatípus", "explanation": "magyarázat"}], "comment": "rövid összegzés"}`;
+Answer with a single JSON object only, no other text, in this shape:
+{"score": 0-10, "correct": true/false, "corrected": "...", "errors": [{"wrong": "wrong part", "fix": "correction", "type": "error type", "explanation": "explanation"}], "comment": "short summary"}`;
 function normAI(r){
   r = r || {};
   return {score: Math.max(0, Math.min(10, Math.round(Number(r.score)||0))), correct: !!r.correct, corrected: String(r.corrected||''),
@@ -1835,7 +2761,7 @@ function normAI(r){
 }
 let curX = null;
 function renderOptionsX(){
-  $('x-src').innerHTML = chk('radio','xsrc','bank',S.xsrc==='bank','mondattárból') + chk('radio','xsrc','own','own'===S.xsrc,'saját szöveg');
+  $('x-src').innerHTML = chk('radio','xsrc','bank',S.xsrc==='bank',t('x.src.bank')) + chk('radio','xsrc','own','own'===S.xsrc,t('x.src.own'));
   $('x-levels').innerHTML = [1,2,3].map(l=>chk('checkbox','xlevel',l,S.xlevels.includes(l),LEVELS[l])).join('');
 }
 $('xside').addEventListener('change', e=>{
@@ -1851,7 +2777,7 @@ function renderStatsX(){
   $('x-count').textContent = XST.total;
   $('x-mistakes').innerHTML = XST.recent.length ? XST.recent.map(m=>
     `<li><span>${esc(m.hu)}<br><span class="w">${esc(m.given)}</span></span><span class="c">${esc(m.corrected)} <span class="muted">(${m.score}/10)</span></span></li>`).join('')
-    : '<li class="muted">Itt jelennek meg a hibás fordításaid.</li>';
+    : `<li class="muted">${t('mist.xempty')}</li>`;
 }
 $('x-reset').onclick = ()=>{ $('x-reset-confirm').hidden = false; };
 $('x-reset-yes').onclick = ()=>{ XST={ok:0,total:0,streak:0,best:0,miss:{},recent:[],sum:0}; store.set('xstats',XST); renderStatsX(); $('x-reset-confirm').hidden = true; };
@@ -1867,19 +2793,19 @@ function renderX(){
   hideBubble();
   const own = curX.own;
   $('xcard').innerHTML = `
-    <div class="task"><span class="task-lbl">Fordítás · AI-javítással</span><span class="task-tense">Fordítsd olaszra</span><span class="task-extra">${own?'Írj be egy magyar szöveget és a saját olasz fordításodat. Az AI megmutatja, hol hibáztál.':'Írd le olaszul. Az AI megmutatja, hol hibáztál és mit javíts.'}</span></div>
-    ${own ? `<label class="xlbl" for="x-hu">Magyar szöveg</label><textarea class="xarea" id="x-hu" rows="2" maxlength="600" placeholder="pl. Tegnap a barátaimmal moziba mentem."></textarea>`
-          : `<p class="msent" style="font-family:var(--f-display)">${glossify(curX.x.hu, 'hu', curX.ref)}</p><p class="taphint">Koppints egy szóra, és megmutatom a jelentését.</p>`}
+    <div class="task"><span class="task-lbl">${t('x.label')}</span><span class="task-tense">${t('x.title')}</span><span class="task-extra">${own?t('x.extra.own'):t('x.extra')}</span></div>
+    ${own ? `<label class="xlbl" for="x-hu">${t('x.srclabel')}</label><textarea class="xarea" id="x-hu" rows="2" maxlength="600" placeholder="${t('x.srcph')}"></textarea>`
+          : `<p class="msent" style="font-family:var(--f-display)">${glossify(curX.x.hu, 'nat', curX.ref)}</p><p class="taphint">${t('x.tap')}</p>`}
     <form id="xform" autocomplete="off">
-      <label class="xlbl" for="x-ans">Olasz fordításod</label>
+      <label class="xlbl" for="x-ans">${t('x.yours')}</label>
       <textarea class="xarea" id="x-ans" rows="3" maxlength="600" autocapitalize="off" spellcheck="false" placeholder="Scrivi qui…"></textarea>
       ${keysHtml()}
       <div class="actions">
-        <button class="btn" type="submit" id="x-go">Javíttatás AI-val</button>
-        ${own?'':'<button class="btn ghost" type="button" id="x-show">Mintamegoldás</button>'}
-        <button class="btn quiet" type="button" id="x-skip">${own?'Új szöveg':'Másik mondat'}</button>
+        <button class="btn" type="submit" id="x-go">${t('x.go')}</button>
+        ${own?'':`<button class="btn ghost" type="button" id="x-show">${t('x.show')}</button>`}
+        <button class="btn quiet" type="button" id="x-skip">${own?t('x.newtext'):t('btn.othersent')}</button>
       </div>
-      <p class="ainote" id="x-note">${esc(aiNote)}</p>
+      <p class="ainote" id="x-note">${esc(t(aiNote))}</p>
     </form><div id="x-fb"></div>`;
   wireCommon($('xcard'));
   $('x-skip').onclick = nextX;
@@ -1891,39 +2817,39 @@ function showRef(){
   if (!curX.ref) return;
   const box = $('x-fb');
   if (box.querySelector('.example')) return;
-  box.insertAdjacentHTML('afterbegin', `<div class="example"><span class="ex-lbl">Egy lehetséges fordítás</span><p class="ex-it"><span>${glossify(curX.ref, 'it')}</span>${sayBtn(curX.ref)}</p></div>`);
+  box.insertAdjacentHTML('afterbegin', `<div class="example"><span class="ex-lbl">${t('x.possible')}</span><p class="ex-it"><span>${glossify(curX.ref, 'it')}</span>${sayBtn(curX.ref)}</p></div>`);
 }
 async function askAI(){
   const given = $('x-ans').value.trim();
   const hu = curX.own ? ($('x-hu').value.trim()) : curX.x.hu;
   if (!hu){ $('x-hu').focus(); return; }
   if (!given){ $('x-ans').focus(); return; }
-  if (!aiBackend){ $('x-note').textContent = aiNote; $('x-note').style.color = 'var(--pen)'; return; }
+  if (!aiBackend){ $('x-note').textContent = t(aiNote); $('x-note').style.color = 'var(--pen)'; return; }
   const go = $('x-go'); go.disabled = true;
-  $('x-fb').innerHTML = '<p class="loading" style="margin-top:16px">Az AI javítja a fordításodat…</p>';
+  $('x-fb').innerHTML = `<p class="loading" style="margin-top:16px">${t('x.loading')}</p>`;
   let res;
-  try{ res = await aiBackend({hu, ref: curX.ref || '', form: curX.form || '', given}); }
-  catch(e){ go.disabled = false; $('x-fb').innerHTML = `<div class="feedback bad"><p>${esc(e.message || 'Az AI most nem érhető el.')}</p></div>`; if (curX.ref) showRef(); return; }
+  try{ res = await aiBackend({hu, ref: curX.ref || '', form: curX.form || '', given, lang: LANG}); }
+  catch(e){ go.disabled = false; $('x-fb').innerHTML = `<div class="feedback bad"><p>${esc(e.message || t('ai.unavail'))}</p></div>`; if (curX.ref) showRef(); return; }
   const r = normAI(res.result);
-  curX.done = true; go.disabled = false; go.textContent = curX.own ? 'Új szöveg →' : 'Következő →';
+  curX.done = true; go.disabled = false; go.textContent = curX.own ? t('x.newtext') + ' →' : t('btn.next');
   $('x-ans').readOnly = true; if (curX.own) $('x-hu').readOnly = true;
   const sh = $('x-show'); if (sh) sh.hidden = true; $('x-skip').hidden = true;
   recordX(hu, given, r);
   const cls = r.score>=9 ? 'sc-hi' : r.score>=6 ? 'sc-mid' : 'sc-lo';
   const fbCls = r.score>=9 ? 'ok' : r.score>=6 ? 'acc' : 'bad';
   $('x-fb').innerHTML = `<div class="feedback ${fbCls}">
-    <p style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="score ${cls}">${r.score}<small>/10</small></span><span class="verdict">${r.errors.length ? (r.errors.length===1?'Egy dolgot javíts:':`${r.errors.length} dolgot javíts:`) : 'Hibátlan fordítás!'}</span></p>
+    <p style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="score ${cls}">${r.score}<small>/10</small></span><span class="verdict">${r.errors.length ? (r.errors.length===1?t('x.fix1'):t('x.fixn', {n: r.errors.length})) : t('x.perfect')}</span></p>
     ${r.errors.length ? `<ul class="errs">${r.errors.map(e=>`<li><span class="w">${esc(e.wrong)}</span> → <span class="f">${esc(e.fix)}</span>${e.type?`<span class="ty">${esc(e.type)}</span>`:''}<p>${esc(e.explanation)}</p></li>`).join('')}</ul>` : ''}
-    ${r.corrected && r.errors.length ? `<div class="example"><span class="ex-lbl">Javított változat</span><p class="ex-it"><span>${glossify(r.corrected, 'it')}</span>${sayBtn(r.corrected)}</p></div>` : ''}
+    ${r.corrected && r.errors.length ? `<div class="example"><span class="ex-lbl">${t('x.corrected')}</span><p class="ex-it"><span>${glossify(r.corrected, 'it')}</span>${sayBtn(r.corrected)}</p></div>` : ''}
     ${r.comment ? `<p style="margin-top:10px">${esc(r.comment)}</p>` : ''}
-    ${curX.ref ? `<div class="example"><span class="ex-lbl">Mintafordítás</span><p class="ex-it"><span>${glossify(curX.ref, 'it')}</span>${sayBtn(curX.ref)}</p></div>` : ''}
+    ${curX.ref ? `<div class="example"><span class="ex-lbl">${t('x.model')}</span><p class="ex-it"><span>${glossify(curX.ref, 'it')}</span>${sayBtn(curX.ref)}</p></div>` : ''}
   </div>`;
   go.focus({preventScroll:true});
 }
 function recordX(hu, given, r){
   const ok = r.score >= 9;
   if (answerHook){
-    try{ answerHook({kind:'trans', inf: curX.x ? curX.x.inf : '', hu, given, corrected: r.corrected, score: r.score, errors: r.errors.length, ok, at: Date.now()}); }catch(e){}
+    try{ answerHook({kind:'trans', lang: LANG, inf: curX.x ? curX.x.inf : '', hu, given, corrected: r.corrected, score: r.score, errors: r.errors.length, ok, at: Date.now()}); }catch(e){}
   }
   XST.total++; XST.sum = (XST.sum||0) + r.score;
   if (ok){ XST.ok++; XST.streak++; XST.best=Math.max(XST.best,XST.streak); }
@@ -1942,7 +2868,7 @@ function renderOptionsM(){
   $('m-tenses').innerHTML = TENSES.map(t=>chk('checkbox','mtense',t.id,S.mtenses.includes(t.id),t.it)).join('');
   $('m-levels').innerHTML = [1,2,3].map(l=>chk('checkbox','mlevel',l,S.mlevels.includes(l),LEVELS[l])).join('');
   $('m-hu').checked = S.mhu;
-  $('m-pool').textContent = `${mpool().length} mondat felel meg a szűrésnek.`;
+  $('m-pool').textContent = t('pool.m', {n: mpool().length});
 }
 $('mside').addEventListener('change', e=>{
   const el = e.target;
@@ -1957,16 +2883,16 @@ $('mside').addEventListener('change', e=>{
 function renderStatsM(){
   $('m-pct').textContent = MST.total ? Math.round(100*MST.ok/MST.total)+'%' : '–';
   $('m-streak').textContent = MST.streak; $('m-best').textContent = MST.best;
-  $('m-total').textContent = MST.total ? `${MST.ok} helyes / ${MST.total} válasz` : 'Még nincs válasz.';
+  $('m-total').textContent = MST.total ? t('total', {ok: MST.ok, n: MST.total}) : t('none');
   $('m-mistakes').innerHTML = MST.recent.length ? MST.recent.map(m=>
     `<li><span>${esc(m.it.replace('___','…'))}<br><span class="w">${esc(m.given||'—')}</span></span><span class="c">${esc(m.right)}</span></li>`).join('')
-    : '<li class="muted">Itt jelennek meg a hibás válaszaid.</li>';
+    : `<li class="muted">${t('mist.empty')}</li>`;
 }
 $('m-reset').onclick = ()=>{ $('m-reset-confirm').hidden = false; };
 $('m-reset-yes').onclick = ()=>{ MST={ok:0,total:0,streak:0,best:0,miss:{},recent:[]}; store.set('mstats',MST); renderStatsM(); $('m-reset-confirm').hidden = true; };
 function nextM(){
   const pl = mpool();
-  if (!pl.length){ $('mcard').innerHTML = '<p>Nincs a szűrésnek megfelelő mondat. Válassz más igeidőt vagy szintet.</p>'; curM = null; return; }
+  if (!pl.length){ $('mcard').innerHTML = `<p>${t('m.empty')}</p>`; curM = null; return; }
   const w = pl.map(x=>1+Math.min(4,(MST.miss[x.inf]||0))*1.5);
   let r = Math.random()*w.reduce((a,b)=>a+b,0), x = pl[pl.length-1];
   for (let k=0;k<pl.length;k++){ r-=w[k]; if (r<=0){ x = pl[k]; break; } }
@@ -1976,25 +2902,25 @@ function nextM(){
 function renderM(){
   const {x, f} = curM, vb = VBY[x.inf];
   $('mcard').innerHTML = `
-    <div class="task"><span class="task-lbl">Mondatban</span><span class="task-tense">Írd be a hiányzó igét</span><span class="task-extra">A zárójelben lévő igét abban az alakban, ahogy a mondatba illik. Az igeidőt a mondatból kell kitalálni.</span></div>
+    <div class="task"><span class="task-lbl">${t('m.label')}</span><span class="task-tense">${t('m.title')}</span><span class="task-extra">${t('m.extra')}</span></div>
     <p class="msent">${esc(capFirst(f.before))}<span class="gap">&nbsp;<span class="gap-inf">(${esc(x.inf)})</span>&nbsp;</span>${esc(f.after)}</p>
     <p class="ex-hu" id="m-hu-line" ${S.mhu?'':'hidden'}>${esc(x.hu)}</p>
     <form id="mform" autocomplete="off" style="margin-top:16px">
-      <div class="answer-row"><label class="person" for="m-ans" style="min-width:auto">Ige:</label>
-      <input id="m-ans" autocapitalize="off" spellcheck="false" placeholder="${vb.refl?'a névmással együtt, pl. mi …':'a ragozott alak'}"></div>
+      <div class="answer-row"><label class="person" for="m-ans" style="min-width:auto">${t('m.verb')}</label>
+      <input id="m-ans" autocapitalize="off" spellcheck="false" placeholder="${vb.refl?t('m.ph.refl'):t('m.ph')}"></div>
       ${keysHtml()}
       <p class="hint" id="m-hint" hidden></p>
       <div class="actions">
-        <button class="btn" type="submit" id="m-go">Ellenőrzés</button>
-        <button class="btn ghost" type="button" id="m-help">Súgó</button>
-        <button class="btn ghost" type="button" id="m-idk">Nem tudom</button>
-        <button class="btn quiet" type="button" id="m-skip">Másik mondat</button>
+        <button class="btn" type="submit" id="m-go">${t('btn.check')}</button>
+        <button class="btn ghost" type="button" id="m-help">${t('btn.hint')}</button>
+        <button class="btn ghost" type="button" id="m-idk">${t('btn.idk')}</button>
+        <button class="btn quiet" type="button" id="m-skip">${t('btn.othersent')}</button>
       </div>
     </form><div id="m-fb"></div>`;
   wireCommon($('mcard'));
   $('m-ans').focus({preventScroll:true});
   $('m-skip').onclick = nextM;
-  $('m-help').onclick = ()=>{ const T = tenseOf(x.t); const h = $('m-hint'); h.hidden = false; h.innerHTML = `Súgó: <b>${T.it}</b> (${T.hu}), személy: <b>${PERS[x.p]}</b>`; $('m-ans').focus(); };
+  $('m-help').onclick = ()=>{ const T = tenseOf(x.t); const h = $('m-hint'); h.hidden = false; h.innerHTML = t('m.hint', {t: T.it, d: tdesc(x.t), p: PERS[x.p]}); $('m-ans').focus(); };
   $('m-idk').onclick = ()=>{ if (!curM.done) answerM(true); };
   $('mform').onsubmit = e=>{ e.preventDefault(); curM.done ? nextM() : answerM(false); };
 }
@@ -2007,16 +2933,16 @@ function answerM(gaveUp){
   recordM(x, f, res, ok, gaveUp ? '' : given);
   inp.readOnly = true;
   inp.classList.add(res==='ok'?'is-ok':(res==='acc'&&S.lenient)?'is-acc':'is-bad');
-  $('m-go').textContent = 'Következő →'; $('m-idk').disabled = true; $('m-help').disabled = true; $('m-skip').hidden = true;
+  $('m-go').textContent = t('btn.next'); $('m-idk').disabled = true; $('m-help').disabled = true; $('m-skip').hidden = true;
   const T = tenseOf(x.t);
-  const verdict = res==='ok'?'Helyes!':res==='acc'?(S.lenient?'Majdnem: figyelj az ékezetre!':'Ékezethiba'):(gaveUp?'A helyes megoldás:':'Nem jó.');
-  const alts = f.accept.length>1 ? `<p class="muted">Ez is jó: ${esc(f.accept.filter(a=>a!==f.form).join(', '))}</p>` : '';
+  const verdict = res==='ok'?t('v.ok'):res==='acc'?(S.lenient?t('v.acc'):t('v.accbad')):(gaveUp?t('v.giveup2'):t('v.bad'));
+  const alts = f.accept.length>1 ? `<p class="muted">${t('m.alts')} ${esc(f.accept.filter(a=>a!==f.form).join(', '))}</p>` : '';
   $('m-fb').innerHTML = `<div class="feedback ${res==='ok'?'ok':(res==='acc'&&S.lenient)?'acc':'bad'}">
     <p><span class="verdict">${verdict}</span></p>
     <p class="ex-it" style="font-size:1.1rem"><span>${esc(capFirst(f.before))}<b>${esc(f.shown)}</b>${esc(f.after)}</span>${sayBtn(f.full)}</p>
     <p class="ex-hu">${esc(x.hu)}</p>
-    <p style="margin-top:10px">Igeidő: <b>${T.it}</b> (${T.hu}) · személy: <b>${PERS[x.p]}</b> · ige: <b>${esc(vb.inf)}</b> = ${esc(vb.hu)}</p>
-    ${f.irr?'<p><span class="irrf">Ez az alak rendhagyó.</span></p>':''}${alts}
+    <p style="margin-top:10px">${t('m.info', {t: T.it, d: tdesc(x.t), p: PERS[x.p], v: esc(vb.inf), m: esc(vb.hu)})}</p>
+    ${f.irr?`<p><span class="irrf">${t('irr.this')}</span></p>`:''}${alts}
     <div class="after-table">${table(vb, x.t, x.p)}</div></div>`;
   $('m-go').focus({preventScroll:true});
 }
@@ -2039,6 +2965,30 @@ document.addEventListener('keydown', e=>{
   if (/^[1-4]$/.test(e.key) && !curV.done){ e.preventDefault(); answerV(+e.key-1); }
 });
 
+/* ---- nyelvváltás ---- */
+function subtitle(){ $('subtitle').textContent = t('sub', {n: VERBS.length, k: nIrr}); }
+function setLang(l, opts){
+  if (!LANGS.includes(l)) l = 'hu';
+  LANG = l; setContentLang(l);
+  applyStatic(); subtitle();
+  setWho(whoState.me, whoState.msg);
+  if (opts && opts.init) return;
+  hideBubble();
+  renderOptions(); renderStats(); next();
+  renderOptionsV(); renderStatsV(); nextV();
+  renderOptionsM(); renderStatsM(); nextM();
+  renderOptionsX(); renderStatsX(); nextX();
+  renderBrowseKind(); renderList(); renderDetail();
+  setAINote(aiNote);
+  if (typeof window.onLangChange === 'function') window.onLangChange();
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('#langs [data-lang]');
+  if (!b) return;
+  S.lang = b.dataset.lang; store.set('settings', S); setLang(S.lang);
+});
+setLang(S.lang, {init:true});
+
 renderOptions(); renderStats(); renderBrowseKind(); renderList(); renderDetail(); next();
 renderOptionsV(); renderStatsV(); nextV();
 renderOptionsM(); renderStatsM(); nextM();
@@ -2046,22 +2996,22 @@ renderOptionsX(); renderStatsX(); nextX(); initAI();
 </script>
 
 <dialog class="login" id="login">
-  <h2>Bejelentkezés</h2>
-  <p class="muted" style="margin:0">Így minden eszközödön megmaradnak az eredményeid.</p>
-  <div class="row" style="margin-top:16px"><button class="btn" id="login-google" type="button">Belépés Google-fiókkal</button></div>
-  <div class="or">vagy e-maillel</div>
+  <h2 data-i18n="auth.title">Bejelentkezés</h2>
+  <p class="muted" style="margin:0" data-i18n="auth.why">Így minden eszközödön megmaradnak az eredményeid.</p>
+  <div class="row" style="margin-top:16px"><button class="btn" id="login-google" type="button" data-i18n="auth.google">Belépés Google-fiókkal</button></div>
+  <div class="or" data-i18n="auth.or">vagy e-maillel</div>
   <form id="login-form" method="dialog">
-    <input id="login-email" type="email" autocomplete="email" placeholder="E-mail-cím" required>
-    <input id="login-pass" type="password" autocomplete="current-password" placeholder="Jelszó (legalább 6 karakter)" required minlength="6">
+    <input id="login-email" type="email" autocomplete="email" placeholder="E-mail-cím" data-i18n-ph="auth.email" required>
+    <input id="login-pass" type="password" autocomplete="current-password" placeholder="Jelszó (legalább 6 karakter)" data-i18n-ph="auth.pass" required minlength="6">
     <p class="err" id="login-err" role="alert"></p>
     <div class="row">
-      <button class="btn" type="submit" id="login-submit">Belépés</button>
-      <button class="btn ghost" type="button" id="login-register">Regisztráció</button>
+      <button class="btn" type="submit" id="login-submit" data-i18n="auth.submit">Belépés</button>
+      <button class="btn ghost" type="button" id="login-register" data-i18n="auth.register">Regisztráció</button>
     </div>
-    <button class="linkbtn" type="button" id="login-reset">Elfelejtettem a jelszavam</button>
-    <button class="btn quiet" type="button" id="login-close">Mégse</button>
+    <button class="linkbtn" type="button" id="login-reset" data-i18n="auth.forgot">Elfelejtettem a jelszavam</button>
+    <button class="btn quiet" type="button" id="login-close" data-i18n="auth.cancel">Mégse</button>
   </form>
-  <p class="privacy">Bejelentkezve a neved, az e-mail-címed és a gyakorlási válaszaid mentésre kerülnek, és ezeket az oldal üzemeltetője (a tanár) is láthatja. Az AI-javításhoz a fordításod a Google Gemini szolgáltatásához kerül.</p>
+  <p class="privacy" data-i18n="auth.privacy">Bejelentkezve a neved, az e-mail-címed és a gyakorlási válaszaid mentésre kerülnek, és ezeket az oldal üzemeltetője (a tanár) is láthatja. Az AI-javításhoz a fordításod a Google Gemini szolgáltatásához kerül.</p>
 </dialog>
 <script type="module" src="auth.js"></script>
 </body>

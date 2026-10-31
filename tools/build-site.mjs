@@ -50,12 +50,12 @@ src = src.replace('</style>', extraCss + '</style>');
 // 3) bejelentkezés gomb a fejlécbe
 must('<nav class="tabs" role="tablist">');
 src = src.replace('<nav class="tabs" role="tablist">',
-  '<div class="auth" id="auth" hidden><button class="btn ghost" id="login-open" type="button">Bejelentkezés</button><button class="btn quiet" id="logout" type="button" hidden>Kijelentkezés</button></div>\n    <nav class="tabs" role="tablist">');
+  '<div class="auth" id="auth" hidden><button class="btn ghost" id="login-open" type="button" data-i18n="auth.login">Bejelentkezés</button><button class="btn quiet" id="logout" type="button" hidden data-i18n="auth.logout">Kijelentkezés</button></div>\n    <nav class="tabs" role="tablist">');
 
 // 3b) tanári nézet: fül + szakasz (csak a tanár fiókjával látszik)
-must('<button id="tab-browse" role="tab" aria-selected="false">Igetár</button>');
-src = src.replace('<button id="tab-browse" role="tab" aria-selected="false">Igetár</button>',
-  '<button id="tab-browse" role="tab" aria-selected="false">Igetár</button>\n      <button id="tab-teacher" role="tab" aria-selected="false" hidden>Tanári nézet</button>');
+must('<button id="tab-browse" role="tab" aria-selected="false" data-i18n="tab.browse">Igetár</button>');
+src = src.replace('<button id="tab-browse" role="tab" aria-selected="false" data-i18n="tab.browse">Igetár</button>',
+  '<button id="tab-browse" role="tab" aria-selected="false" data-i18n="tab.browse">Igetár</button>\n      <button id="tab-teacher" role="tab" aria-selected="false" hidden data-i18n="tab.teacher">Tanári nézet</button>');
 must('\n</div>\n\n<script id="engine">');
 src = src.replace('\n</div>\n\n<script id="engine">',
   '\n  <section id="view-teacher" hidden><div class="card" id="teacher"></div></section>\n</div>\n\n<script id="engine">');
@@ -66,22 +66,22 @@ src = src.replace('\ninitCloud();', '');
 
 const dialog = `
 <dialog class="login" id="login">
-  <h2>Bejelentkezés</h2>
-  <p class="muted" style="margin:0">Így minden eszközödön megmaradnak az eredményeid.</p>
-  <div class="row" style="margin-top:16px"><button class="btn" id="login-google" type="button">Belépés Google-fiókkal</button></div>
-  <div class="or">vagy e-maillel</div>
+  <h2 data-i18n="auth.title">Bejelentkezés</h2>
+  <p class="muted" style="margin:0" data-i18n="auth.why">Így minden eszközödön megmaradnak az eredményeid.</p>
+  <div class="row" style="margin-top:16px"><button class="btn" id="login-google" type="button" data-i18n="auth.google">Belépés Google-fiókkal</button></div>
+  <div class="or" data-i18n="auth.or">vagy e-maillel</div>
   <form id="login-form" method="dialog">
-    <input id="login-email" type="email" autocomplete="email" placeholder="E-mail-cím" required>
-    <input id="login-pass" type="password" autocomplete="current-password" placeholder="Jelszó (legalább 6 karakter)" required minlength="6">
+    <input id="login-email" type="email" autocomplete="email" placeholder="E-mail-cím" data-i18n-ph="auth.email" required>
+    <input id="login-pass" type="password" autocomplete="current-password" placeholder="Jelszó (legalább 6 karakter)" data-i18n-ph="auth.pass" required minlength="6">
     <p class="err" id="login-err" role="alert"></p>
     <div class="row">
-      <button class="btn" type="submit" id="login-submit">Belépés</button>
-      <button class="btn ghost" type="button" id="login-register">Regisztráció</button>
+      <button class="btn" type="submit" id="login-submit" data-i18n="auth.submit">Belépés</button>
+      <button class="btn ghost" type="button" id="login-register" data-i18n="auth.register">Regisztráció</button>
     </div>
-    <button class="linkbtn" type="button" id="login-reset">Elfelejtettem a jelszavam</button>
-    <button class="btn quiet" type="button" id="login-close">Mégse</button>
+    <button class="linkbtn" type="button" id="login-reset" data-i18n="auth.forgot">Elfelejtettem a jelszavam</button>
+    <button class="btn quiet" type="button" id="login-close" data-i18n="auth.cancel">Mégse</button>
   </form>
-  <p class="privacy">Bejelentkezve a neved, az e-mail-címed és a gyakorlási válaszaid mentésre kerülnek, és ezeket az oldal üzemeltetője (a tanár) is láthatja. Az AI-javításhoz a fordításod a Google Gemini szolgáltatásához kerül.</p>
+  <p class="privacy" data-i18n="auth.privacy">Bejelentkezve a neved, az e-mail-címed és a gyakorlási válaszaid mentésre kerülnek, és ezeket az oldal üzemeltetője (a tanár) is láthatja. Az AI-javításhoz a fordításod a Google Gemini szolgáltatásához kerül.</p>
 </dialog>
 <script type="module" src="auth.js"></script>
 `;

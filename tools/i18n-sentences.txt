@@ -1,0 +1,319 @@
+essere|Jako dziecko byłem bardzo nieśmiały.|As a child I was very shy.
+avere|Ile masz lat?|How old are you?
+fare|Wczoraj wieczorem poszliśmy na długi spacer.|Last night we went for a long walk.
+andare|Zeszłego lata pojechaliśmy na Sycylię.|Last summer we went to Sicily.
+venire|Jutro Marco przyjdzie do nas na kolację.|Tomorrow Marco will come to us for dinner.
+dire|Nie powiedział mi prawdy.|He didn't tell me the truth.
+dare|Chcę, żebyś dał mi odpowiedź.|I want you to give me an answer.
+stare|Cześć, jak się masz?|Hi, how are you?
+potere|Mógłbyś otworzyć okno?|Could you open the window, please?
+volere|Jako mały chłopiec chciałem zostać astronautą.|As a little boy I wanted to become an astronaut.
+dovere|Jutro będziemy musieli wcześnie wstać.|Tomorrow we will have to get up early.
+sapere|Nie wiem, gdzie mieszka Luca.|I don't know where Luca lives.
+bere|Dziś rano wypiłem dwie kawy.|This morning I drank two coffees.
+uscire|Chłopcy wyszli o ósmej.|The boys went out at eight.
+rimanere|Wczoraj zostałem w domu cały dzień.|Yesterday I stayed at home all day.
+tenere|Anna trzyma dziecko na rękach.|Anna is holding the baby in her arms.
+piacere|Bardzo lubię pizzę.|I really like pizza.
+morire|Dziadek zmarł w 1990 roku.|Grandpa died in 1990.
+sedersi|Zwykle siadam przy oknie.|I usually sit by the window.
+vedere|Wczoraj wieczorem obejrzeliśmy dobry film.|Last night we saw a good film.
+vivere|Moi dziadkowie mieszkali na wsi.|My grandparents lived in the countryside.
+prendere|Codziennie rano jeżdżę autobusem.|Every morning I take the bus.
+mettere|Gdzie położyłeś klucze?|Where did you put the keys?
+leggere|Moja mama czyta jedną książkę w tygodniu.|My mother reads a book every week.
+scrivere|Wczoraj napisałem list do babci.|Yesterday I wrote a letter to my grandmother.
+aprire|Otworzyłbyś drzwi, proszę?|Would you open the door, please?
+chiudere|Sklepikarz zamknął sklep o siódmej.|The shopkeeper closed the shop at seven.
+chiedere|Zapytałem policjanta o drogę.|I asked the traffic warden for directions.
+rispondere|Dyrektor odpowie jutro.|The director will answer tomorrow.
+perdere|Jestem spóźniony, bo uciekł mi pociąg.|I'm late because I missed the train.
+nascere|Urodziłem się w Budapeszcie w 1995 roku.|I was born in Budapest in 1995.
+conoscere|Nie znałem nikogo w tym mieście.|I didn't know anyone in that city.
+parlare|Na zajęciach mówimy tylko po włosku.|In class we only speak Italian.
+mangiare|Dziś wieczorem zjemy w restauracji.|Tonight we will eat at a restaurant.
+lavorare|Kiedyś mój tata pracował w banku.|My father used to work in a bank.
+studiare|Co studiujesz na uniwersytecie?|What do you study at university?
+abitare|Moi przyjaciele mieszkają w Rzymie.|My friends live in Rome.
+comprare|W sobotę kupiliśmy nowy samochód.|On Saturday we bought a new car.
+pagare|Dziś wieczorem ja zapłacę rachunek.|Tonight I will pay the bill.
+cercare|Szukam mieszkania w centrum.|I'm looking for a flat in the centre.
+trovare|Luca znalazł nową pracę.|Luca has found a new job.
+pensare|O czym myślisz?|What are you thinking about?
+aspettare|Czekam na autobus od dwudziestu minut.|I've been waiting for the bus for twenty minutes.
+ascoltare|Jako młody chłopak zawsze słuchałem rocka.|When I was young I always listened to rock music.
+guardare|Wczoraj wieczorem oglądaliśmy mecz w telewizji.|Last night we watched the match on TV.
+giocare|Dzieci bawiły się w ogrodzie.|The children were playing in the garden.
+cominciare|Kurs zacznie się w przyszły poniedziałek.|The course will start next Monday.
+portare|Przyniosłeś wino na kolację?|Did you bring the wine for dinner?
+imparare|W tym roku nauczyłem się pływać.|This year I learned to swim.
+amare|Paolo kocha swoją rodzinę.|Paolo loves his family.
+cucinare|Gdybym miał więcej czasu, gotowałbym co wieczór.|With more time I would cook every evening.
+viaggiare|Mam nadzieję, że moi rodzice pojadą pociągiem.|I hope my parents travel by train.
+arrivare|Pociąg przyjechał z opóźnieniem.|The train arrived late.
+tornare|Wrócę do domu około szóstej.|I will be back home around six.
+entrare|Studenci weszli do sali.|The students went into the classroom.
+restare|Wolę, żebyś został tutaj.|I'd rather you stayed here.
+chiamarsi|Jak się nazywasz?|What's your name?
+alzarsi|Dziś rano wstałem o szóstej.|This morning I got up at six.
+lavarsi|Dzieci myją ręce przed jedzeniem.|The children wash their hands before eating.
+svegliarsi|Jako student zawsze budziłem się późno.|As a student I always woke up late.
+credere|Nie wierzę ci!|I don't believe you!
+vendere|Moi sąsiedzi sprzedali dom.|My neighbours have sold their house.
+dormire|Wyglądasz na zmęczonego: dobrze spałeś tej nocy?|You look tired: did you sleep well last night?
+sentire|Słyszałeś ten hałas?|Did you hear that noise?
+partire|Jutro rano wyjedziemy do Florencji.|We will leave for Florence tomorrow morning.
+capire|Rozumiesz, co mówię?|Do you understand what I'm saying?
+finire|Wreszcie skończyłem pracę domową.|I've finally finished my homework.
+preferire|Wolę herbatę od kawy.|I prefer tea to coffee.
+salire|Weszliśmy na szczyt wieży.|We climbed to the top of the tower.
+riuscire|W końcu udało mi się znaleźć drogę.|I finally managed to find the way.
+scegliere|Którą sukienkę wybrałaś?|Which dress did you choose?
+togliere|Kiedy wchodzę do domu, zdejmuję buty.|When I come into the house I take off my shoes.
+raccogliere|Każdej jesieni zbieraliśmy kasztany w lesie.|Every autumn we used to gather chestnuts in the woods.
+spegnere|Przed wyjściem zgasiłem światło.|Before going out I switched off the light.
+cadere|Dziecko spadło z roweru.|The child fell off the bike.
+dispiacere|Przykro mi, ale nie mogę przyjść.|I'm sorry, but I can't come.
+tradurre|Zawodowo tłumaczę książki z angielskiego.|For work I translate books from English.
+produrre|Ten region produkuje doskonałe wino.|This region produces an excellent wine.
+proporre|Profesor zaproponował wycieczkę do Rzymu.|The teacher suggested a trip to Rome.
+ottenere|Moja siostra dostała stypendium.|My sister got a scholarship.
+mantenere|Dotrzymam obietnicy.|I will keep my promise.
+prevedere|Na jutro zapowiadają deszcz.|They are forecasting rain for tomorrow.
+rivedere|Chętnie obejrzałbym ten film jeszcze raz.|I'd gladly watch that film again.
+scendere|Wysiedliśmy z autobusu na placu.|We got off the bus in the square.
+correre|Jako młody chłopak biegałem każdego ranka.|When I was young I used to run every morning.
+decidere|Postanowiliśmy się przeprowadzić.|We decided to move house.
+ridere|Wszyscy śmiali się z jego żartu.|Everyone laughed at his joke.
+sorridere|Dziewczynka zawsze się uśmiecha.|The little girl always smiles.
+piangere|Dziecko płakało, bo było głodne.|The baby was crying because it was hungry.
+vincere|Nasza drużyna wygrała mecz.|Our team won the match.
+spendere|Na wakacjach wydałem za dużo.|On holiday I spent too much.
+accendere|Zapaliłbyś światło, proszę?|Would you switch on the light, please?
+promettere|Obiecałeś mi to!|You promised me!
+permettere|Rodzice nie pozwalają mi wychodzić wieczorami.|My parents don't let me go out in the evening.
+smettere|Mój tata rzucił palenie.|My father has stopped smoking.
+comprendere|Nie rozumiem, dlaczego jesteś zły.|I don't understand why you're angry.
+sorprendere|Zaskoczyłeś mnie swoim prezentem.|You surprised me with your present.
+descrivere|Jak opisałbyś swoje miasto?|How would you describe your town?
+iscriversi|W tym roku zapisałem się na kurs włoskiego.|This year I signed up for an Italian course.
+mettersi|Kiedy jest zimno, zakładam płaszcz.|When it's cold I put on my coat.
+rompere|Przepraszam, stłukłem twoją szklankę.|Sorry, I broke your glass.
+muovere|Wiatr poruszył liśćmi.|The wind moved the leaves.
+discutere|Chłopcy dyskutowali o polityce.|The boys were discussing politics.
+rendere|Muzyka sprawia, że jestem szczęśliwy.|Music makes me happy.
+nascondere|Marco schował prezent w szafie.|Marco hid the present in the wardrobe.
+aggiungere|Dodałbym trochę soli.|I would add a little salt.
+raggiungere|Dołączymy do was w barze za dziesięć minut.|We'll join you at the bar in ten minutes.
+dipingere|Mój dziadek malował pejzaże.|My grandfather used to paint landscapes.
+spingere|Pchnąłem drzwi, ale były zamknięte.|I pushed the door, but it was locked.
+risolvere|W końcu rozwiązaliśmy problem.|We finally solved the problem.
+accorgersi|Nie zauważyłem błędu.|I didn't notice the mistake.
+offrire|Dziś ja stawiam kawę.|Today the coffee is on me.
+soffrire|Moja babcia cierpiała na bóle głowy.|My grandmother suffered from headaches.
+scoprire|Kolumb odkrył Amerykę w 1492 roku.|Columbus discovered America in 1492.
+coprire|Śnieg pokrywa góry.|Snow covers the mountains.
+crescere|Dorastałem w małej miejscowości.|I grew up in a small town.
+esistere|Twoim zdaniem duchy istnieją?|Do you think ghosts exist?
+insistere|Upierał się, że to on zapłaci.|He insisted on paying.
+ricevere|Dziś dostałem dobrą wiadomość.|Today I received some good news.
+ripetere|Przepraszam, powtórzyłbyś pytanie?|Sorry, would you repeat the question?
+temere|Obawiam się, że nie będę miał dość czasu.|I'm afraid I won't have enough time.
+ballare|Jako młodzi tańczyliśmy całą noc.|When we were young we danced all night.
+cantare|Moja siostra śpiewa w chórze.|My sister sings in a choir.
+camminare|Dziś szliśmy pieszo przez trzy godziny.|Today we walked for three hours.
+chiamare|Zadzwonię do ciebie dziś wieczorem.|I'll call you tonight.
+insegnare|Pani Rossi uczy matematyki.|Mrs Rossi teaches maths.
+lavare|Umyłeś naczynia?|Did you wash the dishes?
+nuotare|Latem dzieci pływały w jeziorze.|In summer the children used to swim in the lake.
+preparare|Dziś wieczorem Giulia przygotuje kolację.|Tonight Giulia will make dinner.
+provare|Chętnie przymierzyłbym tę kurtkę.|I'd like to try on that jacket.
+ricordare|Jako dziecko nigdy nie pamiętałem imion.|As a child I never remembered names.
+suonare|Grasz na pianinie?|Do you play the piano?
+telefonare|Wczoraj wieczorem zadzwoniłem do mamy.|Last night I phoned my mother.
+usare|Dziś wszyscy używają smartfona.|Today everyone uses a smartphone.
+visitare|W przyszłym roku zwiedzimy Wenecję.|Next year we will visit Venice.
+passare|Spędziliśmy wakacje nad morzem.|We spent our holidays at the seaside.
+lasciare|Anna zostawiła dla ciebie wiadomość.|Anna left a message for you.
+sperare|Mam nadzieję, że niedługo się zobaczymy.|I hope to see you soon.
+sognare|Jako dziecko marzyłem, żeby zostać pilotem.|As a child I dreamed of becoming a pilot.
+sbagliare|Przepraszam, pomyliłem numer.|Sorry, I dialled the wrong number.
+spiegare|Wyjaśniłbyś mi tę zasadę?|Would you explain this rule to me?
+mandare|Jutro wyślę ci zdjęcia.|I'll send you the photos tomorrow.
+regalare|Na urodziny dostałem od nich książkę.|For my birthday they gave me a book.
+prenotare|Zarezerwowałem stolik dla dwóch osób.|I booked a table for two.
+incontrare|Wczoraj spotkałem starego przyjaciela.|Yesterday I ran into an old friend.
+aiutare|Pomógłbyś mi z bagażami?|Would you help me with the luggage?
+ringraziare|Dziękuję ci za pomoc.|Thank you for your help.
+salutare|Marco się ze mną nie przywitał.|Marco didn't say hello to me.
+cambiare|W przyszłym roku zmienię pracę.|Next year I'll change jobs.
+fermare|Policjant zatrzymał samochód.|The traffic warden stopped the car.
+guidare|Jedziesz za szybko!|You're driving too fast!
+iniziare|Profesor rozpoczął lekcję o dziewiątej.|The teacher started the lesson at nine.
+continuare|Jutro będziemy kontynuować naszą pracę.|Tomorrow we will continue our work.
+dimenticare|Zostawiłem parasol w pociągu.|I left my umbrella on the train.
+mostrare|Pokazałbyś mi zdjęcia z podróży?|Would you show me the photos from the trip?
+raccontare|Babcia zawsze opowiadała nam bajki.|Grandma always used to tell us fairy tales.
+ordinare|Zamówiliśmy pizzę i dwa piwa.|We ordered a pizza and two beers.
+affittare|Tego lata wynajmiemy dom nad morzem.|This summer we will rent a house by the sea.
+accompagnare|Chętnie odprowadziłbym cię na dworzec.|I'd gladly walk you to the station.
+parcheggiare|Zaparkowałem samochód przed kinem.|I parked the car in front of the cinema.
+festeggiare|W sobotę będziemy świętować urodziny Luki.|On Saturday we'll celebrate Luca's birthday.
+pranzare|Zwykle jemy obiad o pierwszej.|We usually have lunch at one.
+cenare|Moi dziadkowie zawsze jedli kolację o siódmej.|My grandparents always had dinner at seven.
+tagliare|Fryzjer obciął mi włosy na krótko.|The hairdresser cut my hair short.
+toccare|Nie chcę, żeby dzieci dotykały piekarnika.|I don't want the children to touch the oven.
+volare|Jutro lecę do Paryża.|Tomorrow I'm flying to Paris.
+disegnare|Mój syn bardzo dobrze rysuje.|My son draws very well.
+fumare|Mój dziadek palił fajkę.|My grandfather smoked a pipe.
+girare|Na światłach skręcasz w prawo.|At the traffic lights you turn right.
+gridare|Kibice krzyczeli z radości.|The fans shouted with joy.
+odiare|Nienawidzę wstawać wcześnie rano.|I hate getting up early in the morning.
+risparmiare|Pociągiem zaoszczędzilibyśmy dużo pieniędzy.|By train we would save a lot of money.
+controllare|Dwa razy sprawdziłem adres.|I checked the address twice.
+funzionare|Komputer nie działa.|The computer isn't working.
+migliorare|Bardzo poprawiłeś swój włoski.|Your Italian has improved a lot.
+organizzare|Zorganizujemy imprezę na zakończenie kursu.|We will organize a party for the end of the course.
+pregare|Babcia modliła się co wieczór.|Grandma used to pray every evening.
+prestare|Pożyczyłbyś mi swój rower?|Would you lend me your bike?
+consigliare|Polecam ci tę restaurację.|I recommend this restaurant to you.
+desiderare|Czego byś sobie życzył na urodziny?|What would you like for your birthday?
+domandare|Zapytaliśmy przechodnia o drogę.|We asked a passer-by for directions.
+creare|Architekt stworzył nowoczesny budynek.|The architect created a modern building.
+evitare|Na twoim miejscu unikałbym tej drogi.|If I were you I'd avoid that road.
+baciare|Romeo pocałował Julię.|Romeo kissed Juliet.
+abbracciare|Mama przytula dziecko.|The mother hugs the child.
+assaggiare|Chcę, żebyś spróbował tego ciasta.|I want you to taste this cake.
+inviare|Wysłałem ci dziś rano e-maila.|I sent you an e-mail this morning.
+sciare|Zimą jeździliśmy na nartach w Alpach.|In winter we used to ski in the Alps.
+diventare|Moja córka zostanie lekarką.|My daughter will become a doctor.
+sembrare|Ta książka wydaje się ciekawa.|This book seems interesting.
+ingrassare|Podczas wakacji przytyłem trzy kilo.|During the holidays I put on three kilos.
+durare|Film trwał trzy godziny.|The film lasted three hours.
+mancare|Bardzo mi ciebie brakuje!|I miss you a lot!
+invecchiare|Zestarzejemy się razem.|We will grow old together.
+riposarsi|W weekend dużo odpoczywałem.|At the weekend I rested a lot.
+prepararsi|Dziewczyny szykują się na imprezę.|The girls are getting ready for the party.
+sposarsi|Anna i Marco pobiorą się w czerwcu.|Anna and Marco will get married in June.
+arrabbiarsi|Mój tata łatwo się złościł.|My father used to get angry easily.
+annoiarsi|Na tej imprezie bardzo się nudzę.|I'm very bored at this party.
+fermarsi|Zatrzymaliśmy się, żeby zjeść w gospodzie.|We stopped to eat at an inn.
+ricordarsi|Pamiętasz mnie?|Do you remember me?
+trovarsi|Bardzo dobrze czuję się we Włoszech.|I feel very much at home in Italy.
+preoccuparsi|Nie chcę, żebyś się o mnie martwił.|I don't want you to worry about me.
+innamorarsi|Giulia zakochała się we francuskim chłopaku.|Giulia fell in love with a French boy.
+addormentarsi|Jako dziecko zawsze zasypiałem na kanapie.|As a child I always fell asleep on the sofa.
+rilassarsi|Na wakacjach wreszcie odpoczniemy.|On holiday we'll finally relax.
+pettinarsi|Ona czesze się przed lustrem.|She combs her hair in front of the mirror.
+sbrigarsi|Lepiej się pospiesz: pociąg zaraz odjeżdża.|You'd better hurry: the train is leaving soon.
+divertirsi|Na imprezie świetnie się bawiliśmy.|We had a great time at the party.
+vestirsi|Rano ubieram się w pośpiechu.|In the morning I get dressed in a hurry.
+sentirsi|Jak się dziś czujesz?|How do you feel today?
+seguire|Chodzę na kurs gotowania.|I'm taking a cooking course.
+servire|Potrzebujesz pomocy?|Do you need help?
+fuggire|Złodziej uciekł przez okno.|The thief escaped through the window.
+pulire|W soboty sprzątamy dom.|On Saturdays we clean the house.
+spedire|Jutro wyślę paczkę.|I'll send the parcel tomorrow.
+costruire|Tutaj zbudowali nowy szpital.|They built a new hospital here.
+suggerire|Co byś mi zasugerował?|What would you suggest?
+unire|Łączymy stoły na imprezę.|We're putting the tables together for the party.
+impedire|Deszcz nie pozwolił nam wyjść.|The rain prevented us from going out.
+restituire|Oddam ci książkę w poniedziałek.|I'll give you the book back on Monday.
+sparire|Zniknęły moje okulary!|My glasses have disappeared!
+guarire|Z tymi lekami szybko wyzdrowiejesz.|With these medicines you'll soon get better.
+dimagrire|Mój tata schudł dziesięć kilo.|My father has lost ten kilos.
+trasferirsi|W zeszłym roku przeprowadziliśmy się do Mediolanu.|Last year we moved to Milan.
+porre|Dziennikarz zadaje trudne pytanie.|The journalist asks a difficult question.
+comporre|Mozart komponował muzykę już jako dziecko.|Mozart composed music even as a child.
+supporre|Przypuszczam, że masz rację.|I suppose you're right.
+esporre|Muzeum wystawiło obrazy Caravaggia.|The museum exhibited paintings by Caravaggio.
+imporre|Lekarz zaleca mi ścisłą dietę.|The doctor puts me on a strict diet.
+condurre|Kto prowadził program?|Who presented the programme?
+ridurre|Ograniczymy wydatki.|We will cut our expenses.
+introdurre|Rząd wprowadził nową ustawę.|The government introduced a new law.
+trarre|Z tego doświadczenia wyciągamy ważną lekcję.|We draw an important lesson from this experience.
+attrarre|Rzym przyciąga miliony turystów.|Rome attracts millions of tourists.
+distrarre|Nie chcę, żebyś mnie rozpraszał, kiedy się uczę.|I don't want you to distract me while I'm studying.
+contenere|Ta butelka zawiera litr wody.|This bottle holds a litre of water.
+sostenere|Rodzice zawsze mnie wspierali.|My parents have always supported me.
+cogliere|Zerwaliśmy jabłka z drzewa.|We picked the apples from the tree.
+accogliere|Nasi przyjaciele przyjęli nas serdecznie.|Our friends welcomed us warmly.
+possedere|Mój wujek ma trzy domy.|My uncle owns three houses.
+apparire|Nagle pojawiła się tęcza.|Suddenly a rainbow appeared.
+scomparire|Słońce schowało się za chmurami.|The sun disappeared behind the clouds.
+cuocere|Gotuję makaron przez dziesięć minut.|I cook the pasta for ten minutes.
+tacere|Wszyscy milczeli i słuchali.|Everyone was silent and listening.
+giungere|Wiadomość dotarła wczoraj wieczorem.|The news arrived last night.
+dipendere|To zależy od pogody.|It depends on the weather.
+succedere|Co się stało?|What happened?
+convincere|Przekonałeś mnie!|You've convinced me!
+esprimere|Ten wiersz wyraża głębokie uczucie.|This poem expresses a deep feeling.
+correggere|Pani profesor poprawi jutro sprawdziany.|The teacher will mark the tests tomorrow.
+proteggere|Rodzice chronią swoje dzieci.|Parents protect their children.
+distruggere|Trzęsienie ziemi zniszczyło miasto.|The earthquake destroyed the city.
+assumere|Firma zatrudniła dziesięciu nowych pracowników.|The company hired ten new employees.
+stringere|Uścisnąłem mu rękę.|I shook his hand.
+svolgere|Wykonujemy bardzo ciekawą pracę.|We do very interesting work.
+includere|Cena obejmuje śniadanie.|The price includes breakfast.
+concludere|Prezes zakończy zebranie o piątej.|The chairman will close the meeting at five.
+escludere|Nie wykluczałbym tej możliwości.|I wouldn't rule out this possibility.
+deludere|Bardzo mnie rozczarowałeś.|You have really disappointed me.
+uccidere|Kto w powieści zabił hrabiego?|In the novel, who killed the count?
+dividere|Dzielimy pizzę na cztery części.|We cut the pizza into four.
+difendere|W szkole zawsze broniłem brata.|At school I always defended my brother.
+offendere|Przepraszam, jeśli cię uraziłem.|Sorry if I offended you.
+attendere|Czekamy na odpowiedź do piątku.|We expect an answer by Friday.
+sospendere|Z powodu mgły odwołali lot.|The flight was cancelled because of the fog.
+mordere|Pies ugryzł mnie w rękę.|The dog bit my hand.
+ammettere|Przyznaję, że popełniłem błąd.|I admit I made a mistake.
+trasmettere|Dziś wieczorem będą transmitować mecz na żywo.|Tonight they will broadcast the match live.
+riprendere|Po przerwie wznowimy lekcję.|After the break we'll carry on with the lesson.
+apprendere|Dowiedziałem się o tym z gazety.|I learned the news from the paper.
+resistere|Nie oparłem się pokusie.|I couldn't resist the temptation.
+assistere|Wczoraj wieczorem byliśmy na pięknym koncercie.|Last night we attended a lovely concert.
+battere|Serce mocno mi bije.|My heart is pounding.
+godere|Goście cieszą się wspaniałym widokiem.|The guests enjoy a splendid view.
+cedere|W autobusie ustąpiłem miejsca starszej pani.|On the bus I gave up my seat to an elderly lady.
+superare|Gratulacje, zdałeś egzamin!|Congratulations, you passed the exam!
+realizzare|Luca wreszcie spełnił swoje marzenie.|Luca has finally made his dream come true.
+scherzare|Nie wierzę ci, żartujesz!|I don't believe you, you're joking!
+criticare|Mój dziadek zawsze krytykował rząd.|My grandfather was always criticizing the government.
+significare|Co znaczy to słowo?|What does this word mean?
+partecipare|Weźmiemy udział w niedzielnych zawodach.|We will take part in Sunday's race.
+osservare|Z okna obserwowaliśmy ludzi na ulicy.|From the window we watched the people in the street.
+votare|W niedzielę głosowaliśmy na nowego burmistrza.|On Sunday we voted for the new mayor.
+vietare|Regulamin zabrania używania telefonu na lekcji.|The rules forbid using phones in class.
+trasformare|Stary magazyn przerobili na restaurację.|They turned the old warehouse into a restaurant.
+spostare|Przełożyliśmy zebranie na poniedziałek.|We moved the meeting to Monday.
+sistemare|Jutro posprzątam swój pokój.|Tomorrow I'll tidy up my room.
+completare|Skończyłeś ćwiczenie?|Have you finished the exercise?
+lanciare|Dzieci rzucały kamienie do rzeki.|The children were throwing stones into the river.
+laurearsi|W przyszłym roku skończę medycynę.|Next year I'll graduate in medicine.
+lamentarsi|Moja ciocia ciągle narzeka na pogodę.|My aunt is always complaining about the weather.
+truccarsi|Ona nigdy się nie maluje.|She never wears make-up.
+avvertire|Ostrzegałem cię: to niebezpieczne!|I warned you: it's dangerous!
+consentire|Bilet uprawnia do wejścia do muzeum.|The ticket allows entry to the museum.
+convertire|W banku wymieniamy euro na forinty.|At the bank we change euros into forints.
+investire|Mój tata zainwestował oszczędności w dom.|My father invested his savings in a house.
+mentire|Okłamałeś mnie!|You lied to me!
+pentirsi|Nie żałuję swojego wyboru.|I don't regret my choice.
+gestire|Moja mama prowadzi mały hotel.|My mother runs a small hotel.
+fornire|Przewodnicy udzielają informacji o mieście.|The guides provide information about the city.
+garantire|Gwarantuję ci, że to działa.|I guarantee you it works.
+inserire|Wpisałeś poprawne hasło?|Did you enter the right password?
+obbedire|Kiedyś małe dzieci zawsze słuchały rodziców.|Little children always used to obey their parents.
+punire|Nauczyciel ukarze tych, którzy ściągają.|The teacher will punish anyone who copies.
+reagire|Jak Marco zareagował na tę wiadomość?|How did Marco react to the news?
+sostituire|Dziś pani Bianchi zastępuje chorego kolegę.|Today Mrs Bianchi is standing in for her sick colleague.
+stabilire|Ustaliliśmy datę ślubu.|We set the date of the wedding.
+tradire|Jego najlepszy przyjaciel go zdradził.|His best friend betrayed him.
+approfondire|Chętnie zgłębiłbym ten temat.|I'd like to explore this topic in more depth.
+definire|Jak definiujemy to pojęcie?|How do we define this concept?
+distribuire|Nauczyciel rozdał uczniom kartki.|The teacher handed out the sheets to the students.
+contribuire|Wszyscy dokładają się do wydatków.|Everyone contributes to the expenses.
+chiarire|Ważne, żebyś wyjaśnił sytuację.|It's important that you clear up the situation.
+agire|Co byś zrobił na moim miejscu?|What would you do in my place?
+ferire|Jego słowa mnie zraniły.|His words hurt me.
+favorire|Łagodny klimat sprzyja turystyce.|The mild climate favours tourism.
+colpire|Piłka trafiła w okno.|The ball hit the window.
+arrossire|Kiedy przemawiał publicznie, zawsze się rumienił.|When he spoke in public, he always blushed.
