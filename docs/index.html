@@ -178,6 +178,11 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .langs{display:flex; gap:2px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:3px}
 .langs button{font:inherit; font-size:.8rem; font-weight:700; letter-spacing:.04em; border:0; background:transparent; color:var(--ink-soft); padding:6px 9px; border-radius:7px; cursor:pointer}
 .langs button[aria-pressed="true"]{background:var(--accent-soft); color:var(--accent)}
+.slowbtn{font:inherit; font-size:.8rem; font-weight:700; border:1px solid var(--line); background:var(--card); color:var(--ink-soft); padding:7px 11px; border-radius:10px; cursor:pointer}
+.slowbtn[aria-pressed="true"]{background:var(--accent-soft); color:var(--accent); border-color:var(--accent)}
+.no-tts .slowbtn{display:none}
+.snt{transition:background .2s}
+.snt.reading{background:var(--warn-soft); box-shadow:0 0 0 3px var(--warn-soft); border-radius:4px}
 nav.tabs{display:flex; flex-wrap:wrap; gap:4px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:4px}
 nav.tabs button{font:inherit; font-weight:600; border:0; background:transparent; color:var(--ink-soft); padding:8px 16px; border-radius:7px; cursor:pointer}
 nav.tabs button[aria-selected="true"]{background:var(--accent); color:var(--on-accent)}
@@ -339,6 +344,7 @@ dialog.login .row .btn{flex:1 1 140px}
       <p class="who" id="who"><span class="who-dot" aria-hidden="true"></span><span id="who-text" data-i18n="who.local">Az eredményeid ebben a böngészőben maradnak.</span></p>
     </div>
     <div class="langs" id="langs" role="group" aria-label="Nyelv / Język / Language"></div>
+    <button type="button" class="slowbtn" id="slowbtn" aria-pressed="false"></button>
     <div class="auth" id="auth" hidden><button class="btn ghost" id="login-open" type="button" data-i18n="auth.login">Bejelentkezés</button><button class="btn quiet" id="logout" type="button" hidden data-i18n="auth.logout">Kijelentkezés</button></div>
     <nav class="tabs" role="tablist">
       <button id="tab-practice" role="tab" aria-selected="true" data-i18n="tab.practice">Ragozás</button>
@@ -3119,6 +3125,8 @@ const I18N = {
   'hero2.ph': ['pl. Giulia','np. Giulia','e.g. Giulia'],
   'opt.rheroes': ['Szereplők nevei (nem kötelező)','Imiona postaci (opcjonalnie)','Characters’ names (optional)'],
   'rhero.ph': ['pl. Marco','np. Marco','e.g. Marco'],
+  'tts.slow': ['Lassú felolvasás','Wolne czytanie','Slow audio'],
+  'tts.slowhint': ['A kiejtés lassabban szól minden felolvasásnál','Wymowa jest odtwarzana wolniej','All audio is played more slowly'],
   'opt.tone': ['Hangulat','Nastrój','Tone'],
   'tone.normal': ['normál','normalny','normal'],
   'tone.funny': ['vicces','zabawny','funny'],
@@ -3227,6 +3235,8 @@ function applyStatic(){
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
   const box = document.getElementById('langs');
   if (box) box.innerHTML = LANGS.map(l => `<button type="button" data-lang="${l}" aria-pressed="${l===LANG}" title="${LANG_LABEL[l]}">${l.toUpperCase()}</button>`).join('');
+  const sb = document.getElementById('slowbtn');
+  if (sb && typeof S !== 'undefined'){ sb.textContent = t('tts.slow'); sb.setAttribute('aria-pressed', !!S.slow); sb.title = t('tts.slowhint'); }
 }
 document.addEventListener('DOMContentLoaded', () => applyStatic());
 
@@ -3236,19 +3246,48 @@ let itVoice = null;
 function pickVoice(){ try{ const vs = speechSynthesis.getVoices(); itVoice = vs.find(v=>v.lang==='it-IT') || vs.find(v=>/^it/i.test(v.lang)) || null; }catch(e){} }
 if (TTS){ pickVoice(); try{ speechSynthesis.addEventListener('voiceschanged', pickVoice); }catch(e){} }
 else document.documentElement.classList.add('no-tts');
+const ttsRate = () => (typeof S !== 'undefined' && S.slow) ? 0.62 : 0.9;
+const cleanTTS = t => String(t).replace(/\/[aie]\b/g,'').replace(/\s*\([^)]*\)/g,'').trim();
+function utter(t){ const u = new SpeechSynthesisUtterance(cleanTTS(t)); u.lang = 'it-IT'; if (itVoice) u.voice = itVoice; u.rate = ttsRate(); return u; }
 function speak(t){
   if (!TTS) return;
-  t = String(t).replace(/\/[aie]\b/g,'').replace(/\s*\([^)]*\)/g,'').trim();
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(t);
-    u.lang = 'it-IT'; if (itVoice) u.voice = itVoice; u.rate = 0.9;
-    speechSynthesis.speak(u);
-  }catch(e){}
+  stopReading();
+  try{ speechSynthesis.cancel(); speechSynthesis.speak(utter(t)); }catch(e){}
+}
+/* hosszabb szöveg felolvasása mondatonként, az éppen felolvasott mondat kiemelésével */
+let READING = null;
+function stopReading(){
+  if (READING){ READING.stop = true; READING.box.querySelectorAll('.snt.reading').forEach(x => x.classList.remove('reading')); READING = null; }
+}
+function readAll(box){
+  if (!TTS || !box) return;
+  stopReading(); try{ speechSynthesis.cancel(); }catch(e){}
+  const sents = [...box.querySelectorAll('.snt')];
+  if (!sents.length) return;
+  const run = READING = {box, stop:false};
+  let i = 0;
+  const next = () => {
+    if (run.stop) return;
+    sents.forEach(x => x.classList.remove('reading'));
+    if (i >= sents.length){ if (READING === run) READING = null; return; }
+    const el = sents[i++];
+    el.classList.add('reading');
+    try{ el.scrollIntoView({block:'nearest', behavior:'smooth'}); }catch(e){}
+    const u = utter(el.textContent);
+    u.onend = next; u.onerror = () => { if (!run.stop) next(); };
+    try{ speechSynthesis.speak(u); }catch(e){ next(); }
+  };
+  setTimeout(next, 60);
 }
 const SPK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const sayBtn = t_ => `<button type="button" class="say" data-say="${esc(t_)}" aria-label="${t('say')}: ${esc(t_)}" title="${t('say')}">${SPK}</button>`;
 document.addEventListener('click', e=>{ const b = e.target.closest && e.target.closest('[data-say]'); if (b){ e.preventDefault(); speak(b.dataset.say); } });
+document.addEventListener('click', e=>{
+  const r = e.target.closest && e.target.closest('[data-readall]');
+  if (r){ e.preventDefault(); readAll(document.getElementById(r.dataset.readall)); return; }
+  const s = e.target.closest && e.target.closest('[data-readstop]');
+  if (s){ e.preventDefault(); stopReading(); try{ speechSynthesis.cancel(); }catch(err){} }
+});
 /* a felolvasó gomb ne „nyelje el” az Entert: felolvasás után is a feladat következő lépése jöjjön */
 document.addEventListener('keydown', e=>{
   if (e.key!=='Enter' || !e.target.closest || !e.target.closest('[data-say]')) return;
@@ -3316,7 +3355,7 @@ async function saveCloud(){
   if (!cloudRef) return;
   if (cloudBusy){ cloudDirty = true; return; }
   cloudBusy = true;
-  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), astats: JSON.parse(JSON.stringify(AST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
+  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), astats: JSON.parse(JSON.stringify(AST)), adv: (typeof advPlain === 'function' ? advPlain() : null), advAt: (typeof advAt === 'number' ? advAt : 0), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
   catch(e){ setWho(null, t('who.saveerr')); }
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
@@ -3356,6 +3395,11 @@ function applyData(d){
   renderOptionsC(); renderStatsC(); renderC();
   renderOptionsR(); renderStatsR(); renderR();
   AST = Object.assign({total:0,good:0,pages:0,recent:[]}, d.astats ? JSON.parse(JSON.stringify(d.astats)) : {});
+  if ('advAt' in d && (d.advAt || 0) > advAt){
+    ADV = d.adv ? JSON.parse(JSON.stringify(d.adv)) : null; advAt = d.advAt;
+    if (ADV){ ADV.busy = false; ADV.err = null; }
+    try{ localStorage.setItem('coniuga:adv', JSON.stringify(ADV)); localStorage.setItem('coniuga:advAt', String(advAt)); }catch(e){}
+  }
   renderOptionsA(); renderStatsA(); renderA();
 }
 /* ref: {get(): Promise<{exists, data()}>, set(obj): Promise} */
@@ -4197,7 +4241,7 @@ const aiErr = e => esc((e && e.message) || t('ai.unavail'));
 const needAI = () => { if (aiBackend) return true; return false; };
 const noteHtml = () => `<p class="ainote">${esc(t(aiNote))}</p>`;
 function sentencesOf(text){ return String(text||'').match(/[^.!?…]+[.!?…]+["»”’)]*\s*|[^.!?…]+$/g) || []; }
-const glossText = text => sentencesOf(text).map(x => glossify(x.trim(), 'it')).join(' ');
+const glossText = text => sentencesOf(text).map(x => `<span class="snt">${glossify(x.trim(), 'it')}</span>`).join(' ');
 
 /* ---- Beszélgetés: szerepjáték az AI-val ---- */
 const SCEN_IDS = ['cafe','restaurant','hotel','directions','market','train','doctor','meet','free'];
@@ -4392,10 +4436,10 @@ function renderR(){
   box.innerHTML = head + `<div class="story">
     <h2>${esc(d.title)}</h2>
     <p class="muted" style="margin:0 0 12px">${esc(STORY.level)}${esc(toneTag(STORY.tone))}${STORY.hero || STORY.hero2 ? ' · ' + esc([STORY.hero, STORY.hero2].filter(Boolean).join(' & ')) : ''} · ${STORY.tenses.map(x => tenseOf(x).it).join(', ')} · ${t('x.tap')}</p>
-    ${paras.map(pp => `<p class="para">${glossText(pp)}</p>`).join('')}
+    <div id="r-text">${paras.map(pp => `<p class="para">${glossText(pp)}</p>`).join('')}</div>
     <div class="actions" style="margin-top:4px">
-      <button class="btn ghost" type="button" data-say="${esc(d.text)}">${t('r.listen')}</button>
-      <button class="btn quiet" type="button" id="r-stop">${t('r.stop')}</button>
+      <button class="btn ghost" type="button" data-readall="r-text">${t('r.listen')}</button>
+      <button class="btn quiet" type="button" data-readstop="1">${t('r.stop')}</button>
       ${d.translation ? `<button class="btn quiet" type="button" id="r-tr">${STORY.showTr ? t('r.hidetr') : t('r.showtr')}</button>` : ''}
       ${pdfBtn('story')}
     </div>
@@ -4407,7 +4451,6 @@ function renderR(){
     ${done ? `<div class="feedback ${good===d.questions.length?'ok':good>0?'acc':'bad'}"><p><span class="verdict">${t('r.result', {n: good, m: d.questions.length})}</span></p><div class="actions"><button class="btn" type="button" id="r-new">${t('r.new')}</button></div></div>` : ''}
   </div>`;
   box.querySelectorAll('.optbtn[data-q]').forEach(b => b.onclick = () => answerR(+b.dataset.q, +b.dataset.k));
-  const st = $('r-stop'); if (st) st.onclick = () => { try{ speechSynthesis.cancel(); }catch(e){} };
   const tr = $('r-tr'); if (tr) tr.onclick = () => { STORY.showTr = !STORY.showTr; renderR(); };
   const nw = $('r-new'); if (nw) nw.onclick = newStory;
 }
@@ -4455,7 +4498,15 @@ const GENRE_IDS = ['fantasy','scifi','mystery','horror','romance','history','fai
 const ADV_LENS = [6, 10, 15];
 let ADV = null;     // {genre, level, tenses, steps, hero, title, pages:[{n, text, tr, vocab, choices:[{text, translation, n}], chosen, ending}], summary, done, ending, busy, err, showTr:{}, showCtr}
 try{ ADV = JSON.parse(localStorage.getItem('coniuga:adv') || 'null'); if (ADV){ ADV.busy = false; ADV.err = null; } }catch(e){ ADV = null; }
-const saveAdv = () => { try{ localStorage.setItem('coniuga:adv', JSON.stringify(ADV ? Object.assign({}, ADV, {busy:false, err:null}) : null)); }catch(e){} };
+/* a félbehagyott kaland a böngészőbe és (bejelentkezve) a fiókba is mentődik; a frissebb változat nyer */
+let advAt = 0;
+try{ advAt = +(localStorage.getItem('coniuga:advAt') || 0); }catch(e){}
+const advPlain = () => ADV ? JSON.parse(JSON.stringify(Object.assign({}, ADV, {busy:false, err:null}))) : null;
+const saveAdv = () => {
+  advAt = Date.now();
+  try{ localStorage.setItem('coniuga:adv', JSON.stringify(advPlain())); localStorage.setItem('coniuga:advAt', String(advAt)); }catch(e){}
+  if (cloudRef) scheduleCloud();
+};
 let advConfirm = false;
 function renderOptionsA(){
   $('a-genre').innerHTML = GENRE_IDS.map(g => chk('radio','agenre',g,S.agenre===g,t('genre.'+g))).join('');
@@ -4503,7 +4554,7 @@ function renderA(){
     const isLast = i === pages.length-1;
     html += `<div class="bpage" id="apage${i}"><span class="pnum">§ ${pg.n}<small>${t('a.of', {n: i+1, m: ADV.steps})}</small></span>
       ${pg.text.split(/\n\s*\n/).filter(x => x.trim()).map(pp => `<p class="para">${glossText(pp)}</p>`).join('')}
-      <div class="mtools">${sayBtn(pg.text)}${pg.tr ? `<button type="button" class="linkbtn2" data-atr="${i}">${t('c.tr')}</button>` : ''}</div>
+      <div class="mtools"><button type="button" class="say" data-readall="apage${i}" aria-label="${t('r.listen')}" title="${t('r.listen')}">${SPK}</button><button type="button" class="linkbtn2" data-readstop="1">${t('r.stop')}</button>${pg.tr ? `<button type="button" class="linkbtn2" data-atr="${i}">${t('c.tr')}</button>` : ''}</div>
       ${pg.tr && ADV.showTr && ADV.showTr[i] ? `<p class="trbox" style="margin-top:10px">${esc(pg.tr)}</p>` : ''}
       ${pg.vocab && pg.vocab.length ? `<div class="vchips" aria-label="${t('a.vocab')}">${pg.vocab.map(v => `<span class="vchip"><b>${esc(v.it)}</b> ${esc(v.tr)}</span>`).join('')}</div>` : ''}
       ${pg.chosen != null && pg.choices[pg.chosen] ? `<p class="chosen">${t('a.youchose')} <b>${esc(pg.choices[pg.chosen].text)}</b> → § ${pg.choices[pg.chosen].n}</p>` : ''}
@@ -4702,6 +4753,7 @@ function setLang(l, opts){
   setAINote(aiNote);
   if (typeof window.onLangChange === 'function') window.onLangChange();
 }
+document.getElementById('slowbtn').addEventListener('click', () => { S.slow = !S.slow; store.set('settings', S); applyStatic(); });
 document.addEventListener('click', e => {
   const b = e.target.closest && e.target.closest('#langs [data-lang]');
   if (!b) return;
