@@ -32,6 +32,11 @@ export const GENRES = {
   fairy: 'fairy tale for all ages',
   travel: 'travel adventure across Italy (cities, food, people)'
 };
+export const TONES = {
+  normal: '',
+  funny: 'Tone: funny and light-hearted. Use humour, comic situations, witty dialogue and a playful narrator, while the story still makes sense.',
+  absurd: 'Tone: absurd and surreal (in the spirit of Gianni Rodari or Monty Python): illogical, surprising and impossible events, talking objects and animals, ridiculous twists. Keep it followable and keep the Italian correct and at the right level.'
+};
 const TENSE_EN = { pres: 'presente', pp: 'passato prossimo', imp: 'imperfetto', trp: 'trapassato prossimo', rem: 'passato remoto', trr: 'trapassato remoto', fut: 'futuro semplice', futa: 'futuro anteriore', cond: 'condizionale presente', condp: 'condizionale passato', cong: 'congiuntivo presente', congp: 'congiuntivo passato', congi: 'congiuntivo imperfetto', congt: 'congiuntivo trapassato', impv: 'imperativo' };
 
 const str = (v, n) => String(v == null ? '' : v).slice(0, n).trim();
@@ -56,7 +61,7 @@ export function sanitize(body) {
   if (type === 'story') {
     const level = CEFR.includes(body.level) ? body.level : 'A2';
     const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 15) : [];
-    return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100) };
+    return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100), tone: TONES[body.tone] !== undefined ? body.tone : 'normal' };
   }
   if (type === 'adv') {
     const level = CEFR.includes(body.level) ? body.level : 'A2';
@@ -64,7 +69,7 @@ export function sanitize(body) {
     const steps = Math.max(4, Math.min(20, Math.round(Number(body.steps) || 8)));
     const step = Math.max(1, Math.min(steps, Math.round(Number(body.step) || 1)));
     return { type, lang, level, tenses: tenses.length ? tenses : ['pres', 'pp', 'imp'], genre: GENRES[body.genre] ? body.genre : 'fantasy',
-      steps, step, hero: str(body.hero, 40), title: str(body.title, 120), summary: str(body.summary, 1500), last: str(body.last, 2000), choice: str(body.choice, 300) };
+      steps, step, tone: TONES[body.tone] !== undefined ? body.tone : 'normal', hero: str(body.hero, 40), title: str(body.title, 120), summary: str(body.summary, 1500), last: str(body.last, 2000), choice: str(body.choice, 300) };
   }
   // alapeset: fordítás javítása
   const hu = str(body && body.hu, 600), given = str(body && body.given, 600);
@@ -111,7 +116,7 @@ Evaluate ONLY the learner's Italian. Write everything except the Italian example
     const len = { A1: '60-80', A2: '90-120', B1: '130-170', B2: '170-220', C1: '220-280' }[p.level];
     return `Write a short, original Italian text for a language learner whose native language is ${LN}. Level ${p.level} (${CEFR_HINT[p.level]}). Length: ${len} words.
 Use mainly these tenses, naturally: ${p.tenses.map((x) => TENSE_EN[x]).join(', ')}.
-Topic: ${p.topic ? JSON.stringify(p.topic) : 'an everyday situation of your choice (family, travel, work, food, city life, a small adventure)'}.
+Topic: ${p.topic ? JSON.stringify(p.topic) : 'an everyday situation of your choice (family, travel, work, food, city life, a small adventure)'}.${p.tone && TONES[p.tone] ? '\n' + TONES[p.tone] : ''}
 Return:
 - "title": a short Italian title,
 - "text": the Italian text (plain text, paragraphs separated by a blank line),
@@ -123,7 +128,7 @@ Return:
     const final = p.step >= p.steps;
     const first = p.step === 1;
     return `You are writing an interactive "choose your own adventure" gamebook in Italian for a language learner whose native language is ${LN}. Level ${p.level} (${CEFR_HINT[p.level]}).
-Genre: ${GENRES[p.genre]}. ${p.hero ? `The main character (the reader, addressed as "tu") is called ${JSON.stringify(p.hero)}.` : 'The main character is the reader, addressed as "tu".'}
+Genre: ${GENRES[p.genre]}.${p.tone && TONES[p.tone] ? ' ' + TONES[p.tone] : ''} ${p.hero ? `The main character (the reader, addressed as "tu") is called ${JSON.stringify(p.hero)}.` : 'The main character is the reader, addressed as "tu".'}
 Use mainly these tenses, naturally: ${p.tenses.map((x) => TENSE_EN[x]).join(', ')}.
 This is page ${p.step} of about ${p.steps}.
 ${first ? 'Start the adventure: introduce the hero, the place and a first problem or mystery. Also give the whole adventure a short Italian "title".'
