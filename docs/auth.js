@@ -145,12 +145,12 @@ function renderList() {
     <div class="verb-line"><h2 class="inf" style="font-size:2rem">${t('tab.teacher')}</h2><span class="hu">${t('t.users', { n: r.length })}</span></div>
     <div class="actions" style="margin-top:8px"><button class="btn quiet" id="t-refresh" type="button">${t('t.refresh')}</button></div>
     <div class="tscroll"><table class="ttab">
-      <thead><tr><th rowspan="2">${t('t.name')}</th><th rowspan="2">${t('t.email')}</th><th colspan="2" style="text-align:center">${t('tab.practice')}</th><th colspan="2" style="text-align:center">${t('tab.vocab')}</th><th colspan="2" style="text-align:center">${t('tab.sent')}</th><th colspan="2" style="text-align:center">${t('tab.trans')}</th><th rowspan="2">${t('t.last')}</th></tr>
-      <tr><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.avg')}</th></tr></thead>
+      <thead><tr><th rowspan="2">${t('t.name')}</th><th rowspan="2">${t('t.email')}</th><th colspan="2" style="text-align:center">${t('tab.practice')}</th><th colspan="2" style="text-align:center">${t('tab.vocab')}</th><th colspan="2" style="text-align:center">${t('tab.sent')}</th><th colspan="2" style="text-align:center">${t('tab.trans')}</th><th colspan="2" style="text-align:center">${t('tab.chat')}</th><th colspan="2" style="text-align:center">${t('tab.read')}</th><th rowspan="2">${t('t.last')}</th></tr>
+      <tr><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.avg')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.avg')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.correct')}</th></tr></thead>
       <tbody>${r.map((u, k) => {
-        const s = u.stats || {}, v = u.vstats || {}, m = u.mstats || {}, x = u.xstats || {};
-        return `<tr class="click" data-k="${k}" tabindex="0"><td><b></b></td><td class="mono"></td><td class="num">${s.total || 0}</td><td class="num">${pct(s.ok || 0, s.total || 0)}</td><td class="num">${v.total || 0}</td><td class="num">${pct(v.ok || 0, v.total || 0)}</td><td class="num">${m.total || 0}</td><td class="num">${pct(m.ok || 0, m.total || 0)}</td><td class="num">${x.total || 0}</td><td class="num">${x.total ? (x.sum / x.total).toFixed(1) : '–'}</td><td>${fmt(u.updated)}</td></tr>`;
-      }).join('') || `<tr><td colspan="11" class="muted">${t('t.nobody')}</td></tr>`}</tbody>
+        const s = u.stats || {}, v = u.vstats || {}, m = u.mstats || {}, x = u.xstats || {}, c = u.cstats || {}, rd = u.rstats || {};
+        return `<tr class="click" data-k="${k}" tabindex="0"><td><b></b></td><td class="mono"></td><td class="num">${s.total || 0}</td><td class="num">${pct(s.ok || 0, s.total || 0)}</td><td class="num">${v.total || 0}</td><td class="num">${pct(v.ok || 0, v.total || 0)}</td><td class="num">${m.total || 0}</td><td class="num">${pct(m.ok || 0, m.total || 0)}</td><td class="num">${x.total || 0}</td><td class="num">${x.total ? (x.sum / x.total).toFixed(1) : '–'}</td><td class="num">${c.total || 0}</td><td class="num">${c.total ? (c.sum / c.total).toFixed(1) : '–'}</td><td class="num">${rd.total || 0}</td><td class="num">${pct(rd.ok || 0, rd.q || 0)}</td><td>${fmt(u.updated)}</td></tr>`;
+      }).join('') || `<tr><td colspan="15" class="muted">${t('t.nobody')}</td></tr>`}</tbody>
     </table></div>
     <p class="muted">${t('t.tap')}</p>`;
   box.querySelectorAll('tr.click').forEach((tr) => {
@@ -194,8 +194,9 @@ async function loadUser(u) {
     const qs = await T.F.getDocs(T.F.query(T.F.collection(T.db, 'users', u.id, 'answers'), T.F.orderBy('at', 'desc'), T.F.limit(1000)));
     ans = qs.docs.map((d) => d.data());
   } catch (e) { console.warn(e); }
-  const tra = ans.filter((a) => a.kind === 'trans');
-  const conj = ans.filter((a) => a.kind !== 'vocab' && a.kind !== 'sent' && a.kind !== 'trans'), voc = ans.filter((a) => a.kind === 'vocab'), sen = ans.filter((a) => a.kind === 'sent');
+  const tra = ans.filter((a) => a.kind === 'trans'), chats = ans.filter((a) => a.kind === 'chat'), reads = ans.filter((a) => a.kind === 'read');
+  const cs = u.cstats || {}, rs = u.rstats || {};
+  const conj = ans.filter((a) => !a.kind || a.kind === 'conj'), voc = ans.filter((a) => a.kind === 'vocab'), sen = ans.filter((a) => a.kind === 'sent');
   const s = u.stats || {}, v = u.vstats || {}, m = u.mstats || {}, x = u.xstats || {};
   const DIRS_ = DIRS_T();
   const gS = group(sen, 't'), gT = group(conj, 't'), gD = group(voc, 'dir');
@@ -252,6 +253,20 @@ async function loadUser(u) {
     <div class="tscroll"><table class="ttab">
       <thead><tr><th>${t('t.time')}</th><th>${t('t.source')}</th><th>${t('t.theirs')}</th><th>${t('t.aifix')}</th><th class="num">${t('t.score')}</th></tr></thead>
       <tbody>${tra.slice(0, 200).map((a) => `<tr><td>${fmt(a.at)}</td><td>${esc(a.hu || '')}${a.lang && a.lang !== 'hu' ? ` <span class="muted">(${esc(a.lang.toUpperCase())})</span>` : ''}</td><td class="mono">${esc(a.given || '')}</td><td class="mono">${esc(a.corrected || '')}</td><td class="num"><span class="${a.score >= 9 ? 'okc' : a.score >= 6 ? '' : 'badc'}">${a.score}/10</span></td></tr>`).join('') || `<tr><td colspan="5" class="muted">${t('t.noxlog')}</td></tr>`}</tbody>
+    </table></div>
+
+    ${section(t('tab.chat'))}
+    <p class="muted" style="margin:0">${t('t.csummary', { n: cs.total || 0, a: cs.total ? (cs.sum / cs.total).toFixed(1) : '–' })}</p>
+    <div class="tscroll"><table class="ttab">
+      <thead><tr><th>${t('t.time')}</th><th>${t('t.scen')}</th><th>${t('t.level')}</th><th class="num">${t('t.turns')}</th><th class="num">${t('t.score')}</th><th>${t('t.summaryCol')}</th></tr></thead>
+      <tbody>${chats.slice(0, 100).map((a) => `<tr><td>${fmt(a.at)}</td><td>${esc(t('scen.' + a.scenario))}${a.topic ? ': ' + esc(a.topic) : ''}${a.lang && a.lang !== 'hu' ? ` <span class="muted">(${esc(a.lang.toUpperCase())})</span>` : ''}</td><td>${esc(a.level || '')}</td><td class="num">${a.turns || 0}</td><td class="num"><span class="${a.score >= 8 ? 'okc' : a.score >= 5 ? '' : 'badc'}">${a.score}/10</span></td><td>${esc(a.summary || '')}</td></tr>`).join('') || `<tr><td colspan="6" class="muted">${t('t.nochat')}</td></tr>`}</tbody>
+    </table></div>
+
+    ${section(t('tab.read'))}
+    <p class="muted" style="margin:0">${t('t.rsummary', { n: rs.total || 0, p: pct(rs.ok || 0, rs.q || 0) })}</p>
+    <div class="tscroll"><table class="ttab">
+      <thead><tr><th>${t('t.time')}</th><th>${t('t.title')}</th><th>${t('t.level')}</th><th>${t('t.tense')}</th><th class="num">${t('t.result')}</th></tr></thead>
+      <tbody>${reads.slice(0, 100).map((a) => `<tr><td>${fmt(a.at)}</td><td>${esc(a.title || '')}</td><td>${esc(a.level || '')}</td><td>${esc((a.tenses || []).map(tname).join(', '))}</td><td class="num"><span class="${a.score === a.total ? 'okc' : a.score ? '' : 'badc'}">${a.score}/${a.total}</span></td></tr>`).join('') || `<tr><td colspan="5" class="muted">${t('t.noread')}</td></tr>`}</tbody>
     </table></div>`;
   $('t-name').textContent = u.name || t('t.noname');
   $('t-mail').textContent = u.email || '';

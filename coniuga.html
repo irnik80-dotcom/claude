@@ -79,6 +79,28 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .errs .ty{font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); margin-left:6px}
 .errs p{margin:4px 0 0; font-size:.92rem}
 .ainote{margin:12px 0 0; font-size:.88rem; color:var(--ink-soft)}
+.chat{display:flex; flex-direction:column; gap:10px; margin:6px 0 14px}
+.msg{max-width:88%; padding:10px 13px; border-radius:14px; line-height:1.5; min-width:0; overflow-wrap:anywhere}
+.msg p{margin:0}
+.msg.ai{align-self:flex-start; background:var(--paper); border:1px solid var(--line); border-bottom-left-radius:4px}
+.msg.ai .mtext{font-size:1.05rem}
+.msg.me{align-self:flex-end; background:var(--accent-soft); border-bottom-right-radius:4px; font-family:var(--f-mono)}
+.mtools{display:flex; gap:10px; align-items:center; margin-top:6px}
+.mtools .say{width:26px; height:26px} .mtools .say svg{width:14px; height:14px}
+.linkbtn2{font:inherit; font-size:.82rem; background:none; border:0; padding:0; color:var(--accent); cursor:pointer; text-decoration:underline}
+.mtr{font-size:.88rem; color:var(--ink-soft); margin-top:6px!important}
+.corr{font-family:var(--f-body); font-size:.86rem; margin-top:6px!important; padding-top:6px; border-top:1px dashed var(--line)}
+.corr.ok{color:var(--ok); font-weight:600}
+.corr .f{color:var(--ok); font-weight:700; font-family:var(--f-mono)}
+.typing{align-self:flex-start; color:var(--ink-soft); font-size:.9rem}
+.composer textarea{min-height:56px}
+.story h2{font-family:var(--f-display); font-weight:400; font-size:clamp(1.5rem,5vw,2rem); margin:0 0 8px}
+.story .para{font-size:1.08rem; line-height:1.75; margin:0 0 12px}
+.story .trbox{background:var(--paper); border:1px dashed var(--line); border-radius:10px; padding:12px 14px; color:var(--ink-soft); white-space:pre-line}
+.qblock{margin-top:18px}
+.qblock h4{margin:0 0 8px; font-size:1rem}
+.qexp{font-size:.88rem; color:var(--ink-soft); margin:8px 0 0}
+.tiplist{margin:6px 0 0; padding-left:20px}
 .wd{font:inherit; color:inherit; background:none; border:0; margin:0; padding:0 1px; cursor:pointer; border-bottom:1.5px dotted var(--ink-soft); border-radius:3px 3px 0 0; line-height:inherit; text-align:inherit}
 .wd:hover,.wd.on{background:var(--accent-soft); border-bottom-color:var(--accent); color:var(--accent)}
 .bubble{position:absolute; z-index:60; max-width:min(300px, calc(100vw - 32px)); background:var(--card); color:var(--ink); border:1.5px solid var(--accent); border-radius:10px; padding:10px 12px; box-shadow:0 8px 24px rgba(10,14,25,.18); font-size:.95rem; display:flex; gap:10px; align-items:center}
@@ -237,6 +259,8 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
       <button id="tab-vocab" role="tab" aria-selected="false" data-i18n="tab.vocab">Szójelentés</button>
       <button id="tab-sent" role="tab" aria-selected="false" data-i18n="tab.sent">Mondatok</button>
       <button id="tab-trans" role="tab" aria-selected="false" data-i18n="tab.trans">Fordítás</button>
+      <button id="tab-chat" role="tab" aria-selected="false" data-i18n="tab.chat">Beszélgetés</button>
+      <button id="tab-read" role="tab" aria-selected="false" data-i18n="tab.read">Olvasás</button>
       <button id="tab-browse" role="tab" aria-selected="false" data-i18n="tab.browse">Igetár</button>
     </nav>
   </header>
@@ -395,6 +419,76 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
           <ul class="mist" id="x-mistakes"></ul>
           <div class="actions" style="margin-top:12px"><button class="btn quiet" id="x-reset" data-i18n="reset">Eredmények törlése</button></div>
           <p class="muted" id="x-reset-confirm" hidden style="margin:8px 0 0"><span data-i18n="sure">Biztosan?</span> <button class="btn quiet" id="x-reset-yes" style="padding:3px 10px" data-i18n="reset.yes">Igen, törlöm</button></p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="view-chat" hidden>
+    <div class="layout">
+      <div class="card" id="ccard"></div>
+      <aside class="side" id="cside">
+        <div class="card">
+          <h3 data-i18n="res.chat"></h3>
+          <div class="stats">
+            <div class="stat"><b id="c-a">–</b><span data-i18n="st.avg"></span></div>
+            <div class="stat"><b id="c-b">–</b><span data-i18n="st.best"></span></div>
+            <div class="stat"><b id="c-c">0</b><span data-i18n="st.chats"></span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="settings"></h3>
+          <div class="opt">
+            <span class="lbl" data-i18n="opt.scen"></span>
+            <div class="checks" id="c-scen"></div>
+          </div>
+          <div class="opt" id="c-topic-wrap">
+            <label class="lbl" for="c-topic" data-i18n="opt.topic"></label>
+            <input class="search" id="c-topic" maxlength="100" autocomplete="off" data-i18n-ph="topic.ph">
+          </div>
+          <div class="opt">
+            <span class="lbl" data-i18n="opt.cefr"></span>
+            <div class="checks" id="c-level"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="recent.chats"></h3>
+          <ul class="mist" id="c-recent"></ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="view-read" hidden>
+    <div class="layout">
+      <div class="card" id="rcard"></div>
+      <aside class="side" id="rside">
+        <div class="card">
+          <h3 data-i18n="res.read"></h3>
+          <div class="stats">
+            <div class="stat"><b id="r-a">–</b><span data-i18n="st.qok"></span></div>
+            <div class="stat"><b id="r-b">–</b><span data-i18n="st.reads"></span></div>
+            <div class="stat"><b id="r-c">0</b><span data-i18n="st.qcount"></span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="settings"></h3>
+          <div class="opt">
+            <span class="lbl" data-i18n="opt.cefr"></span>
+            <div class="checks" id="r-level"></div>
+          </div>
+          <div class="opt">
+            <span class="lbl" data-i18n="r.tenses"></span>
+            <div class="checks" id="r-tenses"></div>
+          </div>
+          <div class="opt">
+            <label class="lbl" for="r-topic" data-i18n="opt.rtopic"></label>
+            <input class="search" id="r-topic" maxlength="100" autocomplete="off" data-i18n-ph="rtopic.ph">
+          </div>
+        </div>
+        <div class="card">
+          <h3 data-i18n="recent.reads"></h3>
+          <ul class="mist" id="r-recent"></ul>
         </div>
       </aside>
     </div>
@@ -2093,7 +2187,77 @@ const I18N = {
   't.score': ['Pont','Punkty','Score'],
   't.summary': ['{n} válasz · {p} helyes · legjobb sorozat: {b} · {d} napon gyakorolt (a naplóban)','{n} odpowiedzi · {p} poprawnych · rekord serii: {b} · ćwiczono w {d} dni (w dzienniku)','{n} answers · {p} correct · best streak: {b} · practised on {d} days (in the log)'],
   't.xsummary': ['{n} fordítás · átlag: {a}/10 · hibátlan: {p}','{n} tłumaczeń · średnia: {a}/10 · bezbłędne: {p}','{n} translations · average: {a}/10 · perfect: {p}'],
-  't.transAI': ['Fordítás (AI-javítással)','Tłumaczenie (z korektą AI)','Translation (AI-checked)']
+  't.transAI': ['Fordítás (AI-javítással)','Tłumaczenie (z korektą AI)','Translation (AI-checked)'],
+  'tab.chat': ['Beszélgetés','Rozmowa','Conversation'],
+  'tab.read': ['Olvasás','Czytanie','Reading'],
+  'res.chat': ['Eredmény · beszélgetés','Wyniki · rozmowa','Results · conversation'],
+  'res.read': ['Eredmény · olvasás','Wyniki · czytanie','Results · reading'],
+  'st.chats': ['beszélgetés','rozmów','conversations'],
+  'st.reads': ['olvasmány','tekstów','texts'],
+  'st.qok': ['helyes válasz','poprawne odp.','correct'],
+  'st.qcount': ['kérdés','pytań','questions'],
+  'opt.scen': ['Helyzet','Sytuacja','Situation'],
+  'opt.cefr': ['Szint','Poziom','Level'],
+  'opt.topic': ['Téma','Temat','Topic'],
+  'opt.rtopic': ['Téma (nem kötelező)','Temat (opcjonalnie)','Topic (optional)'],
+  'topic.ph': ['pl. hétvégi tervek','np. plany na weekend','e.g. weekend plans'],
+  'rtopic.ph': ['pl. egy nap Rómában','np. dzień w Rzymie','e.g. a day in Rome'],
+  'recent.chats': ['Legutóbbi beszélgetések','Ostatnie rozmowy','Recent conversations'],
+  'recent.reads': ['Legutóbbi olvasmányok','Ostatnie teksty','Recent texts'],
+  'recent.none': ['Még nincs.','Jeszcze nic.','Nothing yet.'],
+  'scen.cafe': ['Kávézóban','W kawiarni','At the café'],
+  'scen.restaurant': ['Étteremben','W restauracji','At the restaurant'],
+  'scen.hotel': ['Szállodában','W hotelu','At the hotel'],
+  'scen.directions': ['Útbaigazítás','Pytanie o drogę','Asking the way'],
+  'scen.market': ['A piacon','Na targu','At the market'],
+  'scen.train': ['Vonatjegy','Bilet na pociąg','Train ticket'],
+  'scen.doctor': ['Orvosnál','U lekarza','At the doctor'],
+  'scen.meet': ['Ismerkedés','Poznajmy się','Getting to know someone'],
+  'scen.free': ['Szabad téma','Dowolny temat','Free topic'],
+  'cefr.A1': ['A1 · kezdő','A1 · początkujący','A1 · beginner'],
+  'cefr.A2': ['A2 · alapfok','A2 · podstawowy','A2 · elementary'],
+  'cefr.B1': ['B1 · középfok','B1 · średni','B1 · intermediate'],
+  'c.label': ['Beszélgetés az AI-val','Rozmowa z AI','Chat with the AI'],
+  'c.title': ['Válassz helyzetet és szintet a beállításoknál, aztán kezdjétek!','Wybierz sytuację i poziom w ustawieniach, a potem zaczynajcie!','Pick a situation and a level in the settings, then start!'],
+  'c.extra': ['Az AI eljátssza a szerepét, és közben megmutatja, hol hibáztál. A végén értékelést kapsz.','AI odgrywa swoją rolę i przy okazji pokazuje twoje błędy. Na końcu dostaniesz ocenę.','The AI plays its role and points out your mistakes as you go. At the end you get feedback.'],
+  'c.start': ['Beszélgetés indítása','Zacznij rozmowę','Start the conversation'],
+  'c.send': ['Küldés','Wyślij','Send'],
+  'c.end': ['Befejezés és értékelés','Zakończ i oceń','Finish and get feedback'],
+  'c.new': ['Új beszélgetés','Nowa rozmowa','New conversation'],
+  'c.ph': ['Írj olaszul…','Napisz po włosku…','Write in Italian…'],
+  'c.typing': ['Az AI válaszol…','AI odpowiada…','The AI is replying…'],
+  'c.tr': ['fordítás','tłumaczenie','translation'],
+  'c.ok': ['✓ Helyes','✓ Dobrze','✓ Correct'],
+  'c.better': ['Helyesen:','Poprawnie:','Better:'],
+  'c.retry': ['Újra','Ponów','Retry'],
+  'c.long': ['Már sokat beszélgettetek. Kérj értékelést, vagy kezdj újat.','Rozmowa jest już długa. Poproś o ocenę albo zacznij nową.','This conversation is getting long. Ask for feedback or start a new one.'],
+  'c.need': ['Előbb írj legalább egy üzenetet.','Najpierw napisz co najmniej jedną wiadomość.','Write at least one message first.'],
+  'c.summary': ['Értékelés','Ocena','Feedback'],
+  'c.tips': ['Tippek','Wskazówki','Tips'],
+  'c.fixes': ['Javítások','Poprawki','Corrections'],
+  'c.loadingsum': ['Az AI értékeli a beszélgetést…','AI ocenia rozmowę…','The AI is reviewing the conversation…'],
+  'r.label': ['Olvasás','Czytanie','Reading'],
+  'r.title': ['Rövid olasz történet','Krótka włoska historia','A short Italian story'],
+  'r.extra': ['Az AI a szintedhez illő szöveget ír. Koppints a szavakra a jelentésükért, hallgasd meg, aztán válaszolj a kérdésekre.','AI napisze tekst na twoim poziomie. Dotknij słów, aby poznać ich znaczenie, posłuchaj, a potem odpowiedz na pytania.','The AI writes a text for your level. Tap words for their meaning, listen to it, then answer the questions.'],
+  'r.new': ['Új történet','Nowa historia','New story'],
+  'r.loading': ['Az AI írja a történetet…','AI pisze historię…','The AI is writing the story…'],
+  'r.listen': ['Felolvasás','Odsłuchaj','Listen'],
+  'r.stop': ['Leállítás','Zatrzymaj','Stop'],
+  'r.showtr': ['Fordítás mutatása','Pokaż tłumaczenie','Show translation'],
+  'r.hidetr': ['Fordítás elrejtése','Ukryj tłumaczenie','Hide translation'],
+  'r.questions': ['Kérdések','Pytania','Questions'],
+  'r.result': ['{n}/{m} helyes válasz','{n}/{m} poprawnych odpowiedzi','{n}/{m} correct'],
+  'r.tenses': ['Igeidők','Czasy','Tenses'],
+  't.turns': ['Üzenet','Wiad.','Messages'],
+  't.summaryCol': ['Összegzés','Podsumowanie','Summary'],
+  't.title': ['Cím','Tytuł','Title'],
+  't.result': ['Eredmény','Wynik','Result'],
+  't.level': ['Szint','Poziom','Level'],
+  't.scen': ['Helyzet','Sytuacja','Situation'],
+  't.csummary': ['{n} beszélgetés · átlag: {a}/10','{n} rozmów · średnia: {a}/10','{n} conversations · average: {a}/10'],
+  't.rsummary': ['{n} olvasmány · helyes válaszok: {p}','{n} tekstów · poprawne odpowiedzi: {p}','{n} texts · correct answers: {p}'],
+  't.nochat': ['Még nincs beszélgetés.','Brak rozmów.','No conversations yet.'],
+  't.noread': ['Még nincs olvasmány.','Brak tekstów.','No texts yet.']
 };
 let LANG = 'hu';
 function t(key, vars){
@@ -2169,7 +2333,7 @@ async function saveCloud(){
   if (!cloudRef) return;
   if (cloudBusy){ cloudDirty = true; return; }
   cloudBusy = true;
-  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
+  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
   catch(e){ setWho(null, t('who.saveerr')); }
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
@@ -2204,6 +2368,10 @@ function applyData(d){
   XST = Object.assign(BLANK_STATS(), {sum:0}, d.xstats ? JSON.parse(JSON.stringify(d.xstats)) : {});
   renderOptionsM(); renderStatsM(); nextM();
   renderOptionsX(); renderStatsX(); nextX();
+  CST = Object.assign({total:0,sum:0,best:0,recent:[]}, d.cstats ? JSON.parse(JSON.stringify(d.cstats)) : {});
+  RST = Object.assign({total:0,q:0,ok:0,recent:[]}, d.rstats ? JSON.parse(JSON.stringify(d.rstats)) : {});
+  renderOptionsC(); renderStatsC(); renderC();
+  renderOptionsR(); renderStatsR(); renderR();
 }
 /* ref: {get(): Promise<{exists, data()}>, set(obj): Promise} */
 async function attachCloud(ref, me){
@@ -2211,11 +2379,11 @@ async function attachCloud(ref, me){
   if (snap.exists) applyData(snap.data());
   cloudRef = ref;
   setWho(me);
-  if (snap.exists || ST.total || VST.total || MST.total || XST.total || Object.keys(cloudExtra).length) saveCloud();
+  if (snap.exists || ST.total || VST.total || MST.total || XST.total || CST.total || RST.total || Object.keys(cloudExtra).length) saveCloud();
 }
 function detachCloud(){
   cloudRef = null; clearTimeout(cloudTimer);
-  applyData({stats: store.get('stats', {}), vstats: store.get('vstats', {}), mstats: store.get('mstats', {}), xstats: store.get('xstats', {}), settings: store.get('settings', {})});
+  applyData({stats: store.get('stats', {}), vstats: store.get('vstats', {}), mstats: store.get('mstats', {}), xstats: store.get('xstats', {}), cstats: store.get('cstats', {}), rstats: store.get('rstats', {}), settings: store.get('settings', {})});
   setWho(null);
 }
 /* AI a Claude-on belül: a néző saját Claude-fiókjával (sample képesség) */
@@ -2225,14 +2393,11 @@ async function initAI(){
     const sample = await window.claude.use('sample');
     if (!sample) return;
     aiBackend = async (p) => {
+      const q = AIP.sanitize(p || {});
+      if (!q) throw new Error(t('ai.noreply'));
       try{
-        if (p.type === 'gloss'){
-          const out = await sample.json(glossPromptClient(p.text, p.from, p.ref, p.words, p.lang) + '\n\nAnswer with a single JSON object only: {"translations": ["...", ...]} (exactly as many items as words).', {modelTier:'quick'});
-          const t = out && Array.isArray(out.translations) ? out.translations : [];
-          return {result: {translations: p.words.map((_, i) => String(t[i] || ''))}};
-        }
-        const result = await sample.json(aiPrompt(p.hu, p.ref, p.given, p.form, p.lang) + AI_JSON_SPEC, {modelTier:'quick'});
-        return {result: normAI(result)};
+        const out = await sample.json(AIP.buildPrompt(q) + '\n\nAnswer with a single JSON object only, no other text, in this shape:\n' + AIP.JSON_SPEC[q.type], {modelTier: q.type === 'story' || q.type === 'chatsum' ? 'default' : 'quick'});
+        return {result: AIP.normalize(q.type, out, q)};
       }catch(e){
         throw new Error(e && e.code==='rate_limited' ? t('ai.rate') : e && e.code==='not_granted' ? t('ai.grant') : t('ai.noreply'));
       }
@@ -2250,12 +2415,14 @@ async function initCloud(){
     await attachCloud(db.collection('data/users/' + me.id).doc('coniuga'), me);
   }catch(e){ /* marad a böngészős mentés */ }
 }
-const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
+const DEF = {mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
 let S = Object.assign({}, DEF, store.get('settings', {}));
 let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
 let VST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('vstats', {}));
 let MST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('mstats', {}));
 let XST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[],sum:0}, store.get('xstats', {}));
+let CST = Object.assign({total:0,sum:0,best:0,recent:[]}, store.get('cstats', {}));
+let RST = Object.assign({total:0,q:0,ok:0,recent:[]}, store.get('rstats', {}));
 let cur = null;
 let lastInput = null;
 const byInf = Object.fromEntries(VERBS.map(v=>[v.inf, v]));
@@ -2378,14 +2545,14 @@ function wireCommon(root){
   root.querySelectorAll('.keys button').forEach(b=>{
     b.onmousedown = e=>e.preventDefault();
     b.onclick = ()=>{
-      const inp = (lastInput && root.contains(lastInput)) ? lastInput : root.querySelector('input');
+      const inp = (lastInput && root.contains(lastInput)) ? lastInput : root.querySelector('textarea, input');
       if (!inp || inp.readOnly) return;
       const s=inp.selectionStart??inp.value.length, en=inp.selectionEnd??inp.value.length;
       inp.value = inp.value.slice(0,s)+b.dataset.k+inp.value.slice(en);
       inp.focus(); inp.setSelectionRange(s+1,s+1);
     };
   });
-  root.querySelectorAll('input').forEach(i=>i.addEventListener('focus',()=>{lastInput=i;}));
+  root.querySelectorAll('input, textarea').forEach(i=>i.addEventListener('focus',()=>{lastInput=i;}));
 }
 
 function renderSingleQ(){
@@ -2502,7 +2669,7 @@ function renderDetail(){
 /* ---- fülek ---- */
 function showTab(name){
   if (typeof hideBubble === 'function') hideBubble();
-  ['practice','vocab','sent','trans','browse','teacher'].forEach(n=>{
+  ['practice','vocab','sent','trans','chat','read','browse','teacher'].forEach(n=>{
     const tab = $('tab-'+n), view = $('view-'+n);
     if (tab) tab.setAttribute('aria-selected', n===name);
     if (view) view.hidden = n!==name;
@@ -2513,6 +2680,8 @@ $('tab-browse').onclick = ()=>showTab('browse');
 $('tab-vocab').onclick = ()=>showTab('vocab');
 $('tab-sent').onclick = ()=>showTab('sent');
 $('tab-trans').onclick = ()=>showTab('trans');
+$('tab-chat').onclick = ()=>showTab('chat');
+$('tab-read').onclick = ()=>showTab('read');
 
 /* ---- Szójelentés: 4 lehetőség közül a jó ---- */
 const DIRS = {get it2hu(){ return t('dir.it2x'); }, get hu2it(){ return t('dir.x2it'); }};
@@ -2614,17 +2783,6 @@ const glossCache = new Map();        // from|text -> Promise<string[]>
 let glossStore = {};
 try{ glossStore = JSON.parse(localStorage.getItem('coniuga:gloss') || '{}') || {}; }catch(e){ glossStore = {}; }
 const WORD_RE = /[\p{L}\p{M}]+(?:['’][\p{L}\p{M}]+)*/gu;
-function glossPromptClient(text, from, ref, words, lang){
-  const LN = LANG_EN[lang] || 'Hungarian', list = JSON.stringify(words);
-  if (from !== 'it') return `A learner whose native language is ${LN} is translating this ${LN} sentence into Italian: ${JSON.stringify(text)}
-${ref ? `Its correct Italian translation: ${JSON.stringify(ref)}\n` : ''}For each of the following ${LN} words (in order, with exactly the same number of items) give the Italian equivalent as used in this sentence${ref ? ', preferably taken from the translation above' : ''}.
-For verbs give the conjugated Italian form with the infinitive in brackets (e.g. "siamo andati (andare)"). Be concise (1-4 words). If a word has no separate Italian equivalent, briefly describe its role, written in ${LN}.
-Words: ${list}`;
-  return `A learner whose native language is ${LN} is reading this Italian sentence: ${JSON.stringify(text)}
-For each of the following Italian words (in order, with exactly the same number of items) give its meaning in ${LN} as used in this sentence.
-For verbs add the Italian infinitive in brackets (e.g. "siamo" -> "<meaning in ${LN}> (essere)"). For articles and prepositions briefly give their role, written in ${LN}. Be concise (1-5 words).
-Words: ${list}`;
-}
 /* szöveg -> HTML, minden szó koppintható gomb */
 function glossify(text, from, ref){
   text = String(text || '');
@@ -2693,13 +2851,114 @@ window.addEventListener('resize', () => { if (bubble && bubbleFor) placeBubble(b
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape') hideBubble(); });
 
 /* ---- Fordítás: AI-javítással ---- */
-function aiPrompt(src, ref, given, form, lang){
-  const LN = LANG_EN[lang] || 'Hungarian';
+/*AI-PROMPTS-START: generált, ne szerkeszd – forrás: tools/ai-prompts.js */
+const AIP = (() => {
+// Coniuga – az AI-feladatok közös leírása.
+// Ezt használja a Cloudflare Worker (tools/ai-worker.js importálja), és a coniuga.html is
+// (a tools/embed-prompts.mjs bemásolja az /*AI-PROMPTS*/ jelölők közé, az "export" szavak nélkül).
+
+const PROMPT_LANG = { hu: 'Hungarian', pl: 'Polish', en: 'English' };
+const CEFR = ['A1', 'A2', 'B1'];
+const CEFR_HINT = {
+  A1: 'very simple words, present tense mostly, short sentences',
+  A2: 'simple everyday language, short sentences, common past and future forms',
+  B1: 'natural everyday language with some longer sentences'
+};
+const SCENARIOS = {
+  cafe: 'You are a friendly barista in an Italian bar (café). The learner is a customer who wants to order coffee and something to eat, and pay.',
+  restaurant: 'You are a waiter in a family trattoria. The learner is a guest: greet them, take the order, suggest dishes, bring the bill.',
+  hotel: 'You are a hotel receptionist in Florence. The learner wants to check in or book a room; ask for details (nights, name, breakfast).',
+  directions: 'You are a local person in Rome. The learner stops you in the street to ask for directions to a sight or a shop.',
+  market: 'You are a fruit and vegetable seller at a market in Bologna. The learner wants to buy some things; talk about prices and quantities.',
+  train: 'You are a ticket clerk at Milano Centrale station. The learner wants to buy a train ticket; ask about destination, time, return, class.',
+  doctor: 'You are a family doctor. The learner is a patient who describes how they feel; ask questions and give simple advice.',
+  meet: 'You are a friendly Italian person the learner has just met at a language exchange evening. Chat about where they are from, family, work, hobbies and plans.',
+  free: 'Have a friendly everyday conversation with the learner about the topic they chose.'
+};
+const TENSE_EN = { pres: 'presente', pp: 'passato prossimo', imp: 'imperfetto', fut: 'futuro semplice', cond: 'condizionale presente', cong: 'congiuntivo presente' };
+
+const str = (v, n) => String(v == null ? '' : v).slice(0, n).trim();
+
+/* bemenet ellenőrzése (a Worker ezzel szűri a kéréseket) – null: érvénytelen */
+function sanitize(body) {
+  const type = body && body.type;
+  const lang = PROMPT_LANG[body && body.lang] ? body.lang : 'hu';
+  if (type === 'gloss') {
+    const words = Array.isArray(body.words) ? body.words.slice(0, 60).map((w) => str(w, 40)) : [];
+    const text = str(body.text, 600);
+    if (!text || !words.length) return null;
+    return { type, lang, text, words, from: body.from === 'it' ? 'it' : 'nat', ref: str(body.ref, 600) };
+  }
+  if (type === 'chat' || type === 'chatsum') {
+    const scenario = SCENARIOS[body.scenario] ? body.scenario : 'free';
+    const level = CEFR.includes(body.level) ? body.level : 'A2';
+    const history = Array.isArray(body.history) ? body.history.slice(-30).map((m) => ({ role: m && m.role === 'user' ? 'user' : 'ai', text: str(m && m.text, 500) })).filter((m) => m.text) : [];
+    if (type === 'chatsum' && !history.some((m) => m.role === 'user')) return null;
+    return { type, lang, scenario, level, topic: str(body.topic, 100), history };
+  }
+  if (type === 'story') {
+    const level = CEFR.includes(body.level) ? body.level : 'A2';
+    const tenses = Array.isArray(body.tenses) ? body.tenses.filter((x) => TENSE_EN[x]).slice(0, 6) : [];
+    return { type, lang, level, tenses: tenses.length ? tenses : ['pres'], topic: str(body.topic, 100) };
+  }
+  // alapeset: fordítás javítása
+  const hu = str(body && body.hu, 600), given = str(body && body.given, 600);
+  if (!hu || !given) return null;
+  return { type: 'check', lang, hu, given, ref: str(body.ref, 600), form: str(body.form, 80) };
+}
+
+/* prompt összeállítása */
+function buildPrompt(p) {
+  const LN = PROMPT_LANG[p.lang] || 'Hungarian';
+  if (p.type === 'gloss') {
+    const list = JSON.stringify(p.words);
+    if (p.from !== 'it') return `A learner whose native language is ${LN} is translating this ${LN} sentence into Italian: ${JSON.stringify(p.text)}
+${p.ref ? `Its correct Italian translation: ${JSON.stringify(p.ref)}\n` : ''}For each of the following ${LN} words (in order, with exactly the same number of items) give the Italian equivalent as used in this sentence${p.ref ? ', preferably taken from the translation above' : ''}.
+For verbs give the conjugated Italian form with the infinitive in brackets (e.g. "siamo andati (andare)"). Be concise (1-4 words). If a word has no separate Italian equivalent, briefly describe its role, written in ${LN}.
+Words: ${list}`;
+    return `A learner whose native language is ${LN} is reading this Italian text: ${JSON.stringify(p.text)}
+For each of the following Italian words (in order, with exactly the same number of items) give its meaning in ${LN} as used in this text.
+For verbs add the Italian infinitive in brackets (e.g. "siamo" -> "<meaning in ${LN}> (essere)"). For articles and prepositions briefly give their role, written in ${LN}. Be concise (1-5 words).
+Words: ${list}`;
+  }
+  if (p.type === 'chat') {
+    const scen = SCENARIOS[p.scenario] + (p.scenario === 'free' ? ` Topic chosen by the learner: ${JSON.stringify(p.topic || 'everyday life')}.` : '');
+    const lastUser = [...p.history].reverse().find((m) => m.role === 'user');
+    return `You are role-playing in Italian with a language learner whose native language is ${LN}. Their level is ${p.level} (${CEFR_HINT[p.level]}).
+Scenario: ${scen}
+Rules:
+- Stay in character. "reply" must be in Italian only, short (1-3 sentences), natural, suited to level ${p.level}, and usually end with a question that keeps the conversation going.
+- ${p.history.length ? 'Continue the conversation below.' : 'Start the conversation with a greeting that fits the scenario.'}
+- "translation" is the translation of your reply into ${LN}.
+- "correction" is about the learner's LAST message${lastUser ? ` (${JSON.stringify(lastUser.text)})` : ' (there is none yet: set ok=true and leave the other fields empty)'}: if it has Italian mistakes, set ok=false, put the corrected Italian sentence in "corrected" and a short explanation (one or two sentences) in ${LN} in "explanation". If it is correct and natural, set ok=true and leave "corrected" and "explanation" empty. Ignore missing capital letters and final punctuation.
+Conversation so far (JSON, "ai" is you): ${JSON.stringify(p.history)}`;
+  }
+  if (p.type === 'chatsum') {
+    return `A language learner (native language: ${LN}, level ${p.level}) had this role-play conversation in Italian. Scenario: ${SCENARIOS[p.scenario]}${p.topic ? ' Topic: ' + JSON.stringify(p.topic) + '.' : ''}
+Conversation (JSON, "ai" is the partner, "user" is the learner): ${JSON.stringify(p.history)}
+Evaluate ONLY the learner's Italian. Write everything except the Italian examples in ${LN}.
+- "score": integer 0-10 for the learner's Italian at level ${p.level} (correctness, vocabulary, fitting the situation).
+- "summary": 2-3 encouraging sentences in ${LN}.
+- "errors": up to 6 of the most useful corrections: "wrong" (learner's Italian), "fix" (corrected Italian), "explanation" (short, in ${LN}). Empty if there were none.
+- "tips": up to 3 short, practical tips in ${LN}.`;
+  }
+  if (p.type === 'story') {
+    const len = { A1: '60-80', A2: '90-120', B1: '130-170' }[p.level];
+    return `Write a short, original Italian text for a language learner whose native language is ${LN}. Level ${p.level} (${CEFR_HINT[p.level]}). Length: ${len} words.
+Use mainly these tenses, naturally: ${p.tenses.map((x) => TENSE_EN[x]).join(', ')}.
+Topic: ${p.topic ? JSON.stringify(p.topic) : 'an everyday situation of your choice (family, travel, work, food, city life, a small adventure)'}.
+Return:
+- "title": a short Italian title,
+- "text": the Italian text (plain text, paragraphs separated by a blank line),
+- "translation": a faithful translation of the text into ${LN},
+- "questions": exactly 3 multiple-choice comprehension questions in Italian, each with 4 short options in Italian, "answer" = index (0-3) of the correct option, and "explanation" = one short sentence in ${LN}.`;
+  }
+  // check
   return `You are an Italian teacher helping learners whose native language is ${LN}.
 The learner translated the following ${LN} text into Italian. Evaluate the translation. Write ALL explanations, error types and the comment in ${LN}.
 
-${LN} text: ${JSON.stringify(src)}
-${ref ? `A correct model translation (other answers may also be correct): ${JSON.stringify(ref)}\n` : ''}${form ? `The verb form in this sentence that is certainly correct (from a verified conjugation engine; do not override it, and use exactly this form in corrections): ${JSON.stringify(form)}\n` : ''}The learner's translation: ${JSON.stringify(given)}
+${LN} text: ${JSON.stringify(p.hu)}
+${p.ref ? `A correct model translation (other answers may also be correct): ${JSON.stringify(p.ref)}\n` : ''}${p.form ? `The verb form in this sentence that is certainly correct (from a verified conjugation engine; do not override it, and use exactly this form in corrections): ${JSON.stringify(p.form)}\n` : ''}The learner's translation: ${JSON.stringify(p.given)}
 
 Rules:
 - Accept a different word order, synonyms, and versions with or without a subject pronoun, if they are grammatical and mean the same.
@@ -2710,16 +2969,50 @@ Rules:
 - The model translation is grammatically correct: if your correction would differ from it in the form of a word, use the model translation's form.
 - score is an integer from 0 to 10 (10 = perfect).`;
 }
-const AI_JSON_SPEC = `
 
-Answer with a single JSON object only, no other text, in this shape:
-{"score": 0-10, "correct": true/false, "corrected": "...", "errors": [{"wrong": "wrong part", "fix": "correction", "type": "error type", "explanation": "explanation"}], "comment": "short summary"}`;
-function normAI(r){
+/* válaszséma – Gemini formátum */
+const S = (type, extra) => Object.assign({ type }, extra || {});
+const OBJ = (props, req) => S('OBJECT', { properties: props, required: req || Object.keys(props) });
+const ERR = OBJ({ wrong: S('STRING'), fix: S('STRING'), type: S('STRING'), explanation: S('STRING') }, ['wrong', 'fix', 'explanation']);
+const SCHEMAS = {
+  check: OBJ({ score: S('INTEGER'), correct: S('BOOLEAN'), corrected: S('STRING'), errors: S('ARRAY', { items: ERR }), comment: S('STRING') }),
+  gloss: OBJ({ translations: S('ARRAY', { items: S('STRING') }) }),
+  chat: OBJ({ reply: S('STRING'), translation: S('STRING'), correction: OBJ({ ok: S('BOOLEAN'), corrected: S('STRING'), explanation: S('STRING') }, ['ok']) }),
+  chatsum: OBJ({ score: S('INTEGER'), summary: S('STRING'), errors: S('ARRAY', { items: ERR }), tips: S('ARRAY', { items: S('STRING') }) }),
+  story: OBJ({ title: S('STRING'), text: S('STRING'), translation: S('STRING'), questions: S('ARRAY', { items: OBJ({ q: S('STRING'), options: S('ARRAY', { items: S('STRING') }), answer: S('INTEGER'), explanation: S('STRING') }) }) })
+};
+/* ugyanez szövegesen, olyan AI-nak, amelyik nem kap sémát (Claude) */
+const JSON_SPEC = {
+  check: '{"score": 0-10, "correct": true/false, "corrected": "...", "errors": [{"wrong": "...", "fix": "...", "type": "...", "explanation": "..."}], "comment": "..."}',
+  gloss: '{"translations": ["...", "..."]}  (exactly as many items as words)',
+  chat: '{"reply": "...", "translation": "...", "correction": {"ok": true/false, "corrected": "...", "explanation": "..."}}',
+  chatsum: '{"score": 0-10, "summary": "...", "errors": [{"wrong": "...", "fix": "...", "explanation": "..."}], "tips": ["..."]}',
+  story: '{"title": "...", "text": "...", "translation": "...", "questions": [{"q": "...", "options": ["...", "...", "...", "..."], "answer": 0-3, "explanation": "..."}]}'
+};
+
+/* a válasz egységesítése (hiányzó/hibás mezők pótlása) */
+function normalize(type, r, p) {
   r = r || {};
-  return {score: Math.max(0, Math.min(10, Math.round(Number(r.score)||0))), correct: !!r.correct, corrected: String(r.corrected||''),
-    errors: Array.isArray(r.errors) ? r.errors.slice(0,10).map(e=>({wrong:String(e.wrong||''), fix:String(e.fix||''), type:String(e.type||''), explanation:String(e.explanation||'')})) : [],
-    comment: String(r.comment||'')};
+  const errs = (a) => (Array.isArray(a) ? a.slice(0, 10).map((e) => ({ wrong: str(e && e.wrong, 300), fix: str(e && e.fix, 300), type: str(e && e.type, 60), explanation: str(e && e.explanation, 500) })) : []);
+  const score = (v) => Math.max(0, Math.min(10, Math.round(Number(v) || 0)));
+  if (type === 'gloss') { const t = Array.isArray(r.translations) ? r.translations : []; return { translations: p.words.map((_, i) => str(t[i], 80)) }; }
+  if (type === 'chat') { const c = r.correction || {}; return { reply: str(r.reply, 1200), translation: str(r.translation, 1200), correction: { ok: c.ok !== false || !str(c.corrected, 10), corrected: str(c.corrected, 600), explanation: str(c.explanation, 600) } }; }
+  if (type === 'chatsum') return { score: score(r.score), summary: str(r.summary, 1200), errors: errs(r.errors).slice(0, 6), tips: (Array.isArray(r.tips) ? r.tips : []).slice(0, 3).map((x) => str(x, 300)) };
+  if (type === 'story') {
+    const qs = (Array.isArray(r.questions) ? r.questions : []).slice(0, 3).map((q) => {
+      const options = (Array.isArray(q && q.options) ? q.options : []).slice(0, 4).map((o) => str(o, 200));
+      const answer = Math.round(Number(q && q.answer));
+      return { q: str(q && q.q, 300), options, answer: answer >= 0 && answer < options.length ? answer : 0, explanation: str(q && q.explanation, 400) };
+    }).filter((q) => q.q && q.options.length >= 2);
+    return { title: str(r.title, 120), text: str(r.text, 4000), translation: str(r.translation, 5000), questions: qs };
+  }
+  return { score: score(r.score), correct: !!r.correct, corrected: str(r.corrected, 600), errors: errs(r.errors), comment: str(r.comment, 600) };
 }
+
+return { PROMPT_LANG, CEFR, SCENARIOS, sanitize, buildPrompt, SCHEMAS, JSON_SPEC, normalize };
+})();
+/*AI-PROMPTS-END*/
+const normAI = r => AIP.normalize('check', r);
 let curX = null;
 function renderOptionsX(){
   $('x-src').innerHTML = chk('radio','xsrc','bank',S.xsrc==='bank',t('x.src.bank')) + chk('radio','xsrc','own','own'===S.xsrc,t('x.src.own'));
@@ -2820,6 +3113,235 @@ function recordX(hu, given, r){
     XST.recent = XST.recent.slice(0,8);
   }
   store.set('xstats', XST); renderStatsX();
+}
+
+/* ---- közös: AI-hiba szövege ---- */
+const aiErr = e => esc((e && e.message) || t('ai.unavail'));
+const needAI = () => { if (aiBackend) return true; return false; };
+const noteHtml = () => `<p class="ainote">${esc(t(aiNote))}</p>`;
+function sentencesOf(text){ return String(text||'').match(/[^.!?…]+[.!?…]+["»”’)]*\s*|[^.!?…]+$/g) || []; }
+const glossText = text => sentencesOf(text).map(x => glossify(x.trim(), 'it')).join(' ');
+
+/* ---- Beszélgetés: szerepjáték az AI-val ---- */
+const SCEN_IDS = ['cafe','restaurant','hotel','directions','market','train','doctor','meet','free'];
+let CHAT = null;   // {scenario, level, topic, msgs:[{role, text, tr, corr}], busy, done, sum, err}
+function renderOptionsC(){
+  $('c-scen').innerHTML = SCEN_IDS.map(id => chk('radio','cscen',id,S.cscen===id,t('scen.'+id))).join('');
+  $('c-level').innerHTML = AIP.CEFR.map(l => chk('radio','clevel',l,S.clevel===l,t('cefr.'+l))).join('');
+  $('c-topic').value = S.ctopic || '';
+  $('c-topic-wrap').hidden = S.cscen !== 'free';
+}
+$('cside').addEventListener('change', e => {
+  const el = e.target;
+  if (el.name==='cscen') S.cscen = el.value;
+  else if (el.name==='clevel') S.clevel = el.value;
+  else if (el.id==='c-topic') S.ctopic = el.value.trim();
+  else return;
+  store.set('settings', S); renderOptionsC();
+  if (!CHAT || CHAT.done || !CHAT.msgs.some(m=>m.role==='user')){ CHAT = null; renderC(); }
+});
+function renderStatsC(){
+  $('c-a').textContent = CST.total ? (CST.sum/CST.total).toFixed(1) : '–';
+  $('c-b').textContent = CST.total ? CST.best : '–';
+  $('c-c').textContent = CST.total;
+  $('c-recent').innerHTML = CST.recent.length ? CST.recent.map(r =>
+    `<li><span><b>${esc(t('scen.'+r.scenario))}</b> · ${esc(r.level)}<br><span class="muted">${esc(r.summary)}</span></span><span class="c">${r.score}/10</span></li>`).join('')
+    : `<li class="muted">${t('recent.none')}</li>`;
+}
+function chatHead(){
+  const sc = CHAT ? CHAT.scenario : S.cscen, lv = CHAT ? CHAT.level : S.clevel, tp = CHAT ? CHAT.topic : S.ctopic;
+  return `<div class="task"><span class="task-lbl">${t('c.label')}</span><span class="task-tense">${esc(t('scen.'+sc))}${sc==='free' && tp ? ': ' + esc(tp) : ''}</span><span class="task-hu">${esc(lv)}</span><span class="task-extra">${t('c.extra')}</span></div>`;
+}
+function msgHtml(m, i){
+  if (m.role === 'ai') return `<div class="msg ai"><p class="mtext">${glossText(m.text)}</p>
+    <div class="mtools">${sayBtn(m.text)}${m.tr ? `<button type="button" class="linkbtn2" data-trtoggle="${i}">${t('c.tr')}</button>` : ''}</div>
+    ${m.tr ? `<p class="mtr" id="mtr${i}" hidden>${esc(m.tr)}</p>` : ''}</div>`;
+  const c = m.corr;
+  return `<div class="msg me"><p>${esc(m.text)}</p>${c ? (c.ok ? `<p class="corr ok">${t('c.ok')}</p>` : `<p class="corr">${t('c.better')} <span class="f">${esc(c.corrected)}</span>${c.explanation ? `<br>${esc(c.explanation)}` : ''}</p>`) : ''}</div>`;
+}
+function renderC(){
+  hideBubble();
+  const box = $('ccard');
+  if (!CHAT){
+    box.innerHTML = chatHead() + `<p class="muted">${t('c.title')}</p>
+      <div class="actions"><button class="btn" type="button" id="c-start">${t('c.start')}</button></div>${noteHtml()}`;
+    $('c-start').onclick = startChat;
+    return;
+  }
+  const users = CHAT.msgs.filter(m=>m.role==='user').length;
+  let html = chatHead() + `<div class="chat" id="c-log">${CHAT.msgs.map(msgHtml).join('')}${CHAT.busy ? `<p class="typing loading">${t('c.typing')}</p>` : ''}</div>`;
+  if (CHAT.err) html += `<div class="feedback bad"><p>${esc(CHAT.err)}</p><div class="actions" style="margin-top:8px"><button class="btn ghost" type="button" id="c-retry">${t('c.retry')}</button></div></div>`;
+  if (CHAT.done && CHAT.sum){
+    const r = CHAT.sum, cls = r.score>=8 ? 'sc-hi' : r.score>=5 ? 'sc-mid' : 'sc-lo';
+    html += `<div class="feedback ${r.score>=8?'ok':r.score>=5?'acc':'bad'}">
+      <p style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="score ${cls}">${r.score}<small>/10</small></span><span class="verdict">${t('c.summary')}</span></p>
+      <p style="margin-top:8px">${esc(r.summary)}</p>
+      ${r.errors.length ? `<h4 style="margin:14px 0 0">${t('c.fixes')}</h4><ul class="errs">${r.errors.map(e=>`<li><span class="w">${esc(e.wrong)}</span> → <span class="f">${esc(e.fix)}</span><p>${esc(e.explanation)}</p></li>`).join('')}</ul>` : ''}
+      ${r.tips.length ? `<h4 style="margin:14px 0 0">${t('c.tips')}</h4><ul class="tiplist">${r.tips.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+      <div class="actions"><button class="btn" type="button" id="c-new">${t('c.new')}</button></div></div>`;
+  } else if (CHAT.summing){
+    html += `<p class="loading">${t('c.loadingsum')}</p>`;
+  } else {
+    html += `<form id="c-form" class="composer" autocomplete="off">
+      <textarea class="xarea" id="c-ans" rows="2" maxlength="500" autocapitalize="off" spellcheck="false" placeholder="${t('c.ph')}" ${CHAT.busy?'disabled':''}></textarea>
+      ${keysHtml()}
+      ${users >= 15 ? `<p class="hint">${t('c.long')}</p>` : ''}
+      <p class="hint" id="c-need" hidden>${t('c.need')}</p>
+      <div class="actions">
+        <button class="btn" type="submit" id="c-send" ${CHAT.busy?'disabled':''}>${t('c.send')}</button>
+        <button class="btn ghost" type="button" id="c-end" ${CHAT.busy?'disabled':''}>${t('c.end')}</button>
+        <button class="btn quiet" type="button" id="c-new">${t('c.new')}</button>
+      </div></form>`;
+  }
+  box.innerHTML = html;
+  box.querySelectorAll('[data-trtoggle]').forEach(b => b.onclick = () => { const p = $('mtr'+b.dataset.trtoggle); if (p) p.hidden = !p.hidden; });
+  const nw = $('c-new'); if (nw) nw.onclick = () => { CHAT = null; renderC(); };
+  const rt = $('c-retry'); if (rt) rt.onclick = () => { CHAT.err = null; CHAT.summing ? endChat() : askChat(); };
+  const f = $('c-form');
+  if (f){
+    wireCommon(box);
+    const ta = $('c-ans');
+    if (CHAT.draft) ta.value = CHAT.draft;
+    ta.addEventListener('input', () => { CHAT.draft = ta.value; });
+    ta.addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey){ e.preventDefault(); f.requestSubmit(); } });
+    f.onsubmit = e => { e.preventDefault(); sendChat(); };
+    $('c-end').onclick = endChat;
+    if (!CHAT.busy) ta.focus({preventScroll:true});
+  }
+  const log = $('c-log'); if (log && CHAT.msgs.length > 2) log.lastElementChild && log.lastElementChild.scrollIntoView({block:'nearest'});
+}
+const chatPayload = type => ({type, lang: LANG, scenario: CHAT.scenario, level: CHAT.level, topic: CHAT.topic, history: CHAT.msgs.map(m => ({role: m.role, text: m.text}))});
+function startChat(){
+  if (!aiBackend){ $('ccard').querySelector('.ainote').style.color = 'var(--pen)'; return; }
+  CHAT = {scenario: S.cscen, level: S.clevel, topic: S.cscen==='free' ? (S.ctopic||'') : '', msgs: [], busy: false, done: false};
+  askChat();
+}
+async function askChat(){
+  CHAT.busy = true; CHAT.err = null; renderC();
+  const me = CHAT;
+  try{
+    const res = await aiBackend(chatPayload('chat'));
+    if (CHAT !== me) return;
+    const r = res.result;
+    const lastUser = [...CHAT.msgs].reverse().find(m => m.role==='user');
+    if (lastUser && !lastUser.corr) lastUser.corr = r.correction;
+    if (r.reply) CHAT.msgs.push({role:'ai', text: r.reply, tr: r.translation});
+  }catch(e){ if (CHAT === me) CHAT.err = (e && e.message) || t('ai.unavail'); }
+  if (CHAT === me){ CHAT.busy = false; renderC(); }
+}
+function sendChat(){
+  const ta = $('c-ans'), text = ta.value.trim();
+  if (!text || CHAT.busy) return;
+  CHAT.msgs.push({role:'user', text}); CHAT.draft = '';
+  askChat();
+}
+async function endChat(){
+  if (!CHAT.msgs.some(m=>m.role==='user')){ const n = $('c-need'); if (n) n.hidden = false; return; }
+  CHAT.summing = true; CHAT.err = null; renderC();
+  const me = CHAT;
+  try{
+    const res = await aiBackend(chatPayload('chatsum'));
+    if (CHAT !== me) return;
+    CHAT.sum = res.result; CHAT.done = true; CHAT.summing = false;
+    recordC(CHAT);
+  }catch(e){ if (CHAT === me){ CHAT.err = (e && e.message) || t('ai.unavail'); } }
+  if (CHAT === me) renderC();
+}
+function recordC(c){
+  const turns = c.msgs.filter(m=>m.role==='user').length, r = c.sum;
+  if (answerHook){ try{ answerHook({kind:'chat', lang: LANG, scenario: c.scenario, level: c.level, topic: c.topic, turns, score: r.score, summary: r.summary, errors: r.errors.length, ok: r.score >= 8, at: Date.now()}); }catch(e){} }
+  CST.total++; CST.sum += r.score; CST.best = Math.max(CST.best||0, r.score);
+  CST.recent.unshift({scenario: c.scenario, level: c.level, score: r.score, summary: r.summary.slice(0, 160)});
+  CST.recent = CST.recent.slice(0, 6);
+  store.set('cstats', CST); renderStatsC();
+}
+
+/* ---- Olvasás: rövid AI-történet kérdésekkel ---- */
+let STORY = null;  // {level, tenses, topic, data, answers:[], showTr, busy, err}
+function renderOptionsR(){
+  $('r-level').innerHTML = AIP.CEFR.map(l => chk('radio','rlevel',l,S.rlevel===l,t('cefr.'+l))).join('');
+  $('r-tenses').innerHTML = TENSES.map(x => chk('checkbox','rtense',x.id,S.rtenses.includes(x.id),x.it)).join('');
+  $('r-topic').value = S.rtopic || '';
+}
+$('rside').addEventListener('change', e => {
+  const el = e.target;
+  if (el.name==='rlevel') S.rlevel = el.value;
+  else if (el.name==='rtense'){ const sel=[...document.querySelectorAll('input[name=rtense]:checked')].map(x=>x.value); if(!sel.length){ el.checked=true; return; } S.rtenses = sel; }
+  else if (el.id==='r-topic') S.rtopic = el.value.trim();
+  else return;
+  store.set('settings', S);
+});
+function renderStatsR(){
+  $('r-a').textContent = RST.q ? Math.round(100*RST.ok/RST.q)+'%' : '–';
+  $('r-b').textContent = RST.total || '–';
+  $('r-c').textContent = RST.q;
+  $('r-recent').innerHTML = RST.recent.length ? RST.recent.map(r =>
+    `<li><span><b>${esc(r.title)}</b> · ${esc(r.level)}</span><span class="c">${r.score}/${r.n}</span></li>`).join('')
+    : `<li class="muted">${t('recent.none')}</li>`;
+}
+function renderR(){
+  hideBubble();
+  const box = $('rcard');
+  const head = `<div class="task"><span class="task-lbl">${t('r.label')}</span><span class="task-tense">${t('r.title')}</span><span class="task-extra">${t('r.extra')}</span></div>`;
+  if (!STORY || (!STORY.data && !STORY.busy && !STORY.err)){
+    box.innerHTML = head + `<div class="actions"><button class="btn" type="button" id="r-new">${t('r.new')}</button></div>${noteHtml()}`;
+    $('r-new').onclick = newStory; return;
+  }
+  if (STORY.busy){ box.innerHTML = head + `<p class="loading">${t('r.loading')}</p>`; return; }
+  if (STORY.err){
+    box.innerHTML = head + `<div class="feedback bad"><p>${esc(STORY.err)}</p></div><div class="actions"><button class="btn" type="button" id="r-new">${t('r.new')}</button></div>`;
+    $('r-new').onclick = newStory; return;
+  }
+  const d = STORY.data, done = STORY.answers.filter(a => a != null).length === d.questions.length;
+  const paras = d.text.split(/\n\s*\n/).filter(x => x.trim());
+  const good = STORY.answers.filter((a, i) => a === d.questions[i].answer).length;
+  box.innerHTML = head + `<div class="story">
+    <h2>${esc(d.title)}</h2>
+    <p class="muted" style="margin:0 0 12px">${esc(STORY.level)} · ${STORY.tenses.map(x => tenseOf(x).it).join(', ')} · ${t('x.tap')}</p>
+    ${paras.map(pp => `<p class="para">${glossText(pp)}</p>`).join('')}
+    <div class="actions" style="margin-top:4px">
+      <button class="btn ghost" type="button" data-say="${esc(d.text)}">${t('r.listen')}</button>
+      <button class="btn quiet" type="button" id="r-stop">${t('r.stop')}</button>
+      ${d.translation ? `<button class="btn quiet" type="button" id="r-tr">${STORY.showTr ? t('r.hidetr') : t('r.showtr')}</button>` : ''}
+    </div>
+    ${STORY.showTr ? `<p class="trbox" style="margin-top:12px">${esc(d.translation)}</p>` : ''}
+    <h3 class="xlbl" style="margin-top:22px;font-size:.8rem;letter-spacing:.09em;text-transform:uppercase">${t('r.questions')}</h3>
+    ${d.questions.map((q, i) => { const a = STORY.answers[i]; return `<div class="qblock"><h4>${i+1}. ${esc(q.q)}</h4>
+      <div class="opts">${q.options.map((o, k) => `<button type="button" class="optbtn ${a!=null ? (k===q.answer ? 'right' : k===a ? 'wrong' : 'dim') : ''}" data-q="${i}" data-k="${k}" ${a!=null?'disabled':''}><span class="k">${'ABCD'[k]}</span><span class="t">${esc(o)}</span></button>`).join('')}</div>
+      ${a!=null && q.explanation ? `<p class="qexp">${esc(q.explanation)}</p>` : ''}</div>`; }).join('')}
+    ${done ? `<div class="feedback ${good===d.questions.length?'ok':good>0?'acc':'bad'}"><p><span class="verdict">${t('r.result', {n: good, m: d.questions.length})}</span></p><div class="actions"><button class="btn" type="button" id="r-new">${t('r.new')}</button></div></div>` : ''}
+  </div>`;
+  box.querySelectorAll('.optbtn[data-q]').forEach(b => b.onclick = () => answerR(+b.dataset.q, +b.dataset.k));
+  const st = $('r-stop'); if (st) st.onclick = () => { try{ speechSynthesis.cancel(); }catch(e){} };
+  const tr = $('r-tr'); if (tr) tr.onclick = () => { STORY.showTr = !STORY.showTr; renderR(); };
+  const nw = $('r-new'); if (nw) nw.onclick = newStory;
+}
+async function newStory(){
+  if (!aiBackend){ const n = $('rcard').querySelector('.ainote'); if (n) n.style.color = 'var(--pen)'; return; }
+  STORY = {level: S.rlevel, tenses: S.rtenses.slice(), topic: S.rtopic || '', answers: [], busy: true};
+  renderR();
+  const me = STORY;
+  try{
+    const res = await aiBackend({type:'story', lang: LANG, level: me.level, tenses: me.tenses, topic: me.topic});
+    if (STORY !== me) return;
+    if (!res.result.text || !res.result.questions.length) throw new Error(t('ai.noreply'));
+    me.data = res.result;
+  }catch(e){ if (STORY === me) me.err = (e && e.message) || t('ai.unavail'); }
+  if (STORY === me){ me.busy = false; renderR(); }
+}
+function answerR(i, k){
+  if (!STORY || STORY.answers[i] != null) return;
+  STORY.answers[i] = k;
+  const d = STORY.data;
+  if (STORY.answers.filter(a => a != null).length === d.questions.length){
+    const good = STORY.answers.filter((a, j) => a === d.questions[j].answer).length;
+    if (answerHook){ try{ answerHook({kind:'read', lang: LANG, title: d.title, level: STORY.level, tenses: STORY.tenses, score: good, total: d.questions.length, ok: good === d.questions.length, at: Date.now()}); }catch(e){} }
+    RST.total++; RST.q += d.questions.length; RST.ok += good;
+    RST.recent.unshift({title: d.title, level: STORY.level, score: good, n: d.questions.length});
+    RST.recent = RST.recent.slice(0, 8);
+    store.set('rstats', RST); renderStatsR();
+  }
+  renderR();
 }
 
 /* ---- Mondatok: a hiányzó ige beírása ---- */
@@ -2939,6 +3461,8 @@ function setLang(l, opts){
   renderOptionsV(); renderStatsV(); nextV();
   renderOptionsM(); renderStatsM(); nextM();
   renderOptionsX(); renderStatsX(); nextX();
+  renderOptionsC(); renderStatsC(); renderC();
+  renderOptionsR(); renderStatsR(); renderR();
   renderBrowseKind(); renderList(); renderDetail();
   setAINote(aiNote);
   if (typeof window.onLangChange === 'function') window.onLangChange();
@@ -2954,5 +3478,7 @@ renderOptions(); renderStats(); renderBrowseKind(); renderList(); renderDetail()
 renderOptionsV(); renderStatsV(); nextV();
 renderOptionsM(); renderStatsM(); nextM();
 renderOptionsX(); renderStatsX(); nextX();
+renderOptionsC(); renderStatsC(); renderC();
+renderOptionsR(); renderStatsR(); renderR();
 initCloud(); initAI();
 </script>
