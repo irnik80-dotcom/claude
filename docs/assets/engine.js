@@ -49,7 +49,7 @@
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
-  function parseNum(s) { s = String(s).toLowerCase().replace(/j(oule)?\s*$/, '').replace(/[\s ]/g, '').replace(',', '.'); return s === '' ? NaN : Number(s); }
+  function parseNum(s) { s = String(s).toLowerCase().replace(/[^0-9.,\-\s ]+$/, '').replace(/[\s ]/g, '').replace(',', '.'); return s === '' ? NaN : Number(s); }
 
   function unlock() { done[pos] = true; nextBtn.disabled = false; }
   function mark(correctFirst) { if (correctFirst) firstTry++; }
@@ -102,6 +102,7 @@
   R.quiz = function (s) {
     var c = el('section', 'card');
     c.appendChild(el('h2', '', s.q));
+    if (s.fig) c.appendChild(el('div', 'fig', s.fig));
     var opts = el('div', 'opts');
     var order = shuffle(s.options.map(function (o, i) { return { t: o, i: i }; }));
     var fb = feedback(c); var tries = 0, solved = false;
@@ -154,8 +155,8 @@
     var g = s.gens[s.idx % s.gens.length](); var c = el('section', 'card');
     c.appendChild(el('h2', '', '🧮 Számoljunk!'));
     c.appendChild(el('p', 'say', g.q));
-    var inp = el('input', 'input'); inp.type = 'text'; inp.inputMode = 'decimal'; inp.autocomplete = 'off'; inp.placeholder = 'Ide írd a számot (J)';
-    inp.setAttribute('aria-label', 'Válasz joule-ban');
+    var inp = el('input', 'input'); inp.type = 'text'; inp.inputMode = 'decimal'; inp.autocomplete = 'off'; inp.placeholder = 'Ide írd a számot (' + (g.u || 'J') + ')';
+    inp.setAttribute('aria-label', 'Válasz');
     var fb = feedback(c); var tries = 0, solved = false;
     var ok = el('button', 'btn center', 'Ellenőrzöm'); ok.type = 'button';
     var hintB = el('button', 'btn alt center', '💡 Segítség'); hintB.type = 'button';
@@ -164,11 +165,11 @@
       if (solved) return;
       var v = parseNum(inp.value);
       if (isNaN(v)) { fb.className = 'fb no'; fb.innerHTML = 'Írj be egy számot, pl. <b>2500</b>.'; return; }
-      if (Math.abs(v - g.a) < 0.5) {
+      if (Math.abs(v - g.a) <= (g.tol || 0.5)) {
         solved = true; if (tries === 0) mark(true); fb.className = 'fb ok'; fb.innerHTML = '✅ <b>Pontosan!</b> ' + g.explain; unlock();
       } else {
         tries++; fb.className = 'fb no'; fb.innerHTML = '🤔 Ez nem az. Próbáld újra, vagy kérj segítséget!';
-        if (tries >= 3) { solved = true; fb.innerHTML = '👉 A megoldás: <b>' + fmt(g.a) + ' J</b>. ' + g.explain; unlock(); }
+        if (tries >= 3) { solved = true; fb.innerHTML = '👉 A megoldás: <b>' + fmt(g.a) + ' ' + (g.u || 'J') + '</b>. ' + g.explain; unlock(); }
       }
     }
     ok.onclick = check; inp.onkeydown = function (e) { if (e.key === 'Enter') check(); };
@@ -339,7 +340,7 @@
     c.appendChild(el('p', '', stars === 3 ? 'Ezt a leckét tudod. Holnap futtasd át a kártyákat, és kész vagy a dolgozatra.' :
       'A hibákból tanulunk. Ha újra végigmész, már ismerős lesz – a számok is mások lesznek a számolós feladatokban.'));
     var row = el('div', 'row'); var again = el('button', 'btn center', '🔁 Újra'); again.onclick = function () { location.reload(); };
-    var home = el('a', 'btn alt center', '🏠 Főoldal'); home.href = './'; home.style.textDecoration = 'none'; home.style.display = 'inline-block';
+    var home = el('a', 'btn alt center', '🏠 Főoldal'); home.href = 'index.html'; home.style.textDecoration = 'none'; home.style.display = 'inline-block';
     row.appendChild(again); row.appendChild(home); c.appendChild(row); stage.appendChild(c);
   };
 
