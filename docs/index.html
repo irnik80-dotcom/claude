@@ -256,6 +256,8 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 }
 .pfall{margin-top:14px; border:1px dashed var(--line); border-radius:10px; padding:8px 12px}
 .pfall summary{cursor:pointer; font-weight:600; color:var(--accent)}
+.who-edit{border:0; background:none; cursor:pointer; font-size:.85rem; padding:2px 4px; margin-left:2px; border-radius:6px}
+.who-edit:hover{background:var(--accent-soft)}
 .toast{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:var(--ink); color:var(--card); padding:10px 16px; border-radius:12px; font-weight:600; z-index:50; box-shadow:0 6px 24px rgba(0,0,0,.25); max-width:calc(100vw - 32px)}
 .snt{transition:background .2s}
 .snt.reading{background:var(--warn-soft); box-shadow:0 0 0 3px var(--warn-soft); border-radius:4px}
@@ -4025,6 +4027,11 @@ const I18N = {
   't.nobody': ['Még senki sem lépett be.','Nikt się jeszcze nie zalogował.','Nobody has signed in yet.'],
   't.tap': ['Koppints egy sorra a részletekért.','Dotknij wiersza, aby zobaczyć szczegóły.','Tap a row for details.'],
   't.noname': ['(név nélkül)','(bez imienia)','(no name)'],
+  't.rename': ['Név szerkesztése','Zmień imię','Edit name'],
+  't.renameq': ['Milyen néven jelenjen meg ez a diák a tanári nézetben? (Üresen hagyva visszaáll az eredetire.)','Pod jakim imieniem ma się wyświetlać ten uczeń? (Puste = oryginalne)','What name should this student be shown with? (Leave empty to restore the original.)'],
+  't.origname': ['eredeti név: {n}','oryginalne imię: {n}','original name: {n}'],
+  'who.rename': ['Név megváltoztatása','Zmień imię','Change name'],
+  'who.askname': ['Hogy hívnak? A tanárod ezen a néven fog látni.','Jak masz na imię? Nauczyciel zobaczy cię pod tym imieniem.','What is your name? Your teacher will see you under this name.'],
   't.back': ['← Vissza a listához','← Wróć do listy','← Back to the list'],
   't.lastseen': ['Utoljára: {d}','Ostatnio: {d}','Last seen: {d}'],
   't.log': ['Napló','Dziennik','Log'],
@@ -4542,6 +4549,7 @@ function setWho(me, msg){
     w.innerHTML = (me.avatarUrl ? `<img alt="" src="${esc(me.avatarUrl)}">` : '<span class="who-dot" aria-hidden="true"></span>') +
       `<span>${esc(parts[0])}<b></b>${esc(parts[1]||'')}</span>`;
     w.querySelector('b').textContent = me.name || t('who.self');
+    if (typeof window.renameSelf === 'function') w.insertAdjacentHTML('beforeend', `<button type="button" class="who-edit" id="who-edit" title="${esc(t('who.rename'))}" aria-label="${esc(t('who.rename'))}">✏️</button>`);
   } else {
     w.classList.remove('on');
     w.innerHTML = '<span class="who-dot" aria-hidden="true"></span><span></span>';

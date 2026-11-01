@@ -61,6 +61,7 @@ async function start() {
   $('logout').onclick = () => A.signOut(auth);
 
   let attachedUid = null;
+  document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('#who-edit') && typeof window.renameSelf === 'function') window.renameSelf(); });
   A.onAuthStateChanged(auth, async (u) => {
     $('login-open').hidden = !!u;
     $('logout').hidden = !u;
@@ -69,7 +70,12 @@ async function start() {
       attachedUid = u.uid;
       const ref = F.doc(db, 'users', u.uid);
       const cloud = {
-        get: async () => { const s = await F.getDoc(ref); return { exists: s.exists(), data: () => s.data() }; },
+        get: async () => {
+          const s = await F.getDoc(ref); const d = s.exists() ? s.data() : null;
+          if (d && d.name && !cloudExtra.name) { cloudExtra.name = d.name; me.name = d.name; }
+          if (d && d.tlabels) cloudExtra.tlabels = d.tlabels;
+          return { exists: s.exists(), data: () => d };
+        },
         set: (obj) => F.setDoc(ref, obj)
       };
       const me = { name: u.displayName || u.email || '', avatarUrl: u.photoURL || '' };
@@ -100,12 +106,20 @@ async function start() {
         };
         setAINote('ai.gemini');
       }
+      window.renameSelf = async (ask) => {
+        const n = (prompt(ask || t('who.askname'), cloudExtra.name || '') || '').trim().slice(0, 40);
+        if (!n) return;
+        cloudExtra.name = n; me.name = n;
+        try { await A.updateProfile(u, { displayName: n }); } catch (e) { console.warn(e); }
+        setWho(me); scheduleCloud();
+      };
       try { await attachCloud(cloud, me); }
       catch (e) { console.error(e); setWho(null, t('auth.loaderr')); }
+      if (!cloudExtra.name) setTimeout(() => window.renameSelf(t('who.askname')), 400);
       teacherCheck(F, db);
     } else if (attachedUid) {
       attachedUid = null;
-      answerHook = null; cloudExtra = {}; aiBackend = null; setAINote(AI_OFF);
+      answerHook = null; cloudExtra = {}; aiBackend = null; setAINote(AI_OFF); window.renameSelf = null;
       boardBackend = null; BOARD.rows = null; if (typeof renderBoard === 'function') renderBoard();
       $('tab-teacher').hidden = true;
       if (!$('view-teacher').hidden) showTab('practice');
@@ -118,6 +132,7 @@ async function start() {
 const LOCALE = { hu: 'hu-HU', pl: 'pl-PL', en: 'en-GB' };
 const fmt = (ms) => ms ? new Date(ms).toLocaleString(LOCALE[LANG] || 'hu-HU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '–';
 const pct = (a, b) => b ? Math.round(100 * a / b) + '%' : '–';
+const nameOf = (u) => ((cloudExtra.tlabels || {})[u.id]) || u.name || t('t.noname');
 const tname = (id) => (TENSES.find((x) => x.id === id) || {}).it || id;
 let T = null; // {F, db, rows}
 let view = null; // 'list' | felhasználó objektum
@@ -168,7 +183,7 @@ function renderList() {
     <p class="muted">${t('t.tap')}</p>`;
   box.querySelectorAll('tr.click').forEach((tr) => {
     const u = r[+tr.dataset.k];
-    tr.cells[0].firstChild.textContent = u.name || t('t.noname');
+    tr.cells[0].firstChild.textContent = nameOf(u);
     tr.cells[1].textContent = u.email || '';
     tr.onclick = () => loadUser(u);
     tr.onkeydown = (e) => { if (e.key === 'Enter') loadUser(u); };
@@ -227,6 +242,7 @@ async function loadUser(u) {
   box.innerHTML = `
     <div class="actions" style="margin-top:0"><button class="btn quiet" id="t-back" type="button">${t('t.back')}</button>${pdfBtn('teacher')}</div>
     <div class="verb-line" style="margin-top:12px"><h2 class="inf" style="font-size:2rem" id="t-name"></h2><span class="hu mono" id="t-mail"></span></div>
+    <div class="actions" style="margin-top:6px"><button class="btn quiet" id="t-rename" type="button">✏️ ${t('t.rename')}</button><span class="muted" id="t-orig"></span></div>
     <p class="muted" style="margin:6px 0 0">${t('t.lastseen', { d: fmt(u.updated) })} · ${t('p.total')}: <b>${ps.total || 0}</b> · ${t('p.best')}: <b>${ps.best || 0}</b></p>
 
     ${section(t('tab.practice'))}
@@ -306,8 +322,19 @@ async function loadUser(u) {
       <thead><tr><th>${t('t.time')}</th><th></th><th>${t('t.question')}</th><th>${t('t.typed')}</th><th>${t('t.rightans')}</th><th></th></tr></thead>
       <tbody>${grams.slice(0, 200).map((a) => `<tr><td>${fmt(a.at)}</td><td>${esc(t('g.t.' + a.gtype))}</td><td>${esc(a.q || '')}</td><td class="mono">${esc(a.given || '—')}</td><td class="mono">${esc(a.right || '')}</td><td>${okMark(a)}</td></tr>`).join('') || noRow(6)}</tbody>
     </table></div>`;
-  $('t-name').textContent = u.name || t('t.noname');
+  const showName = () => {
+    $('t-name').textContent = nameOf(u);
+    $('t-orig').textContent = (cloudExtra.tlabels || {})[u.id] && u.name ? t('t.origname', { n: u.name }) : '';
+  };
+  showName();
+  $('t-rename').onclick = () => {
+    const v = prompt(t('t.renameq'), (cloudExtra.tlabels || {})[u.id] || u.name || '');
+    if (v === null) return;
+    const labels = Object.assign({}, cloudExtra.tlabels || {});
+    if (v.trim()) labels[u.id] = v.trim().slice(0, 40); else delete labels[u.id];
+    cloudExtra.tlabels = labels; showName(); scheduleCloud();
+  };
   $('t-mail').textContent = u.email || '';
   $('t-back').onclick = loadList;
-  PDF.teacher = () => printDoc(`${u.name || u.email || t('t.noname')}`, `<p class="pmeta">${esc(u.email || '')} · ${esc(t('tab.teacher'))}</p>` + printableClone($('teacher')).replace(/<h2[^>]*id="t-name"[^>]*>[\s\S]*?<\/h2>/, ''));
+  PDF.teacher = () => printDoc(`${nameOf(u) || u.email}`, `<p class="pmeta">${esc(u.email || '')} · ${esc(t('tab.teacher'))}</p>` + printableClone($('teacher')).replace(/<h2[^>]*id="t-name"[^>]*>[\s\S]*?<\/h2>/, ''));
 }
