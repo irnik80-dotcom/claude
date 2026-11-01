@@ -61,7 +61,6 @@ async function start() {
   $('logout').onclick = () => A.signOut(auth);
 
   let attachedUid = null;
-  document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('#who-edit') && typeof window.renameSelf === 'function') window.renameSelf(); });
   A.onAuthStateChanged(auth, async (u) => {
     $('login-open').hidden = !!u;
     $('logout').hidden = !u;

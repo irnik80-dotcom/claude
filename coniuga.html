@@ -4501,6 +4501,7 @@ async function saveCloud(){
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
 }
 let whoState = {me:null, msg:null};
+document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#who-edit') && typeof window.renameSelf === 'function') window.renameSelf(); });
 function setWho(me, msg){
   whoState = {me, msg};
   const w = $('who');
