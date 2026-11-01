@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Olasz és spanyol igeragozás gyakorló: közel 800 ige, minden igeidő, rendhagyó alakok jelölve, példamondatok és AI-gyakorlás.">
-<title>Coniuga</title>
+<title>Presente!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
@@ -417,7 +417,7 @@ dialog.login .row .btn{flex:1 1 140px}
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <h1>Coniuga<em>!</em></h1>
+      <h1 id="appname">Presente<em>!</em></h1>
       <p id="subtitle">Olasz igeragozás gyakorló</p>
       <p class="who" id="who"><span class="who-dot" aria-hidden="true"></span><span id="who-text" data-i18n="who.local">Az eredményeid ebben a böngészőben maradnak.</span></p>
     </div>
@@ -4460,12 +4460,12 @@ const pdfBtn = kind => CAN_PRINT ? `<button type="button" class="btn quiet pdfbt
 function printDoc(title, html){
   const area = document.getElementById('print-area');
   const date = new Date().toLocaleDateString({hu:'hu-HU', pl:'pl-PL', en:'en-GB'}[LANG] || 'hu-HU');
-  area.innerHTML = `<h1>${esc(title)}</h1>${html}<p class="pfoot">Coniuga · ${esc(date)}</p>`;
+  area.innerHTML = `<h1>${esc(title)}</h1>${html}<p class="pfoot">${APP_NAME} · ${esc(date)}</p>`;
   /* A tartalmat NEM töröljük nyomtatás után: iPhone-on a Safari az „afterprint” jelzést már a nyomtatási
      ablak megnyitásakor elküldi, a PDF oldalait pedig csak utána rakja össze – a törlés levágta a dokumentum végét.
      A nyomtatási terület a képernyőn úgyis rejtett; a következő PDF egyszerűen felülírja. */
   if (!printDoc.title0) printDoc.title0 = document.title;
-  document.title = 'Coniuga – ' + title;
+  document.title = APP_NAME + ' – ' + title;
   document.body.classList.add('printing');
   clearTimeout(printDoc.timer);
   printDoc.timer = setTimeout(() => { document.title = printDoc.title0; printDoc.title0 = null; }, 120000);
@@ -4491,6 +4491,8 @@ function exampleHtml(vb){
     <p class="ex-it"><span>${esc(capFirst(f.before))}<b>${esc(f.shown)}</b>${esc(f.after)}</span>${sayBtn(f.full)}</p>
     <p class="ex-hu">${esc(x.hu)}</p></div>`;
 }
+const APP_NAME = TL === 'es' ? '¡Presente!' : 'Presente!';
+(function(){ const h = document.getElementById('appname'); if (h && TL === 'es') h.innerHTML = '<em>¡</em>Presente<em>!</em>'; document.title = APP_NAME; })();
 const NS = TL === 'es' ? 'coniuga:es:' : 'coniuga:';
 const SHARED_KEYS = new Set(['settings','pstats']);
 const skey = k => (SHARED_KEYS.has(k) ? 'coniuga:' : NS) + k;

@@ -1,4 +1,4 @@
-# Coniuga
+# Presente! (korábban Coniuga)
 
 Olasz és spanyol igeragozás gyakorló: 482 olasz és 306 spanyol ige három szinten, 15 igeidő/mód nyelvenként, a rendhagyó alakok jelölve. A felület nyelve: magyar, lengyel, angol. A célnyelv (🇮🇹 / 🇪🇸) a fejlécben váltható; az eredmények nyelvenként külön mentődnek, a napi cél és a haladás közös.
 
