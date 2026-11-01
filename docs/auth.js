@@ -216,12 +216,16 @@ async function loadUser(u) {
   const tenseRows = rateRows(TENSES.filter((q) => gT[q.id]).map((q) => [q.it, gT[q.id]]));
   const dirRows = rateRows(Object.keys(DIRS_).filter((d) => gD[d]).map((d) => [DIRS_[d], gD[d]]));
   const none = `<p class="muted">${t('t.nolog')}</p>`;
+  const hears = ans.filter((a) => a.kind === 'dict' || a.kind === 'pron'), grams = ans.filter((a) => a.kind === 'gram');
+  const gG = group(grams, 'gtype');
+  const gramRows = rateRows(['art', 'prep', 'pron', 'neg', 'ger', 'vprep'].filter((k) => gG[k]).map((k) => [t('g.t.' + k), gG[k]]));
+  const ps = u.pstats || {};
   const noRow = (n) => `<tr><td colspan="${n}" class="muted">${t('t.nolog')}</td></tr>`;
 
   box.innerHTML = `
     <div class="actions" style="margin-top:0"><button class="btn quiet" id="t-back" type="button">${t('t.back')}</button>${pdfBtn('teacher')}</div>
     <div class="verb-line" style="margin-top:12px"><h2 class="inf" style="font-size:2rem" id="t-name"></h2><span class="hu mono" id="t-mail"></span></div>
-    <p class="muted" style="margin:6px 0 0">${t('t.lastseen', { d: fmt(u.updated) })}</p>
+    <p class="muted" style="margin:6px 0 0">${t('t.lastseen', { d: fmt(u.updated) })} · ${t('p.total')}: <b>${ps.total || 0}</b> · ${t('p.best')}: <b>${ps.best || 0}</b></p>
 
     ${section(t('tab.practice'))}
     <p class="muted" style="margin:0">${summary(s, conj)}</p>
@@ -286,6 +290,19 @@ async function loadUser(u) {
     <div class="tscroll"><table class="ttab">
       <thead><tr><th>${t('t.time')}</th><th>${t('t.title')}</th><th>${t('t.genre')}</th><th>${t('t.level')}</th><th class="num">${t('t.pagesCol')}</th><th>${t('t.ending')}</th></tr></thead>
       <tbody>${advs.slice(0, 100).map((a) => `<tr><td>${fmt(a.at)}</td><td>${esc(a.title || '')}${a.lang && a.lang !== 'hu' ? ` <span class="muted">(${esc(a.lang.toUpperCase())})</span>` : ''}</td><td>${esc(t('genre.' + a.genre))}</td><td>${esc(a.level || '')}</td><td class="num">${a.pages || 0}</td><td>${a.ending === 'good' ? '<span class="okc">★</span>' : '<span class="badc">✗</span>'}</td></tr>`).join('') || `<tr><td colspan="6" class="muted">${t('t.noadv')}</td></tr>`}</tbody>
+    </table></div>
+
+    ${section(t('tab.hear'))}
+    <div class="tscroll"><table class="ttab">
+      <thead><tr><th>${t('t.time')}</th><th></th><th>${t('t.sentence')}</th><th>${t('t.typed')}</th><th class="num">%</th></tr></thead>
+      <tbody>${hears.slice(0, 150).map((a) => `<tr><td>${fmt(a.at)}</td><td>${a.kind === 'pron' ? '🎤' : '✍️'}</td><td>${esc(a.sentence || '')}</td><td class="mono">${esc((a.kind === 'pron' ? a.heard : a.given) || '—')}</td><td class="num"><span class="${a.score >= 90 ? 'okc' : a.score >= 60 ? '' : 'badc'}">${a.score || 0}</span></td></tr>`).join('') || noRow(5)}</tbody>
+    </table></div>
+
+    ${section(t('tab.gram'))}
+    ${gramRows ? `<table class="ttab"><tbody>${gramRows}</tbody></table>` : none}
+    <div class="tscroll"><table class="ttab">
+      <thead><tr><th>${t('t.time')}</th><th></th><th>${t('t.question')}</th><th>${t('t.typed')}</th><th>${t('t.rightans')}</th><th></th></tr></thead>
+      <tbody>${grams.slice(0, 200).map((a) => `<tr><td>${fmt(a.at)}</td><td>${esc(t('g.t.' + a.gtype))}</td><td>${esc(a.q || '')}</td><td class="mono">${esc(a.given || '—')}</td><td class="mono">${esc(a.right || '')}</td><td>${okMark(a)}</td></tr>`).join('') || noRow(6)}</tbody>
     </table></div>`;
   $('t-name').textContent = u.name || t('t.noname');
   $('t-mail').textContent = u.email || '';

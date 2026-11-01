@@ -229,6 +229,11 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .board li .nm{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .board li .pt{font-weight:700; font-variant-numeric:tabular-nums}
 .board li.me{background:var(--accent-soft); border-radius:8px}
+.gq{font-family:var(--f-display); font-size:clamp(1.5rem,5vw,2.1rem); line-height:1.25; margin:6px 0 10px; overflow-wrap:anywhere}
+.gq .gap{color:var(--accent); font-weight:700}
+.glist{list-style:none; padding:0; margin:6px 0 0}
+.glist li{display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px solid var(--line); font-size:.9rem}
+.glist li b{font-variant-numeric:tabular-nums; white-space:nowrap}
 .toast{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:var(--ink); color:var(--card); padding:10px 16px; border-radius:12px; font-weight:600; z-index:50; box-shadow:0 6px 24px rgba(0,0,0,.25); max-width:calc(100vw - 32px)}
 .snt{transition:background .2s}
 .snt.reading{background:var(--warn-soft); box-shadow:0 0 0 3px var(--warn-soft); border-radius:4px}
@@ -374,6 +379,7 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
       <button id="tab-adv" role="tab" aria-selected="false" data-i18n="tab.adv">Kaland</button>
       <button id="tab-rev" role="tab" aria-selected="false">Ismétlés</button>
       <button id="tab-hear" role="tab" aria-selected="false" data-i18n="tab.hear">Hallás</button>
+      <button id="tab-gram" role="tab" aria-selected="false" data-i18n="tab.gram">Nyelvtan</button>
       <button id="tab-browse" role="tab" aria-selected="false" data-i18n="tab.browse">Igetár</button>
     </nav>
   </header>
@@ -725,6 +731,25 @@ input.is-bad{border-color:var(--pen)!important; background:var(--pen-soft)!impor
           <div class="opt">
             <span class="lbl" data-i18n="opt.level"></span>
             <div class="checks" id="h-levels"></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="view-gram" hidden>
+    <div class="layout">
+      <div class="card" id="gcard"></div>
+      <aside class="side" id="gside">
+        <div class="card">
+          <h3 data-i18n="res.gram"></h3>
+          <ul class="glist" id="g-stats"></ul>
+        </div>
+        <div class="card">
+          <h3 data-i18n="settings"></h3>
+          <div class="opt">
+            <span class="lbl" data-i18n="g.types"></span>
+            <div class="checks" id="g-types"></div>
           </div>
         </div>
       </aside>
@@ -3268,6 +3293,36 @@ const I18N = {
   'h.count': ['gyakorlat','ćwiczeń','exercises'],
   'h.dict': ['diktálás','dyktando','dictation'],
   'p.title': ['Haladás','Postępy','Progress'],
+  'tab.gram': ['Nyelvtan','Gramatyka','Grammar'],
+  'res.gram': ['Eredmény · nyelvtan','Wyniki · gramatyka','Results · grammar'],
+  'g.label': ['Nyelvtan','Gramatyka','Grammar'],
+  'g.types': ['Feladattípusok','Rodzaje zadań','Exercise types'],
+  'g.ph': ['Írd be a választ','Wpisz odpowiedź','Type the answer'],
+  'g.t.art': ['Névelők','Rodzajniki','Articles'],
+  'g.t.prep': ['Névelős elöljárók','Przyimki ściągnięte','Articulated prepositions'],
+  'g.t.pron': ['Névmások','Zaimki','Pronouns'],
+  'g.t.neg': ['Tagadó felszólítás','Rozkaźnik przeczący','Negative imperative'],
+  'g.t.ger': ['stare + gerundio','stare + gerundio','stare + gerundio'],
+  'g.t.vprep': ['Igék vonzata','Czasowniki z przyimkiem','Verbs + preposition'],
+  'g.i.art': ['Írd be a névelőt (vagy a többes számot).','Wpisz rodzajnik (albo liczbę mnogą).','Type the article (or the plural).'],
+  'g.i.prep': ['Vond össze az elöljárót a névelővel.','Połącz przyimek z rodzajnikiem.','Merge the preposition with the article.'],
+  'g.i.pron': ['Írd át a mondatot: a tárgyat és/vagy a részeshatározót (a …) cseréld névmásra.','Przepisz zdanie, zastępując dopełnienia zaimkami.','Rewrite the sentence, replacing the objects with pronouns.'],
+  'g.i.neg': ['Tiltsd meg: tagadó felszólító mód.','Zakaż: tryb rozkazujący przeczący.','Forbid it: negative imperative.'],
+  'g.i.ger': ['Mit csinál éppen? stare + gerundio.','Co robi teraz? stare + gerundio.','What is happening right now? stare + gerundio.'],
+  'g.i.vprep': ['Melyik elöljáró kell? (a, di, da …)','Jaki przyimek? (a, di, da …)','Which preposition? (a, di, da …)'],
+  'g.r.art': ['Határozott névelő: il · lo (s+mássalhangzó, z, gn, ps, x, y előtt) · l\' (magánhangzó előtt) · la. Többes szám: i · gli · le.','Rodzajnik określony: il · lo (przed s+spółgłoska, z, gn, ps, x, y) · l\' (przed samogłoską) · la. Liczba mnoga: i · gli · le.','Definite article: il · lo (before s+consonant, z, gn, ps, x, y) · l\' (before a vowel) · la. Plural: i · gli · le.'],
+  'g.r.indef': ['Határozatlan névelő: un · uno (s+mássalhangzó, z, gn, ps, x, y előtt) · una · un\' (nőnem, magánhangzó előtt).','Rodzajnik nieokreślony: un · uno (przed s+spółgłoska, z, gn, ps, x, y) · una · un\' (r. żeński, przed samogłoską).','Indefinite article: un · uno (before s+consonant, z, gn, ps, x, y) · una · un\' (feminine, before a vowel).'],
+  'g.r.pl': ['Többes szám: il → i, lo/l\' (hímnem) → gli, la/l\' (nőnem) → le. -o → -i, -a → -e (nőnem), -e → -i; az ékezetes végű és a mássalhangzóra végződő szavak nem változnak.','Liczba mnoga: il → i, lo/l\' (r. męski) → gli, la/l\' (r. żeński) → le. -o → -i, -a → -e, -e → -i; słowa akcentowane i zakończone spółgłoską się nie zmieniają.','Plural: il → i, lo/l\' (masc.) → gli, la/l\' (fem.) → le. -o → -i, -a → -e (fem.), -e → -i; stressed final vowels and consonant endings do not change.'],
+  'g.r.prep': ['di, a, da, in, su + határozott névelő egy szóvá olvad: del, allo, dall\', nella, sui, degli, sulle … (di → de-, in → ne-).','di, a, da, in, su + rodzajnik określony łączą się: del, allo, dall\', nella, sui, degli, sulle … (di → de-, in → ne-).','di, a, da, in, su + definite article merge: del, allo, dall\', nella, sui, degli, sulle … (di → de-, in → ne-).'],
+  'g.r.dir': ['Tárgyas névmás az ige előtt: lo (hímnem), la (nőnem), li, le (többes). Magánhangzó előtt lo/la → l\'.','Zaimek dopełnienia przed czasownikiem: lo, la, li, le. Przed samogłoską lo/la → l\'.','Direct object pronoun before the verb: lo, la, li, le. Before a vowel lo/la → l\'.'],
+  'g.r.pp': ['Összetett múltban a tárgyas névmás előtt az avere participiója egyezik: l\'ho comprato/comprata, li ho comprati, le ho comprate.','W czasie przeszłym złożonym participio zgadza się z zaimkiem: l\'ho comprata, li ho comprati, le ho comprate.','In the passato prossimo the participle agrees with the pronoun: l\'ho comprata, li ho comprati, le ho comprate.'],
+  'g.r.ind': ['Részes névmás: mi, ti, gli (neki – férfi; nekik), le (neki – nő), ci, vi. Az ige előtt áll.','Zaimek dopełnienia dalszego: mi, ti, gli (jemu; im), le (jej), ci, vi. Stoi przed czasownikiem.','Indirect object pronoun: mi, ti, gli (to him; to them), le (to her), ci, vi. It goes before the verb.'],
+  'g.r.comb': ['Részes + tárgyas: me lo, te la, ce li, ve le … A gli és a le helyett glie-, egy szóban: glielo, gliela, glieli, gliele.','Celownik + biernik: me lo, te la, ce li, ve le … gli i le → glie- w jednym słowie: glielo, gliela, glieli, gliele.','Indirect + direct: me lo, te la, ce li, ve le … gli and le become glie- in one word: glielo, gliela, glieli, gliele.'],
+  'g.r.neg': ['Tagadó felszólítás: tu → non + főnévi igenév (Non parlare!). A többi személy: non + a felszólító alak (Non parliamo, Non parlate, Non parli).','Rozkaźnik przeczący: tu → non + bezokolicznik (Non parlare!). Inne osoby: non + forma rozkaźnika.','Negative imperative: tu → non + infinitive (Non parlare!). Other persons: non + the imperative form.'],
+  'g.r.ger': ['stare + gerundio = éppen most történik. -are → -ando, -ere/-ire → -endo. Rendhagyó: facendo, dicendo, bevendo, ponendo, traendo, conducendo.','stare + gerundio = dzieje się właśnie teraz. -are → -ando, -ere/-ire → -endo. Nieregularne: facendo, dicendo, bevendo, ponendo.','stare + gerundio = happening right now. -are → -ando, -ere/-ire → -endo. Irregular: facendo, dicendo, bevendo, ponendo.'],
+  'g.r.vprep': ['Sok ige után meghatározott elöljáró jön a főnévi igenév előtt: cominciare a, finire di, riuscire a, smettere di … Ezeket érdemes az igével együtt tanulni.','Wiele czasowników wymaga konkretnego przyimka przed bezokolicznikiem: cominciare a, finire di, riuscire a, smettere di … Warto uczyć się ich razem.','Many verbs need a fixed preposition before an infinitive: cominciare a, finire di, riuscire a, smettere di … Learn them together with the verb.'],
+  'b.gram': ['Nyelvtanos','Gramatyk','Grammarian'],
+  'b.gram.d': ['200 helyes nyelvtani feladat','200 poprawnych zadań z gramatyki','200 correct grammar exercises'],
   'p.today': ['Mai pontok','Dzisiejsze punkty','Today’s points'],
   'p.streak': ['nap sorozat','dni z rzędu','day streak'],
   'p.best': ['leghosszabb sorozat','najdłuższa seria','longest streak'],
@@ -3276,7 +3331,7 @@ const I18N = {
   'p.met': ['Mai cél teljesítve!','Dzienny cel osiągnięty!','Daily goal reached!'],
   'p.left': ['Még {n} pont a mai célig.','Jeszcze {n} pkt do dziennego celu.','{n} more points to today’s goal.'],
   'p.last14': ['Az utolsó 14 nap','Ostatnie 14 dni','The last 14 days'],
-  'p.how': ['Pontok: ragozás, szójelentés, mondat, ismétlés, hallás 1 · fordítás 3 · beszélgetés, olvasmány, kaland 5. A sorozat azokat a napokat számolja, amikor elérted a napi célt.','Punkty: koniugacja, słówka, zdania, powtórki, słuchanie 1 · tłumaczenie 3 · rozmowa, czytanie, przygoda 5. Seria liczy dni, w których osiągnięto dzienny cel.','Points: conjugation, meanings, sentences, review, listening 1 · translation 3 · conversation, reading, adventure 5. The streak counts the days you reached your daily goal.'],
+  'p.how': ['Pontok: ragozás, szójelentés, mondat, ismétlés, hallás, nyelvtan 1 · fordítás 3 · beszélgetés, olvasmány, kaland 5. A sorozat azokat a napokat számolja, amikor elérted a napi célt.','Punkty: koniugacja, słówka, zdania, powtórki, słuchanie, gramatyka 1 · tłumaczenie 3 · rozmowa, czytanie, przygoda 5. Seria liczy dni, w których osiągnięto dzienny cel.','Points: conjugation, meanings, sentences, review, listening, grammar 1 · translation 3 · conversation, reading, adventure 5. The streak counts the days you reached your daily goal.'],
   'p.goal': ['Napi cél','Dzienny cel','Daily goal'],
   'p.goalhint': ['Ennyi pont kell naponta, hogy a sorozatod nőjön.','Tyle punktów dziennie, żeby seria rosła.','Points needed each day to keep your streak growing.'],
   'p.g10': ['laza · 10','luźno · 10','casual · 10'],
@@ -3577,7 +3632,7 @@ async function saveCloud(){
   if (!cloudRef) return;
   if (cloudBusy){ cloudDirty = true; return; }
   cloudBusy = true;
-  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), astats: JSON.parse(JSON.stringify(AST)), cards: JSON.parse(JSON.stringify(CARDS)), hstats: JSON.parse(JSON.stringify(HST)), pstats: JSON.parse(JSON.stringify(PST)), adv: (typeof advPlain === 'function' ? advPlain() : null), advAt: (typeof advAt === 'number' ? advAt : 0), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
+  try{ await cloudRef.set(Object.assign({}, cloudExtra, {stats: JSON.parse(JSON.stringify(ST)), vstats: JSON.parse(JSON.stringify(VST)), mstats: JSON.parse(JSON.stringify(MST)), xstats: JSON.parse(JSON.stringify(XST)), cstats: JSON.parse(JSON.stringify(CST)), rstats: JSON.parse(JSON.stringify(RST)), astats: JSON.parse(JSON.stringify(AST)), cards: JSON.parse(JSON.stringify(CARDS)), hstats: JSON.parse(JSON.stringify(HST)), pstats: JSON.parse(JSON.stringify(PST)), gstats: JSON.parse(JSON.stringify(GST)), adv: (typeof advPlain === 'function' ? advPlain() : null), advAt: (typeof advAt === 'number' ? advAt : 0), settings: JSON.parse(JSON.stringify(S)), updated: Date.now()})); }
   catch(e){ setWho(null, t('who.saveerr')); }
   cloudBusy = false;
   if (cloudDirty){ cloudDirty = false; saveCloud(); }
@@ -3627,6 +3682,8 @@ function applyData(d){
   REV = null; renderRevSide(); renderRev(); revBadge();
   HST = Object.assign({dn:0,ds:0,pn:0,ps:0}, d.hstats ? JSON.parse(JSON.stringify(d.hstats)) : {});
   renderOptionsH(); renderStatsH(); nextH();
+  GST = d.gstats ? JSON.parse(JSON.stringify(d.gstats)) : {};
+  renderOptionsG(); renderStatsG(); nextG();
   PST = Object.assign(BLANK_PST(), d.pstats ? JSON.parse(JSON.stringify(d.pstats)) : {});
   renderP(); boardPush();
 }
@@ -3683,6 +3740,7 @@ let RST = Object.assign({total:0,q:0,ok:0,recent:[]}, store.get('rstats', {}));
 let AST = Object.assign({total:0,good:0,pages:0,recent:[]}, store.get('astats', {}));
 let CARDS = (store.get('cards', []) || []).filter(c => c && c.k);
 let HST = Object.assign({dn:0,ds:0,pn:0,ps:0}, store.get('hstats', {}));
+let GST = store.get('gstats', {}) || {};
 const BLANK_PST = () => ({days:{}, total:0, best:0, badges:{}});
 let PST = Object.assign(BLANK_PST(), store.get('pstats', {}));
 let cur = null;
@@ -3941,7 +3999,7 @@ function renderDetail(){
 /* ---- fülek ---- */
 function showTab(name){
   if (typeof hideBubble === 'function') hideBubble();
-  ['practice','vocab','sent','trans','chat','read','adv','rev','hear','browse','teacher','prog'].forEach(n=>{
+  ['practice','vocab','sent','trans','chat','read','adv','rev','hear','gram','browse','teacher','prog'].forEach(n=>{
     const tab = $('tab-'+n), view = $('view-'+n);
     if (tab) tab.setAttribute('aria-selected', n===name);
     if (view) view.hidden = n!==name;
@@ -3957,8 +4015,340 @@ $('tab-read').onclick = ()=>showTab('read');
 $('tab-adv').onclick = ()=>showTab('adv');
 $('tab-rev').onclick = ()=>{ showTab('rev'); if (!REV) renderRev(); };
 $('tab-hear').onclick = ()=>showTab('hear');
+$('tab-gram').onclick = ()=>showTab('gram');
 $('progbtn').onclick = ()=>{ showTab('prog'); renderP(); boardLoad(); };
 
+
+
+/* ---- Nyelvtan: névelők, névelős elöljárók, névmások, tagadó felszólítás, stare + gerundio, igék vonzata ---- */
+const NOUN_RAW = `libro|m||könyv|książka|book
+ragazzo|m||fiú|chłopak|boy
+ragazza|f||lány|dziewczyna|girl
+casa|f||ház|dom|house
+amico|m|amici|barát|przyjaciel|friend
+amica|f|amiche|barátnő|przyjaciółka|friend (female)
+studente|m||diák|student|student
+studentessa|f||diáklány|studentka|student (female)
+zaino|m||hátizsák|plecak|backpack
+zio|m|zii|nagybácsi|wujek|uncle
+zia|f||nagynéni|ciocia|aunt
+specchio|m|specchi|tükör|lustro|mirror
+sport|m|sport|sport|sport|sport
+gnomo|m||törpe|gnom|gnome
+psicologo|m|psicologi|pszichológus|psycholog|psychologist
+yogurt|m|yogurt|joghurt|jogurt|yogurt
+albero|m||fa|drzewo|tree
+uomo|m|uomini|férfi|mężczyzna|man
+donna|f||nő|kobieta|woman
+acqua|f||víz|woda|water
+isola|f||sziget|wyspa|island
+ora|f||óra (időtartam)|godzina|hour
+orologio|m|orologi|óra (szerkezet)|zegar|clock
+ospedale|m||kórház|szpital|hospital
+aereo|m|aerei|repülőgép|samolot|airplane
+autobus|m|autobus|busz|autobus|bus
+università|f|università|egyetem|uniwersytet|university
+città|f|città|város|miasto|city
+caffè|m|caffè|kávé|kawa|coffee
+film|m|film|film|film|film
+foto|f|foto|fénykép|zdjęcie|photo
+mano|f|mani|kéz|ręka|hand
+problema|m|problemi|probléma|problem|problem
+giorno|m||nap|dzień|day
+notte|f||éjszaka|noc|night
+chiave|f||kulcs|klucz|key
+fiore|m||virág|kwiat|flower
+cane|m||kutya|pies|dog
+gatto|m||macska|kot|cat
+tavolo|m||asztal|stół|table
+sedia|f||szék|krzesło|chair
+finestra|f||ablak|okno|window
+porta|f||ajtó|drzwi|door
+giardino|m||kert|ogród|garden
+strada|f||út, utca|ulica|street
+piazza|f||tér|plac|square
+negozio|m|negozi|bolt|sklep|shop
+mercato|m|mercati|piac|targ|market
+cuoco|m|cuochi|szakács|kucharz|cook
+medico|m|medici|orvos|lekarz|doctor
+lago|m|laghi|tó|jezioro|lake
+amore|m||szerelem|miłość|love
+scuola|f||iskola|szkoła|school
+scarpa|f||cipő|but|shoe
+zucchero|m||cukor|cukier|sugar
+stazione|f||állomás|stacja|station
+treno|m||vonat|pociąg|train
+macchina|f||autó|samochód|car
+biglietto|m||jegy|bilet|ticket
+borsa|f||táska|torba|bag
+lettera|f||levél|list|letter
+giornale|m||újság|gazeta|newspaper
+spiaggia|f|spiagge|strand|plaża|beach
+mare|m||tenger|morze|sea
+montagna|f||hegy|góra|mountain
+inverno|m||tél|zima|winter
+estate|f||nyár|lato|summer
+occhio|m|occhi|szem|oko|eye
+idea|f||ötlet|pomysł|idea
+esame|m||vizsga|egzamin|exam
+errore|m||hiba|błąd|mistake
+stivale|m||csizma|kozak|boot
+straniero|m||külföldi|cudzoziemiec|foreigner
+scoiattolo|m||mókus|wiewiórka|squirrel
+insegnante|m||tanár|nauczyciel|teacher
+anno|m||év|rok|year
+artista|m|artisti|művész|artysta|artist
+radio|f|radio|rádió|radio|radio
+bar|m|bar|bár, kávézó|bar|bar
+re|m|re|király|król|king
+mattina|f||reggel|rano|morning
+sera|f||este|wieczór|evening
+fratello|m||fiútestvér|brat|brother
+sorella|f||lánytestvér|siostra|sister
+figlio|m|figli|fia valakinek|syn|son
+bicchiere|m||pohár|szklanka|glass
+piatto|m||tányér|talerz|plate
+vino|m||bor|wino|wine
+ufficio|m|uffici|iroda|biuro|office
+elefante|m||elefánt|słoń|elephant
+ombrello|m||esernyő|parasol|umbrella
+zucchina|f|zucchine|cukkini|cukinia|courgette
+specialista|m|specialisti|szakember|specjalista|specialist
+orso|m||medve|niedźwiedź|bear
+erba|f||fű|trawa|grass
+isolano|m||szigetlakó|wyspiarz|islander`;
+const NOUNS = NOUN_RAW.trim().split('\n').map(l => { const [it, g, pl, hu, plm, en] = l.split('|'); return {it, g, pl: pl || null, tr: [hu, plm, en]}; });
+const nounTr = n => n.tr[Math.max(0, LANGS.indexOf(LANG))];
+function nounPl(n){
+  if (n.pl) return n.pl;
+  const w = n.it;
+  if (/o$/.test(w)) return w.slice(0, -1) + 'i';
+  if (/e$/.test(w)) return w.slice(0, -1) + 'i';
+  if (/a$/.test(w)) return w.slice(0, -1) + (n.g === 'f' ? 'e' : 'i');
+  return w;
+}
+const isLoWord = w => /^(s[^aeiouàèéìòù]|z|gn|ps|pn|x|y)/i.test(w);
+const isVowWord = w => /^[aeiouàèéìòùh]/i.test(w);
+function defArt(g, plural, w){
+  if (plural) return g === 'f' ? 'le' : (isVowWord(w) || isLoWord(w) ? 'gli' : 'i');
+  if (isVowWord(w)) return "l'";
+  if (g === 'f') return 'la';
+  return isLoWord(w) ? 'lo' : 'il';
+}
+function indefArt(g, w){
+  if (g === 'f') return isVowWord(w) ? "un'" : 'una';
+  return isLoWord(w) ? 'uno' : 'un';
+}
+const withArt = (a, w) => a.endsWith("'") ? a + w : a + ' ' + w;
+const PREP_BASE = {di:'de', a:'a', da:'da', in:'ne', su:'su'};
+const PREP_ART = {'il':'l', 'lo':'llo', "l'":"ll'", 'la':'lla', 'i':'i', 'gli':'gli', 'le':'lle'};
+const prepArt = (p, art) => PREP_BASE[p] + PREP_ART[art];
+
+const DIR_OBJ = {
+  comprare: [['il pane','m',0],['la frutta','f',0],['i biglietti','m',1],['le scarpe','f',1]],
+  leggere: [['il giornale','m',0],['la lettera','f',0],['i libri','m',1],['le riviste','f',1]],
+  vedere: [['il film','m',0],['la partita','f',0],['i ragazzi','m',1],['le amiche','f',1]],
+  mangiare: [['il gelato','m',0],['la pizza','f',0],['gli spaghetti','m',1],['le mele','f',1]],
+  prendere: [['il treno','m',0],['la metro','f',0],['gli occhiali','m',1],['le chiavi','f',1]],
+  chiamare: [['Marco','m',0],['Giulia','f',0],['i nonni','m',1],['le ragazze','f',1]],
+  aspettare: [["l'autobus",'m',0],['Anna','f',0],['gli amici','m',1],['le colleghe','f',1]],
+  invitare: [['Luca','m',0],['Sara','f',0],['i vicini','m',1],['le cugine','f',1]],
+  cercare: [['il portafoglio','m',0],['la borsa','f',0],['i documenti','m',1],['le chiavi','f',1]],
+  bere: [['il caffè','m',0],['la birra','f',0],['i succhi','m',1],['le bibite','f',1]],
+  aprire: [['il regalo','m',0],['la finestra','f',0],['i pacchi','m',1],['le porte','f',1]],
+  lavare: [['il piatto','m',0],['la macchina','f',0],['i bicchieri','m',1],['le tazze','f',1]]
+};
+const COMB_OBJ = {
+  dare: [['il libro','m',0],['la chiave','f',0],['i soldi','m',1],['le foto','f',1]],
+  mandare: [['il pacco','m',0],['la lettera','f',0],['i fiori','m',1],['le foto','f',1]],
+  regalare: [['il libro','m',0],['la borsa','f',0],['i biglietti','m',1],['le rose','f',1]],
+  prestare: [['il dizionario','m',0],['la macchina','f',0],['i soldi','m',1],['le forbici','f',1]],
+  portare: [['il caffè','m',0],['la torta','f',0],['i dolci','m',1],['le bibite','f',1]],
+  mostrare: [['il quadro','m',0],['la casa','f',0],['i documenti','m',1],['le foto','f',1]]
+};
+const IND_VERB = {telefonare:'', scrivere:'una mail', rispondere:'subito', parlare:'spesso', spiegare:'la regola', mandare:'un messaggio'};
+// [kifejezés, névmás, személy (0-5) vagy -1]
+const IND_TGT = [['a Marco','gli',-1],['a Giulia','le',-1],['ai genitori','gli',-1],['a me','mi',0],['a te','ti',1],['a noi','ci',3],['a voi','vi',4]];
+const COMB_IND = {mi:'me', ti:'te', ci:'ce', vi:'ve', gli:'glie', le:'glie'};
+const dirPron = (g, pl) => pl ? (g === 'f' ? 'le' : 'li') : (g === 'f' ? 'la' : 'lo');
+const VPREP_RAW = `cominciare|a|Ho cominciato ___ studiare l'italiano.
+finire|di|Ho finito ___ lavorare alle sei.
+smettere|di|Devi smettere ___ fumare.
+decidere|di|Abbiamo deciso ___ partire domani.
+imparare|a|Sto imparando ___ nuotare.
+provare|a|Prova ___ aprire la finestra.
+continuare|a|Continua ___ piovere.
+riuscire|a|Non riesco ___ dormire.
+cercare|di|Cerco ___ capire.
+sperare|di|Spero ___ vederti presto.
+dimenticare|di|Ho dimenticato ___ chiudere la porta.
+aiutare|a|Mi aiuti ___ portare le valigie?
+insegnare|a|Mia nonna mi ha insegnato ___ cucinare.
+andare|a|Andiamo ___ mangiare una pizza.
+venire|a|Vieni ___ trovarmi domani?
+pensare|di|Penso ___ cambiare lavoro.
+credere|di|Credo ___ avere ragione.
+promettere|di|Ti prometto ___ tornare presto.
+chiedere|di|Mi ha chiesto ___ aspettare.
+permettere|di|Non mi permette ___ uscire la sera.
+dire|di|Il medico mi ha detto ___ riposare.
+tentare|di|Ha tentato ___ convincermi.
+sognare|di|Sogno ___ vivere al mare.
+rinunciare|a|Non voglio rinunciare ___ viaggiare.
+abituarsi|a|Mi sono abituato ___ alzarmi presto.
+divertirsi|a|I bambini si divertono ___ giocare in giardino.
+fermarsi|a|Ci siamo fermati ___ guardare il panorama.
+convincere|a|Mi ha convinto ___ restare.
+costringere|a|La pioggia ci ha costretti ___ tornare a casa.
+accettare|di|Ha accettato ___ aiutarci.
+ricordarsi|di|Ricordati ___ comprare il latte!
+fidarsi|di|Mi fido ___ te.
+dipendere|da|Dipende ___ te.
+partecipare|a|Partecipo ___ un corso di cucina.
+pensare|a|Penso sempre ___ te.
+parlare|di|Parliamo ___ politica.
+innamorarsi|di|Si è innamorato ___ Giulia.
+mettersi|a|Si è messo ___ ridere.
+occuparsi|di|Mi occupo ___ marketing.
+lamentarsi|di|Si lamenta sempre ___ tutto.
+evitare|di|Evita ___ mangiare troppo la sera.
+stancarsi|di|Mi sono stancato ___ aspettare.
+uscire|da|Esco ___ casa alle otto.
+avere bisogno|di|Ho bisogno ___ riposare.
+avere paura|di|Ho paura ___ volare.
+essere contento|di|Sono contento ___ vederti.
+essere pronto|a|Sono pronto ___ partire.`;
+const VPREP = VPREP_RAW.trim().split('\n').map(l => { const [inf, p, s] = l.split('|'); return {inf, p, s}; });
+const GTYPES = ['art','prep','pron','neg','ger','vprep'];
+const GER_SKIP = new Set(['essere','avere','stare','potere','dovere','volere','sapere','piacere','sembrare','bastare','occorrere','servire','dispiacere','parere','valere']);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const capS = s => s.charAt(0).toUpperCase() + s.slice(1);
+const presOf = (inf, i) => cell(VBY[inf], 'pres', i).accept[0];
+const elide = (p, w) => (p === 'lo' || p === 'la') && /^[aeiouhàèéìòù]/i.test(w) ? "l'" + w : p + ' ' + w;
+function gerundOf(vb){
+  if (vb.inf === 'essere') return 'essendo';
+  const f = vb.F.imp[0].split('/')[0];
+  return f.slice(0, -3) + (f.slice(-3, -2) === 'a' ? 'ando' : 'endo');
+}
+const verbHint = inf => byInf[inf] ? `${inf} · ${byInf[inf].hu}` : inf;
+
+function genGram(type){
+  if (type === 'art'){
+    const n = pick(NOUNS), sub = pick(['def','indef','pl']);
+    if (sub === 'def'){ const a = defArt(n.g, false, n.it); return {type, sub, q: `___ ${n.it}`, hint: nounTr(n), accept: [a, withArt(a, n.it)], answer: withArt(a, n.it), full: withArt(a, n.it), rule: 'g.r.art'}; }
+    if (sub === 'indef'){ const a = indefArt(n.g, n.it); return {type, sub, q: `___ ${n.it}`, hint: nounTr(n), accept: [a, withArt(a, n.it)], answer: withArt(a, n.it), full: withArt(a, n.it), rule: 'g.r.indef'}; }
+    const s = withArt(defArt(n.g, false, n.it), n.it), p = withArt(defArt(n.g, true, nounPl(n)), nounPl(n));
+    return {type, sub, q: `${s} → ___`, hint: nounTr(n), accept: [p], answer: p, full: p, rule: 'g.r.pl'};
+  }
+  if (type === 'prep'){
+    const n = pick(NOUNS), pl = Math.random() < 0.35, w = pl ? nounPl(n) : n.it, art = defArt(n.g, pl, w), p = pick(Object.keys(PREP_BASE));
+    const pa = prepArt(p, art), ans = withArt(pa, w);
+    return {type, q: `${p} + ${withArt(art, w)} → ___`, hint: nounTr(n), accept: [ans], answer: ans, full: ans, rule: 'g.r.prep'};
+  }
+  if (type === 'pron'){
+    const sub = pick(['dir','dir','pp','ind','comb']);
+    const i = Math.floor(Math.random() * 6), subj = PERS[i];
+    if (sub === 'dir' || sub === 'pp'){
+      const inf = pick(Object.keys(DIR_OBJ)), [obj, g, pl] = pick(DIR_OBJ[inf]), pr = dirPron(g, pl);
+      if (sub === 'dir'){
+        const v = presOf(inf, i), ans = elide(pr, v);
+        const acc = [ans, pr + ' ' + v];
+        return {type, sub, q: `(${subj}) ${capS(v)} ${obj}.`, hint: verbHint(inf), accept: acc, answer: capS(ans) + '.', full: capS(ans) + '.', rule: 'g.r.dir'};
+      }
+      const aux = presOf('avere', i), pp = VBY[inf].F.pp.split('/')[0], ppA = pp.slice(0, -1) + (pl ? (g === 'f' ? 'e' : 'i') : (g === 'f' ? 'a' : 'o'));
+      const ans = elide(pr, aux) + ' ' + ppA;
+      return {type, sub, q: `(${subj}) ${capS(aux)} ${pp} ${obj}.`, hint: verbHint(inf), accept: [ans], answer: capS(ans) + '.', full: capS(ans) + '.', rule: 'g.r.pp'};
+    }
+    if (sub === 'ind'){
+      const inf = pick(Object.keys(IND_VERB)), rest = IND_VERB[inf];
+      const tg = pick(IND_TGT.filter(x => x[2] < 0 || (x[2] % 3 !== i % 3)));
+      const v = presOf(inf, i), ans = `${tg[1]} ${v}${rest ? ' ' + rest : ''}`;
+      return {type, sub, q: `(${subj}) ${capS(v)}${rest ? ' ' + rest : ''} ${tg[0]}.`, hint: verbHint(inf), accept: [ans], answer: capS(ans) + '.', full: capS(ans) + '.', rule: 'g.r.ind'};
+    }
+    const inf = pick(Object.keys(COMB_OBJ)), [obj, g, pl] = pick(COMB_OBJ[inf]), pr = dirPron(g, pl);
+    const tg = pick(IND_TGT.filter(x => x[2] < 0 || (x[2] % 3 !== i % 3)));
+    const v = presOf(inf, i), ci = COMB_IND[tg[1]], cl = ci === 'glie' ? 'glie' + pr : ci + ' ' + pr, ans = `${cl} ${v}`;
+    return {type, sub, q: `(${subj}) ${capS(v)} ${obj} ${tg[0]}.`, hint: verbHint(inf), accept: [ans], answer: capS(ans) + '.', full: capS(ans) + '.', rule: 'g.r.comb'};
+  }
+  if (type === 'neg'){
+    const pool = VERBS.filter(v => !v.refl && v.lvl <= 2 && !NO_IMPV.has(v.inf) && v.F.impv[1] !== '—');
+    const vb = pick(pool), i = pick([1,1,2,3,4]);
+    const acc = i === 1 ? ['non ' + vb.inf] : cell(vb, 'impv', i).accept.map(f => 'non ' + f);
+    return {type, q: `(${PERS_IMPV[i]}) ${vb.inf} → ___!`, hint: vb.hu, accept: acc, answer: capS(acc[0]) + '!', full: capS(acc[0]) + '!', rule: 'g.r.neg', inf: vb.inf};
+  }
+  if (type === 'ger'){
+    const pool = VERBS.filter(v => !v.refl && v.lvl <= 2 && !GER_SKIP.has(v.inf));
+    const vb = pick(pool), i = Math.floor(Math.random() * 6), ans = presOf('stare', i) + ' ' + gerundOf(vb);
+    return {type, q: `(${PERS[i]}) ${vb.inf} → ___`, hint: vb.hu, accept: [ans], answer: ans, full: ans, rule: 'g.r.ger', inf: vb.inf, irr: !/(are|ere|ire)$/.test(vb.inf) || gerundOf(vb) !== vb.inf.slice(0, -3) + (vb.inf.endsWith('are') ? 'ando' : 'endo')};
+  }
+  const x = pick(VPREP);
+  return {type, q: x.s, hint: verbHint(x.inf), accept: [x.p], answer: x.p, full: x.s.replace('___', x.p), rule: 'g.r.vprep', extra: `${x.inf} ${x.p} …`};
+}
+let GRAM = null;
+const gnorm = s => (s || '').replace(/[’`´]/g, "'").replace(/[.!?¡¿,;]+/g, ' ').replace(/'\s+/g, "'");
+function gramCheck(given, acc){ return check(gnorm(given), acc.map(gnorm)); }
+function renderOptionsG(){
+  const sel = S.gtypes && S.gtypes.length ? S.gtypes : GTYPES;
+  $('g-types').innerHTML = GTYPES.map(k => chk('checkbox','gtype',k,sel.includes(k),t('g.t.' + k))).join('');
+}
+$('gside').addEventListener('change', e => {
+  const el = e.target;
+  if (el.name !== 'gtype') return;
+  const sel = [...document.querySelectorAll('input[name=gtype]:checked')].map(x => x.value);
+  if (!sel.length){ el.checked = true; return; }
+  S.gtypes = sel; store.set('settings', S); nextG();
+});
+function renderStatsG(){
+  const rows = GTYPES.map(k => { const s = GST[k] || {n:0, ok:0}; return `<li><span>${t('g.t.' + k)}</span><b>${s.n ? s.ok + '/' + s.n + ' · ' + Math.round(100 * s.ok / s.n) + '%' : '–'}</b></li>`; }).join('');
+  $('g-stats').innerHTML = rows;
+}
+function nextG(){
+  const sel = S.gtypes && S.gtypes.length ? S.gtypes : GTYPES;
+  GRAM = Object.assign(genGram(pick(sel)), {done: false});
+  renderG();
+}
+function renderG(){
+  const g = GRAM; if (!g) return;
+  const q = esc(g.q).replace('___', '<span class="gap">___</span>');
+  $('gcard').innerHTML = `<div class="task"><span class="task-lbl">${t('g.label')}</span><span class="task-tense">${t('g.t.' + g.type)}</span><span class="task-extra">${t('g.i.' + (g.sub && g.type === 'pron' ? 'pron' : g.type))}</span></div>
+    <p class="gq">${q}</p>
+    <p class="muted" style="margin:-6px 0 14px">${esc(g.hint || '')}</p>
+    <form id="gform" autocomplete="off">
+      <input id="g-ans" class="search" autocapitalize="off" spellcheck="false" placeholder="${t('g.ph')}">
+      ${keysHtml()}
+      <div class="actions">
+        <button class="btn" type="submit" id="g-go">${t('btn.check')}</button>
+        <button class="btn ghost" type="button" id="g-idk">${t('btn.idk')}</button>
+        <button class="btn quiet" type="button" id="g-skip">${t('btn.other')}</button>
+      </div>
+    </form><div id="g-fb"></div>`;
+  wireCommon($('gcard'));
+  $('g-ans').focus({preventScroll:true});
+  $('g-skip').onclick = nextG;
+  $('g-idk').onclick = () => { if (!GRAM.done) answerG(true); };
+  $('gform').onsubmit = e => { e.preventDefault(); GRAM.done ? nextG() : answerG(false); };
+}
+function answerG(gaveUp){
+  const g = GRAM, inp = $('g-ans'), given = inp.value;
+  if (!gaveUp && !norm(given)){ inp.focus(); return; }
+  const res = gaveUp ? 'bad' : gramCheck(given, g.accept);
+  const ok = res === 'ok' || (res === 'acc' && S.lenient);
+  g.done = true;
+  const s = GST[g.type] = GST[g.type] || {n:0, ok:0}; s.n++; if (ok) s.ok++;
+  store.set('gstats', GST); renderStatsG();
+  logActivity(1);
+  if (answerHook){ try{ answerHook({kind:'gram', gtype: g.type, q: g.q, given: gaveUp ? '' : given, right: g.answer, ok, at: Date.now()}); }catch(e){} }
+  inp.readOnly = true; inp.classList.add(res === 'ok' ? 'is-ok' : res === 'acc' ? (S.lenient ? 'is-acc' : 'is-bad') : 'is-bad');
+  $('g-go').textContent = t('btn.next'); $('g-idk').disabled = true; $('g-skip').hidden = true;
+  const cls = res === 'ok' ? 'ok' : res === 'acc' ? 'acc' : 'bad';
+  const verdict = res === 'ok' ? t('v.ok') : res === 'acc' ? (S.lenient ? t('v.acc') : t('v.accbad')) : (gaveUp ? t('v.giveup') : t('v.bad'));
+  $('g-fb').innerHTML = `<div class="feedback ${cls}">
+    <p><span class="verdict">${verdict}</span> ${res !== 'ok' ? `<strong class="big">${esc(g.answer)}</strong>` : ''} ${sayBtn(g.full)}</p>
+    ${g.extra ? `<p><b>${esc(g.extra)}</b></p>` : ''}${g.irr ? `<p><span class="irrf">${t('irr.form')}</span></p>` : ''}
+    ${g.type !== 'art' && g.type !== 'prep' && g.full !== g.answer ? `<p class="ex-it">${esc(g.full)}</p>` : ''}
+    <p class="muted">${t(g.rule)}</p></div>`;
+  $('g-go').focus({preventScroll:true});
+}
 
 /* ---- Haladás: napi cél, sorozat, jelvények, heti ranglista ---- */
 let boardBackend = null;  // webes változatban: {push(entry), remove(), list(week)}
@@ -4000,7 +4390,8 @@ const BADGES = [
   ['read','📖', () => RST.total >= 10],
   ['adv','🗡️', () => AST.good >= 1],
   ['ears','👂', () => HST.dn + HST.pn >= 50],
-  ['coll','🗂️', () => CARDS.length >= 50]
+  ['coll','🗂️', () => CARDS.length >= 50],
+  ['gram','🧠', () => Object.values(GST).reduce((a, x) => a + (x.ok || 0), 0) >= 200]
 ];
 let toastTimer = null;
 function toast(msg){
@@ -5433,7 +5824,7 @@ function setLang(l, opts){
   renderOptionsR(); renderStatsR(); renderR();
   renderOptionsA(); renderStatsA(); renderA();
   renderRevSide(); renderRev(); revBadge();
-  renderOptionsH(); renderStatsH(); nextH(); renderP();
+  renderOptionsH(); renderStatsH(); nextH(); renderOptionsG(); renderStatsG(); nextG(); renderP();
   renderBrowseKind(); renderList(); renderDetail();
   setAINote(aiNote);
   if (typeof window.onLangChange === 'function') window.onLangChange();
@@ -5455,6 +5846,7 @@ renderOptionsR(); renderStatsR(); renderR();
 renderOptionsA(); renderStatsA(); renderA();
 renderRevSide(); renderRev(); revBadge();
 renderOptionsH(); renderStatsH(); nextH();
+renderOptionsG(); renderStatsG(); nextG();
 checkBadges(true); renderP();
 initCloud(); initAI();
 </script>
