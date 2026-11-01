@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Olasz igeragozás gyakorló: több mint 300 ige, hat igeidő, a rendhagyó alakok jelölésével.">
+<meta name="description" content="Olasz és spanyol igeragozás gyakorló: közel 800 ige, minden igeidő, rendhagyó alakok jelölve, példamondatok és AI-gyakorlás.">
 <title>Coniuga</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -6531,7 +6531,7 @@ setInterval(revBadge, 60000);
 const SR = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
 let HEAR = null;   // {x, full, done, res, given, heard, listening}
 let recog = null;
-const wtoks = s => String(s||'').toLowerCase().replace(/[’`´]/g, "'").replace(/'/g, "' ").replace(/[.,!?;:«»"()…\-–—]/g, ' ').split(/\s+/).map(w => w.replace(/'/g, '')).filter(Boolean);
+const wtoks = s => String(s||'').toLowerCase().replace(/[’`´]/g, "'").replace(/'/g, "' ").replace(/[.,!?¡¿;:«»"()…\-–—]/g, ' ').split(/\s+/).map(w => w.replace(/'/g, '')).filter(Boolean);
 /* szavankénti összevetés (leghosszabb közös részsorozat), ékezet nélküli egyezésnél "acc" */
 function wordDiff(expected, given){
   const A = wtoks(expected), B = wtoks(given), n = A.length, m = B.length;

@@ -6492,7 +6492,7 @@ setInterval(revBadge, 60000);
 const SR = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
 let HEAR = null;   // {x, full, done, res, given, heard, listening}
 let recog = null;
-const wtoks = s => String(s||'').toLowerCase().replace(/[’`´]/g, "'").replace(/'/g, "' ").replace(/[.,!?;:«»"()…\-–—]/g, ' ').split(/\s+/).map(w => w.replace(/'/g, '')).filter(Boolean);
+const wtoks = s => String(s||'').toLowerCase().replace(/[’`´]/g, "'").replace(/'/g, "' ").replace(/[.,!?¡¿;:«»"()…\-–—]/g, ' ').split(/\s+/).map(w => w.replace(/'/g, '')).filter(Boolean);
 /* szavankénti összevetés (leghosszabb közös részsorozat), ékezet nélküli egyezésnél "acc" */
 function wordDiff(expected, given){
   const A = wtoks(expected), B = wtoks(given), n = A.length, m = B.length;

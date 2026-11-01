@@ -91,7 +91,7 @@ const head = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Olasz igeragozás gyakorló: több mint 300 ige, hat igeidő, a rendhagyó alakok jelölésével.">
+<meta name="description" content="Olasz és spanyol igeragozás gyakorló: közel 800 ige, minden igeidő, rendhagyó alakok jelölve, példamondatok és AI-gyakorlás.">
 `;
 must('<div class="wrap">');
 src = head + src.replace('<div class="wrap">', '</head>\n<body>\n<div class="wrap">') + dialog + '</body>\n</html>\n';
