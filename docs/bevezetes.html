@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bevezetés a fizikába – Fizika kalandok</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&family=Press+Start+2P&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="fs-1">
+<header class="top">
+  <a class="brand" href="index.html">⛏ FIZIKA<br>KALANDOK</a>
+  <div class="tools">
+    <button class="tool" id="ttsBtn" type="button" aria-label="Felolvasás">🔊</button>
+    <button class="tool" id="fsBtn" type="button" aria-label="Betűméret váltása">Aa</button>
+    <button class="tool" id="themeBtn" type="button" aria-label="Világos / sötét mód">🌓</button>
+  </div>
+  <div class="row2"><span class="chip" id="chip"></span><div class="bar" aria-hidden="true"><i id="barfill" style="width:0"></i></div></div>
+</header>
+<main id="stage" tabindex="-1"></main>
+<div class="nav">
+  <button class="btn alt" id="back" type="button">◀ Vissza</button>
+  <button class="btn" id="next" type="button">Tovább ▶</button>
+</div>
+<script src="assets/svg.js"></script>
+<script src="topics/bevezetes.js"></script>
+<script src="assets/engine.js"></script>
+</body>
+</html>
