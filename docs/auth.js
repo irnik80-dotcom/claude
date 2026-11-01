@@ -75,7 +75,7 @@ async function start() {
       const me = { name: u.displayName || u.email || '', avatarUrl: u.photoURL || '' };
       cloudExtra = { name: u.displayName || '', email: u.email || '' };
       const answers = F.collection(db, 'users', u.uid, 'answers');
-      answerHook = (a) => { F.addDoc(answers, a).catch((e) => console.warn('Válasz naplózása sikertelen', e)); };
+      answerHook = (a) => { F.addDoc(answers, Object.assign({ tl: TL }, a)).catch((e) => console.warn('Válasz naplózása sikertelen', e)); };
       const boardRef = F.doc(db, 'board', u.uid);
       boardBackend = {
         uid: u.uid,
@@ -160,7 +160,8 @@ function renderList() {
       <thead><tr><th rowspan="2">${t('t.name')}</th><th rowspan="2">${t('t.email')}</th><th colspan="2" style="text-align:center">${t('tab.practice')}</th><th colspan="2" style="text-align:center">${t('tab.vocab')}</th><th colspan="2" style="text-align:center">${t('tab.sent')}</th><th colspan="2" style="text-align:center">${t('tab.trans')}</th><th colspan="2" style="text-align:center">${t('tab.chat')}</th><th colspan="2" style="text-align:center">${t('tab.read')}</th><th colspan="2" style="text-align:center">${t('tab.adv')}</th><th rowspan="2">${t('t.last')}</th></tr>
       <tr><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.avg')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.avg')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.count')}</th><th class="num">★</th></tr></thead>
       <tbody>${r.map((u, k) => {
-        const s = u.stats || {}, v = u.vstats || {}, m = u.mstats || {}, x = u.xstats || {}, c = u.cstats || {}, rd = u.rstats || {}, ad = u.astats || {};
+        const L = TL === 'es' ? (u.es || {}) : u;
+        const s = L.stats || {}, v = L.vstats || {}, m = L.mstats || {}, x = L.xstats || {}, c = L.cstats || {}, rd = L.rstats || {}, ad = L.astats || {};
         return `<tr class="click" data-k="${k}" tabindex="0"><td><b></b></td><td class="mono"></td><td class="num">${s.total || 0}</td><td class="num">${pct(s.ok || 0, s.total || 0)}</td><td class="num">${v.total || 0}</td><td class="num">${pct(v.ok || 0, v.total || 0)}</td><td class="num">${m.total || 0}</td><td class="num">${pct(m.ok || 0, m.total || 0)}</td><td class="num">${x.total || 0}</td><td class="num">${x.total ? (x.sum / x.total).toFixed(1) : '–'}</td><td class="num">${c.total || 0}</td><td class="num">${c.total ? (c.sum / c.total).toFixed(1) : '–'}</td><td class="num">${rd.total || 0}</td><td class="num">${pct(rd.ok || 0, rd.q || 0)}</td><td class="num">${ad.total || 0}</td><td class="num">${ad.good || 0}</td><td>${fmt(u.updated)}</td></tr>`;
       }).join('') || `<tr><td colspan="17" class="muted">${t('t.nobody')}</td></tr>`}</tbody>
     </table></div>
@@ -204,12 +205,13 @@ async function loadUser(u) {
   let ans = [];
   try {
     const qs = await T.F.getDocs(T.F.query(T.F.collection(T.db, 'users', u.id, 'answers'), T.F.orderBy('at', 'desc'), T.F.limit(1000)));
-    ans = qs.docs.map((d) => d.data());
+    ans = qs.docs.map((d) => d.data()).filter((a) => (a.tl || 'it') === TL);
   } catch (e) { console.warn(e); }
   const tra = ans.filter((a) => a.kind === 'trans'), chats = ans.filter((a) => a.kind === 'chat'), reads = ans.filter((a) => a.kind === 'read'), advs = ans.filter((a) => a.kind === 'adv');
-  const cs = u.cstats || {}, rs = u.rstats || {}, as = u.astats || {};
+  const L = TL === 'es' ? (u.es || {}) : u;
+  const cs = L.cstats || {}, rs = L.rstats || {}, as = L.astats || {};
   const conj = ans.filter((a) => !a.kind || a.kind === 'conj'), voc = ans.filter((a) => a.kind === 'vocab'), sen = ans.filter((a) => a.kind === 'sent');
-  const s = u.stats || {}, v = u.vstats || {}, m = u.mstats || {}, x = u.xstats || {};
+  const s = L.stats || {}, v = L.vstats || {}, m = L.mstats || {}, x = L.xstats || {};
   const DIRS_ = DIRS_T();
   const gS = group(sen, 't'), gT = group(conj, 't'), gD = group(voc, 'dir');
   const sentRows = rateRows(TENSES.filter((q) => gS[q.id]).map((q) => [q.it, gS[q.id]]));

@@ -42,7 +42,19 @@ const TENSE_EN = { pres: 'presente', pp: 'passato prossimo', imp: 'imperfetto', 
 const str = (v, n) => String(v == null ? '' : v).slice(0, n).trim();
 
 /* bemenet ellenőrzése (a Worker ezzel szűri a kéréseket) – null: érvénytelen */
+const TENSE_ES = { pres: 'presente', pp: 'pretérito perfecto', imp: 'pretérito imperfecto', trp: 'pretérito pluscuamperfecto', rem: 'pretérito indefinido', trr: 'pretérito anterior', fut: 'futuro simple', futa: 'futuro compuesto', cond: 'condicional simple', condp: 'condicional compuesto', cong: 'presente de subjuntivo', congp: 'pretérito perfecto de subjuntivo', congi: 'pretérito imperfecto de subjuntivo', congt: 'pretérito pluscuamperfecto de subjuntivo', impv: 'imperativo' };
+/* célnyelv: it (olasz, alapeset) vagy es (spanyol) – a promptok olasz szövegét spanyolra cseréljük */
+const TO_ES = [
+  [/"siamo andati \(andare\)"/g, '"hemos ido (ir)"'], [/\(essere\)/g, '(ser)'], [/"siamo" ->/g, '"somos" ->'], [/"Entri nella grotta buia"/g, '"Entras en la cueva oscura"'],
+  [/"tu"/g, '"tú"'], [/Gianni Rodari/g, 'Gloria Fuertes'], [/Italian bar \(café\)/g, 'Spanish bar (café)'],
+  [/\ban Italian/g, 'a Spanish'], [/\bAn Italian/g, 'A Spanish'], [/Italians/g, 'Spaniards'], [/Italian/g, 'Spanish'], [/Italy/g, 'Spain'], [/italian/g, 'spanish']
+];
 export function sanitize(body) {
+  const r = sanitizeBase(body);
+  if (r) r.tl = body && body.tl === 'es' ? 'es' : 'it';
+  return r;
+}
+function sanitizeBase(body) {
   const type = body && body.type;
   const lang = PROMPT_LANG[body && body.lang] ? body.lang : 'hu';
   if (type === 'gloss') {
@@ -84,6 +96,14 @@ export function sanitize(body) {
 
 /* prompt összeállítása */
 export function buildPrompt(p) {
+  let out = buildPromptBase(p);
+  if (p.tl === 'es') {
+    Object.keys(TENSE_EN).sort((a, b) => TENSE_EN[b].length - TENSE_EN[a].length).forEach((k) => { out = out.split(TENSE_EN[k]).join(TENSE_ES[k]); });
+    TO_ES.forEach(([a, b]) => { out = out.replace(a, b); });
+  }
+  return out;
+}
+function buildPromptBase(p) {
   const LN = PROMPT_LANG[p.lang] || 'Hungarian';
   if (p.type === 'gloss') {
     const list = JSON.stringify(p.words);
