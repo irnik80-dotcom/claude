@@ -239,6 +239,21 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
 .glist{list-style:none; padding:0; margin:6px 0 0}
 .glist li{display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px solid var(--line); font-size:.9rem}
 .glist li b{font-variant-numeric:tabular-nums; white-space:nowrap}
+.badgedlg{border:0; border-radius:18px; padding:0; background:var(--card); color:var(--ink); box-shadow:0 20px 60px rgba(0,0,0,.35); max-width:min(420px, calc(100vw - 32px)); width:100%}
+.badgedlg::backdrop{background:rgba(10,14,30,.55)}
+.bd-in{padding:24px 20px 20px; text-align:center}
+.bd-title{font-family:var(--f-display); font-size:1.7rem; margin:0 0 14px; color:var(--accent)}
+.bd-list{display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-bottom:8px}
+.bd-item{flex:1 1 140px; max-width:220px; border:1px solid var(--line); border-radius:14px; padding:14px 10px; background:var(--accent-soft)}
+.bd-ic{display:block; font-size:3.4rem; line-height:1.1}
+.bd-item b{display:block; margin-top:6px; font-size:1.05rem}
+.bd-item small{display:block; color:var(--ink-soft); font-size:.8rem; margin-top:2px}
+@media (prefers-reduced-motion: no-preference){
+  .badgedlg[open] .bd-ic{animation:bdpop .6s cubic-bezier(.2,1.6,.4,1) both}
+  .badgedlg[open]{animation:bdin .25s ease-out}
+  @keyframes bdpop{from{transform:scale(.2) rotate(-25deg); opacity:0} to{transform:none; opacity:1}}
+  @keyframes bdin{from{transform:translateY(12px); opacity:0} to{transform:none; opacity:1}}
+}
 .toast{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:var(--ink); color:var(--card); padding:10px 16px; border-radius:12px; font-weight:600; z-index:50; box-shadow:0 6px 24px rgba(0,0,0,.25); max-width:calc(100vw - 32px)}
 .snt{transition:background .2s}
 .snt.reading{background:var(--warn-soft); box-shadow:0 0 0 3px var(--warn-soft); border-radius:4px}
@@ -4190,6 +4205,20 @@ const I18N = {
   'b.s7.d': ['7 napos sorozat','Seria 7 dni','7-day streak'],
   'b.s30': ['Kitartó','Wytrwały','Unstoppable'],
   'b.s30.d': ['30 napos sorozat','Seria 30 dni','30-day streak'],
+  'b.p50': ['Bemelegítés','Rozgrzewka','Warm-up'],
+  'b.p50.d': ['50 pont összesen','50 punktów łącznie','50 points in total'],
+  'b.p250': ['Szorgalmas','Pracowity','Hard worker'],
+  'b.p250.d': ['250 pont összesen','250 punktów łącznie','250 points in total'],
+  'b.p500': ['Félezres','Pięćsetka','Five hundred'],
+  'b.p500.d': ['500 pont összesen','500 punktów łącznie','500 points in total'],
+  'b.p2500': ['Csillag','Gwiazda','Star'],
+  'b.p2500.d': ['2500 pont összesen','2500 punktów łącznie','2500 points in total'],
+  'b.p10000': ['Legenda','Legenda','Legend'],
+  'b.p10000.d': ['10 000 pont összesen','10 000 punktów łącznie','10,000 points in total'],
+  'bd.title': ['Új jelvény!','Nowa odznaka!','New badge!'],
+  'bd.titlen': ['{n} új jelvény!','{n} nowe odznaki!','{n} new badges!'],
+  'bd.ok': ['Szuper!','Super!','Great!'],
+  'bd.all': ['Összes jelvény','Wszystkie odznaki','All badges'],
   'b.p100': ['Százas','Setka','Century'],
   'b.p100.d': ['100 pont összesen','100 punktów łącznie','100 points in total'],
   'b.p1000': ['Ezres','Tysiąc','Thousand'],
@@ -5239,9 +5268,14 @@ const BADGES = [
   ['s3','🔥', () => PST.best >= 3],
   ['s7','📅', () => PST.best >= 7],
   ['s30','🏔️', () => PST.best >= 30],
+  ['p50','🥉', () => PST.total >= 50],
   ['p100','💯', () => PST.total >= 100],
+  ['p250','🥈', () => PST.total >= 250],
+  ['p500','🥇', () => PST.total >= 500],
   ['p1000','⭐', () => PST.total >= 1000],
+  ['p2500','🌟', () => PST.total >= 2500],
   ['p5000','👑', () => PST.total >= 5000],
+  ['p10000','💎', () => PST.total >= 10000],
   ['conj','⚙️', () => ST.ok >= 500],
   ['vocab','📚', () => VST.ok >= 200],
   ['sent','🧩', () => MST.ok >= 200],
@@ -5260,10 +5294,30 @@ function toast(msg){
   el.textContent = msg; el.hidden = false;
   clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 3500);
 }
+function badgeDialog(ids){
+  let d = document.getElementById('badgedlg');
+  if (!d){
+    d = document.createElement('dialog'); d.id = 'badgedlg'; d.className = 'badgedlg';
+    document.body.appendChild(d);
+    d.addEventListener('click', e => {
+      if (e.target === d || e.target.id === 'bd-ok') d.close();
+      else if (e.target.id === 'bd-all'){ d.close(); showTab('prog'); renderP(); boardLoad(); }
+    });
+  }
+  const prev = d.open ? [...d.querySelectorAll('[data-bid]')].map(x => x.dataset.bid) : [];
+  ids = [...new Set(prev.concat(ids))];
+  d.innerHTML = `<div class="bd-in">
+    <p class="bd-title">${ids.length > 1 ? t('bd.titlen', {n: ids.length}) : t('bd.title')}</p>
+    <div class="bd-list">${ids.map(id => { const b = BADGES.find(x => x[0] === id); return `<div class="bd-item" data-bid="${id}"><span class="bd-ic" aria-hidden="true">${b[1]}</span><b>${t('b.' + id)}</b><small>${t('b.' + id + '.d')}</small></div>`; }).join('')}</div>
+    <div class="actions" style="justify-content:center"><button type="button" class="btn" id="bd-ok">${t('bd.ok')}</button><button type="button" class="btn ghost" id="bd-all">${t('bd.all')}</button></div>
+  </div>`;
+  try{ if (!d.open) d.showModal(); }catch(e){ toast(t('p.newbadge', {b: ids.map(id => t('b.' + id)).join(', ')})); return; }
+  const ok = document.getElementById('bd-ok'); if (ok) ok.focus();
+}
 function checkBadges(quiet){
   const got = [];
   BADGES.forEach(([id, , ok]) => { try{ if (!PST.badges[id] && ok()){ PST.badges[id] = Date.now(); got.push(id); } }catch(e){} });
-  if (!quiet && got.length) toast(t('p.newbadge', {b: got.map(id => BADGES.find(b => b[0] === id)[1] + ' ' + t('b.' + id)).join(', ')}));
+  if (!quiet && got.length) badgeDialog(got);
   return got.length;
 }
 function logActivity(n){
