@@ -105,3 +105,40 @@ input[type=range]{width:100%;height:44px;accent-color:var(--grass-d)}
 .lesson-link .card{height:100%}
 .lesson-link:hover .card{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--shadow)}
 .soon{opacity:.6}
+
+/* ábrák, tippek */
+.fig{margin:0 0 14px;border:3px solid var(--line);background:var(--bg);color:var(--fg)}
+.fig svg{display:block;width:100%;height:auto;max-height:260px}
+.tip{margin-top:16px;border:3px solid var(--gold);background:color-mix(in srgb,var(--gold) 16%,var(--panel));padding:12px 14px}
+.tip b{display:block;font-family:var(--pix);font-size:.6em;margin-bottom:6px}
+/* párosítás */
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
+.col{display:grid;gap:10px;align-content:start}
+.pb{text-align:center;font-size:.9em;min-height:56px;padding:8px}
+.pb.sel{outline:5px solid var(--gold);background:color-mix(in srgb,var(--gold) 30%,var(--panel))}
+.pb.good{background:var(--ok);color:#06200a;opacity:1}
+.pb.wrong{background:var(--bad);color:#fff;animation:shake .35s}
+/* memória */
+.memgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+@media(min-width:560px){.memgrid{grid-template-columns:repeat(4,1fr)}}
+.mem{font:inherit;font-size:.78em;font-weight:600;min-height:84px;padding:6px;border:4px solid var(--line);background:var(--stone);color:#10200a;cursor:pointer;box-shadow:4px 4px 0 var(--shadow);word-break:break-word;hyphens:auto}
+.mem.up{background:var(--gold)}.mem.done{background:var(--ok);color:#06200a}
+/* húzogatás */
+.pool{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.chip{font:inherit;font-weight:600;font-size:.95em;padding:10px 14px;min-height:48px;border:3px solid var(--line);background:var(--gold);color:#1b2618;cursor:grab;touch-action:none;box-shadow:3px 3px 0 var(--shadow);user-select:none;-webkit-user-select:none}
+.chip.sel{outline:5px solid var(--blue)}.chip.wrong{background:var(--bad);color:#fff;animation:shake .35s}
+.chip.placed{background:var(--ok);color:#06200a;cursor:default;touch-action:auto;min-height:40px;padding:6px 10px;font-size:.85em}
+.chip:disabled{opacity:.35}
+.ghost{position:fixed;z-index:50;transform:translate(-50%,-50%);opacity:.95}
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.bin{border:4px dashed var(--line);background:var(--bg);padding:8px;min-height:110px}
+.bin.hot{background:color-mix(in srgb,var(--blue) 30%,var(--bg))}
+.bin .bt{font-weight:800;text-align:center;margin-bottom:6px}
+.bin .bl{display:flex;flex-wrap:wrap;gap:6px}
+/* hiányzó szavak */
+.cloze{font-size:1.1em;line-height:2.4}
+.slot{font:inherit;font-weight:700;min-width:90px;min-height:44px;padding:2px 10px;margin:0 2px;border:3px solid var(--line);border-bottom-width:6px;background:var(--bg);color:var(--fg);cursor:pointer}
+.slot.good{background:var(--ok);color:#06200a}.slot.wrong{background:var(--bad);color:#fff}
+.bin{min-width:0}
+.chip.placed{white-space:normal;max-width:100%;text-align:left;overflow-wrap:anywhere}
+.bins>*,.pairs>*,.memgrid>*{min-width:0}
