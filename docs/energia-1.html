@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Az energia – Fizika 7.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&family=Press+Start+2P&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="fs-1">
+<header class="top">
+  <a class="brand" href="./">⛏ FIZIKA<br>KALANDOK</a>
+  <div class="tools">
+    <button class="tool" id="ttsBtn" type="button" aria-label="Felolvasás">🔊</button>
+    <button class="tool" id="fsBtn" type="button" aria-label="Betűméret váltása">Aa</button>
+    <button class="tool" id="themeBtn" type="button" aria-label="Világos / sötét mód">🌓</button>
+  </div>
+  <div class="row2"><span class="chip" id="chip"></span><div class="bar" aria-hidden="true"><i id="barfill" style="width:0"></i></div></div>
+</header>
+<main id="stage" tabindex="-1"></main>
+<div class="nav">
+  <button class="btn alt" id="back" type="button">◀ Vissza</button>
+  <button class="btn" id="next" type="button">Tovább ▶</button>
+</div>
+
+<script>
+window.LESSON = {
+  id: 'energia-1',
+  screens: [
+  /* ================= TANULÁS ================= */
+  { type:'info', section:'Tanulás', icon:'⚡', title:'Mi az az energia?',
+    body:'<p>Hallottad már, hogy valaki <mark class="k">„tele van energiával”</mark>, vagy hogy <mark class="k">„nincs energiája”</mark>?</p><p>A fizikában az energia egy pontos fogalom. Ebben a leckében megtudod:</p><ul><li>mi az energia,</li><li>milyen fajtái vannak,</li><li>és miért <b>nem vész el soha</b>.</li></ul>',
+    mc:'<p>Minecraftban a zombi napfényben elég. Mintha a Nap „energiát adna át” neki. A fizikában is az energia átadásáról lesz szó.</p>',
+    src:'20. oldal' },
+
+  { type:'info', section:'Tanulás', icon:'🏷️', title:'Az energia jele és mértékegysége',
+    body:'<p>Az energia a tárgyak, anyagok és hullámok <mark class="k">állapotát</mark> jellemzi.</p><ul><li>Jele: <mark class="k">E</mark></li><li>Mértékegysége: <mark class="k">joule</mark> (J) – kiejtve: <i>dzsúl</i></li></ul><p>A nevét James Prescott Joule angol tudósról kapta.</p><p><b>Az energiát számmal is meg lehet adni.</b> Például: 1500 J.</p>',
+    mc:'<p>Gondolj úgy az energiára, mint egy <b>számra</b>, ami megmutatja, mennyi van valamiben. Minecraftban az éhség- és életpontok is ilyen számok.</p>',
+    src:'20. és 22. oldal' },
+
+  { type:'sim', section:'Tanulás', title:'🌡️ Energiaátadás: forró és hideg víz',
+    intro:'Egy forró és egy hideg víz összeér. <b>Húzd a csúszkát</b>, és nézd meg, mi történik az energiájukkal!',
+    src:'20. oldal',
+    render:function(box, unlock){
+      var HOT=300000, COLD=60000, MAX=40000, x=0, moved=false;
+      var wrap=FizEngine.el('div');
+      wrap.innerHTML='<div class="cups">'+
+        '<div class="cup"><div>🔥 Forró víz</div><div class="t" id="th"></div><div class="liq" id="lh"></div><div class="en" id="eh"></div><div id="dh" class="hint"></div></div>'+
+        '<div class="cup"><div>🧊 Hideg víz</div><div class="t" id="tc"></div><div class="liq" id="lc"></div><div class="en" id="ec"></div><div id="dc" class="hint"></div></div></div>'+
+        '<div class="tot" id="tot"></div>'+
+        '<label for="sl"><b>Átadott energia:</b> <span id="xv"></span></label>'+
+        '<input type="range" id="sl" min="0" max="'+MAX+'" step="2000" value="0">'+
+        '<p class="hint">A hőmérsékletek itt csak szemléltető számok.</p>';
+      box.appendChild(wrap);
+      var q=function(id){return wrap.querySelector('#'+id)};
+      function col(t){var r=Math.round(60+ (t-20)/60*195), b=Math.round(255-(t-20)/60*200);return 'rgb('+r+',110,'+b+')'}
+      function upd(){
+        var f=x/MAX, th=Math.round(80-30*f), tc=Math.round(20+30*f);
+        q('th').textContent=th+' °C'; q('tc').textContent=tc+' °C';
+        q('lh').style.background=col(th); q('lc').style.background=col(tc);
+        q('eh').textContent=FizEngine.fmt(HOT-x)+' J'; q('ec').textContent=FizEngine.fmt(COLD+x)+' J';
+        q('dh').textContent=x?('csökkent: −'+FizEngine.fmt(x)+' J'):'induló érték';
+        q('dc').textContent=x?('nőtt: +'+FizEngine.fmt(x)+' J'):'induló érték';
+        q('tot').innerHTML='Együtt: <span style="font-size:1.3em">'+FizEngine.fmt(HOT-x+COLD+x)+' J</span> – <b>mindig ugyanannyi!</b>';
+        q('xv').textContent=FizEngine.fmt(x)+' J';
+        if(x>=MAX && !moved){moved=true; unlock(); q('tot').innerHTML+='<br>👏 Kialakult a közös hőmérséklet: 50 °C. A forró víz energiája csökkent, a hidegé nőtt.';}
+      }
+      q('sl').oninput=function(){x=+this.value;upd()};
+      upd();
+    }},
+
+  { type:'info', section:'Tanulás', icon:'🔥', title:'Belső energia',
+    body:'<p>Ha egy anyag <mark class="k">hőmérséklete nő</mark>, a <mark class="e1">belső energiája</mark> is nő. Ha a hőmérséklete csökken, a belső energiája is csökken.</p><p>A belső energia azt mutatja meg, hogyan mozognak és hogyan kapcsolódnak az anyag <b>atomjai, molekulái</b>.</p><hr><p><b>Mi történik a jéggel?</b> A jég <mark class="k">0 °C-on olvad</mark>. Olvadás közben a hőmérséklete <b>nem változik</b>, de felvesz energiát. Ez az energia az <b>olvadásra</b> fordítódik: a rendezett részecskék szétválnak.</p>',
+    mc:'<p>A kemence is csak akkor olvaszt, ha kap hőt (tüzelőanyagot). Hő nélkül nincs olvadás.</p>',
+    src:'20–21. oldal' },
+
+  { type:'info', section:'Tanulás', icon:'☀️', title:'A fénynek és a hangnak is van energiája',
+    body:'<p>A napra kitett tárgyak <b>felmelegednek</b>. Tehát a napfény energiát ad át nekik. Ezt <mark class="k">napenergiának</mark> hívjuk.</p><p>Nem csak a fénynek van energiája, hanem minden sugárzásnak és hullámnak: <b>fény, infravörös sugárzás, mikrohullám, hang</b>.</p><p>Érdekesség: az orvosok <b>ultrahanggal</b> kezelik a sérült izmot. Az izom elnyeli a hangot, és felmelegszik.</p>',
+    mc:'<p>Minecraftban a fáklya fényt ad, a nap pedig megégeti a zombit. Az igazi életben a fény energiát visz át.</p>',
+    src:'21. oldal' },
+
+  { type:'info', section:'Tanulás', icon:'🖐️', title:'Mozgásból belső energia',
+    body:'<p>Miért dörzsölöd össze a tenyered, ha fázol?</p><p>A <mark class="e2">mozgás energiája</mark> átalakul <mark class="e1">belső energiává</mark>. Ezért melegszik fel a kezed.</p><ul><li>haladó (arrébb mozduló) mozgás → <mark class="e2">mozgási energia</mark></li><li>forgó mozgás → <mark class="e3">forgási energia</mark></li></ul><p>A mozgásból fakadó energiát együtt <mark class="k">mechanikai energiának</mark> hívjuk.</p><p>Ilyen a gyufa meggyújtása és a kovakő csiholása is.</p>',
+    mc:'<p><b>Kovakő és acél:</b> amikor összeütöd, a mozgás szikrát és hőt csinál. Így gyújtod meg a tüzet.</p>',
+    src:'21. oldal' },
+
+  { type:'info', section:'Tanulás', icon:'🏹', title:'Rugalmas és helyzeti energia',
+    body:'<p><mark class="e4">Rugalmas energia</mark>: egy <b>összenyomott rugónak</b> van. Ha elengeded, mozgásba hozza az autót.</p><p><mark class="e5">Helyzeti energia</mark>: a <b>magasan lévő</b> testeknek van. A Föld vonzása mozgásba hozhatja őket. Ilyen az eső is: a felhőből lefelé zuhanó esőcseppek.</p><p>A rugalmas energia a mechanikai energia egyik fajtája.</p>',
+    mc:'<p><b>Íj:</b> amikor felhúzod, a húr megfeszül. Ez a rugalmas energia, ami a nyílnak ad lendületet.<br><b>Homokblokk:</b> ha magasról leesik, a helyzeti energiája mozgási energiává alakul.</p>',
+    src:'22. oldal' },
+
+  { type:'info', section:'Tanulás', icon:'📦', title:'Az energia nem vész el!',
+    body:'<p>Egy folyamat közben az egyes testek energiája <b>megváltozik</b>, de az összes energia <mark class="k">mindig ugyanannyi marad</mark>.</p><p>Ezt hívjuk <mark class="k">az energia megmaradásának tételének</mark>.</p><p>Az energia csak <b>átkerül</b> egyik testből a másikba, vagy átalakul egy másik fajtává.</p>',
+    mc:'<p>Gondolj két ládára. Ha átteszel 10 követ az egyik ládából a másikba, az egyik ládában 10-zel kevesebb, a másikban 10-zel több lesz. De a <b>kövek összes száma ugyanannyi</b> marad.</p>',
+    src:'22. oldal' },
+
+  { type:'info', section:'Tanulás', icon:'📋', title:'Ennyit kell tudni',
+    body:'<ul><li>Az energia jele <b>E</b>, mértékegysége <b>joule (J)</b>.</li><li>Folyamatoknál <b>energiaátadás</b> történik.</li><li>A <mark class="e1">belső energia</mark> a hőmérséklethez tartozik.</li><li>A <mark class="e2">mozgási</mark> és a <mark class="e3">forgási</mark> energia a mozgásból jön.</li><li>A <mark class="e4">rugalmas</mark> energia az összenyomott rugóé.</li><li>A <mark class="e5">helyzeti</mark> energia a magasan lévő testeké.</li><li>A fénynek és a hangnak is van energiája.</li><li>Az összes energia <b>megmarad</b>.</li></ul>',
+    src:'22. oldal – összefoglalás' },
+
+  /* ================= GYAKORLÁS ================= */
+  { type:'quiz', section:'Gyakorlás', q:'Mi az energia mértékegysége?',
+    options:['joule (J)','méter (m)','kilogramm (kg)','celsius (°C)'], correct:0,
+    explain:'Az energia mértékegysége a joule, jele J.', hint:'Egy angol tudósról nevezték el, a neve „dzsúl”-nak hangzik.' },
+
+  { type:'quiz', section:'Gyakorlás', q:'Forró és hideg víz összeér. Mi történik az energiájukkal?',
+    options:['A forró víz energiája csökken, a hideg víz energiája nő.','Mindkettőé nő.','Mindkettőé csökken.','Semmi sem változik.'], correct:0,
+    explain:'A forró víz ad át energiát, a hideg víz felveszi.', hint:'Az energia átkerül az egyikből a másikba.' },
+
+  { type:'quiz', section:'Gyakorlás', q:'A jég 0 °C-on olvad. Mi lesz a felvett energiával olvadás közben?',
+    options:['Az olvadásra fordítódik.','Eltűnik.','A jég hőmérséklete nő.','Fénnyé alakul.'], correct:0,
+    explain:'Olvadás közben a hőmérséklet nem változik, az energia a részecskék szétválasztására megy el.', hint:'A hőmérséklet nem változik olvadás közben.' },
+
+  { type:'quiz', section:'Gyakorlás', q:'Miért melegszik fel a kezed, ha összedörzsölöd?',
+    options:['A mozgási energia belső energiává alakul.','A kezed energiát vesz fel a levegőből.','Elfogy az energiád.','A fény felmelegíti.'], correct:0,
+    explain:'A mozgás energiája belső energiává alakul, ezért nő a hőmérséklet.', hint:'Mozgásból mi lesz?' },
+
+  { type:'quiz', section:'Gyakorlás', q:'Van-e energiája a hanghullámoknak?',
+    options:['Igen, a hangnak is van energiája.','Nincs, csak a fénynek van.','Csak a zenének van.','Csak ultrahangnak van.'], correct:0,
+    explain:'Minden hullámnak és sugárzásnak van energiája: fény, hang, infravörös, mikrohullám.', hint:'Az ultrahang az izmot is felmelegíti.' },
+
+  { type:'quiz', section:'Gyakorlás', q:'Mit mond ki az energia megmaradásának tétele?',
+    options:['Az összes energia a folyamat alatt ugyanannyi marad.','Az energia lassan elfogy.','Az energia mindig nő.','Csak a mozgásnak van energiája.'], correct:0,
+    explain:'Az energia csak átkerül vagy átalakul, de az összege nem változik.', hint:'Gondolj a két ládára.' },
+
+  { type:'cat', section:'Gyakorlás', title:'Melyik energiafajta?',
+    cats:[
+      {id:'belso',name:'Belső',icon:'🔥'},{id:'mozgasi',name:'Mozgási',icon:'🏃'},{id:'forgasi',name:'Forgási',icon:'🔄'},
+      {id:'rugalmas',name:'Rugalmas',icon:'🏹'},{id:'helyzeti',name:'Helyzeti',icon:'⛰️'}],
+    items:[
+      {t:'Összenyomott rugó',c:'rugalmas',why:'A rugó összenyomva rugalmas energiát tárol.'},
+      {t:'Magasan lévő tégla',c:'helyzeti',why:'A magas helyzete miatt van energiája.'},
+      {t:'Forró tea',c:'belso',why:'A magas hőmérséklet belső energiát jelent.'},
+      {t:'Száguldó kerékpár',c:'mozgasi',why:'Haladó mozgás, tehát mozgási energia.'},
+      {t:'Gyorsan forgó lendkerék',c:'forgasi',why:'Forgó mozgás, tehát forgási energia.'},
+      {t:'Felhúzott íj húrja',c:'rugalmas',why:'A megfeszített húr rugalmas energiát tárol.'},
+      {t:'Zuhanó esőcsepp',c:'mozgasi',why:'Lefelé halad, ezért mozgási energiája van.'},
+      {t:'Hegy tetején álló szikla',c:'helyzeti',why:'Magasan van, ezért helyzeti energiája van.'}
+    ]},
+
+  { type:'calc', section:'Gyakorlás', count:4, gens:[
+    function(){ var d=500*(1+Math.floor(Math.random()*10));
+      return {q:'Egy forró víz energiája <b>'+FizEngine.fmt(d)+' J</b>-lal csökken, miközben átad energiát egy hideg víznek. <b>Mennyivel nő a hideg víz energiája?</b> (J)',
+        a:d, hint:'Amennyit a forró víz lead, annyit vesz fel a hideg.', explain:'A hideg víz energiája '+FizEngine.fmt(d)+' J-lal nő.'}; },
+    function(){ var a=10000*(3+Math.floor(Math.random()*20)), b=10000*(2+Math.floor(Math.random()*10));
+      return {q:'Két víz energiája együtt: <b>'+FizEngine.fmt(a)+' J</b> + <b>'+FizEngine.fmt(b)+' J</b>. Kölcsönhatás közben energiát adnak át egymásnak. <b>Mennyi az összes energiájuk a folyamat után?</b> (J)',
+        a:a+b, hint:'Az összes energia megmarad. Add össze a két számot!', explain:FizEngine.fmt(a)+' + '+FizEngine.fmt(b)+' = '+FizEngine.fmt(a+b)+' J. Az összeg nem változik.'}; },
+    function(){ var h=100000*(2+Math.floor(Math.random()*5)), d=1000*(1+Math.floor(Math.random()*8));
+      return {q:'A meleg víz energiája először <b>'+FizEngine.fmt(h)+' J</b>. Átad <b>'+FizEngine.fmt(d)+' J</b>-t a hideg víznek. <b>Mennyi lesz a meleg víz energiája?</b> (J)',
+        a:h-d, hint:'A meleg víz energiája csökken. Vond ki az átadott részt!', explain:FizEngine.fmt(h)+' − '+FizEngine.fmt(d)+' = '+FizEngine.fmt(h-d)+' J.'}; }
+  ]},
+
+  { type:'cards', section:'Gyakorlás', title:'🃏 Kártyák – ismételd át!',
+    cards:[
+      ['Mi az energia jele és mértékegysége?','E és joule (J)'],
+      ['Belső energia','A hőmérséklethez tartozik. Nő, ha az anyag melegszik.'],
+      ['Mozgási energia','A haladó mozgásból fakadó energia.'],
+      ['Forgási energia','A forgó mozgásból fakadó energia.'],
+      ['Rugalmas energia','Pl. az összenyomott rugónak van.'],
+      ['Helyzeti energia','A magasan lévő testeké. A Föld vonzása mozgásba hozhatja.'],
+      ['Mit mond ki az energia megmaradásának tétele?','Az összes energia a folyamat alatt ugyanannyi marad.'],
+      ['Melyik hullámnak van energiája?','Mindegyiknek: fény, hang, infravörös, mikrohullám.']
+    ]},
+
+  { type:'end', section:'Kész!' }
+  ]
+};
+</script>
+<script src="assets/engine.js"></script>
+</body>
+</html>
