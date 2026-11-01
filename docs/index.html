@@ -254,6 +254,8 @@ header.top{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:s
   @keyframes bdpop{from{transform:scale(.2) rotate(-25deg); opacity:0} to{transform:none; opacity:1}}
   @keyframes bdin{from{transform:translateY(12px); opacity:0} to{transform:none; opacity:1}}
 }
+.pfall{margin-top:14px; border:1px dashed var(--line); border-radius:10px; padding:8px 12px}
+.pfall summary{cursor:pointer; font-weight:600; color:var(--accent)}
 .toast{position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:var(--ink); color:var(--card); padding:10px 16px; border-radius:12px; font-weight:600; z-index:50; box-shadow:0 6px 24px rgba(0,0,0,.25); max-width:calc(100vw - 32px)}
 .snt{transition:background .2s}
 .snt.reading{background:var(--warn-soft); box-shadow:0 0 0 3px var(--warn-soft); border-radius:4px}
@@ -4255,12 +4257,18 @@ const I18N = {
   'h.pron.extra': ['Hallgasd meg a mintát, aztán nyomd meg a mikrofont, és olvasd fel a mondatot. A beszédfelismerés megmutatja, mely szavakat értette.','Posłuchaj wzoru, naciśnij mikrofon i przeczytaj zdanie. Rozpoznawanie mowy pokaże, które słowa zrozumiało.','Listen to the model, then press the microphone and read the sentence aloud. Speech recognition shows which words it understood.'],
   'h.model': ['Minta meghallgatása','Posłuchaj wzoru','Listen to the model'],
   'h.speak': ['Beszélek','Mówię','Speak'],
+  'h.hearing': ['Hallom:','Słyszę:','Hearing:'],
+  'h.siri': ['A beszédfelismerés ki van kapcsolva. iPhone-on: Beállítások → Általános → Billentyűzet → Diktálás bekapcsolása (és a Siri is legyen bekapcsolva). Addig használd lent a billentyűzet mikrofonját.','Rozpoznawanie mowy jest wyłączone. Na iPhonie: Ustawienia → Ogólne → Klawiatura → Włącz dyktowanie (i włącz Siri). Do tego czasu użyj mikrofonu klawiatury poniżej.','Speech recognition is turned off. On iPhone: Settings → General → Keyboard → Enable Dictation (and turn on Siri). Until then, use the keyboard microphone below.'],
+  'h.nomic': ['Nem érem el a mikrofont. Lehet, hogy egy másik alkalmazás használja.','Brak dostępu do mikrofonu. Może używa go inna aplikacja.','The microphone is not available. Another app may be using it.'],
+  'h.kbd': ['Nem működik a mikrofon? Diktáld a billentyűzettel','Mikrofon nie działa? Dyktuj klawiaturą','Microphone not working? Dictate with the keyboard'],
+  'h.kbdhint': ['Koppints a mezőbe, nyomd meg a billentyűzet 🎤 gombját, és olvasd fel a mondatot. (iPhone-on a billentyűzet nyelve legyen a tanult nyelv, ha van ilyen billentyűzeted.) Utána: Ellenőrzés.','Dotknij pola, naciśnij 🎤 na klawiaturze i przeczytaj zdanie na głos. Potem: Sprawdź.','Tap the field, press the 🎤 key on the keyboard and read the sentence aloud. Then: Check.'],
+  'h.heardkbd': ['A diktálás szerint:','Według dyktowania:','Dictation result:'],
   'h.listening': ['Figyelek… (koppints, ha kész)','Słucham… (dotknij, gdy skończysz)','Listening… (tap when done)'],
   'h.pscore': ['{n}%-ban érthető','Zrozumiałe w {n}%','{n}% understood'],
   'h.heard': ['Ezt értettem:','Usłyszałem:','I heard:'],
   'h.plegend': ['Zöld: érthető volt · szaggatott: nem sikerült felismerni','Zielone: zrozumiałe · przerywane: nierozpoznane','Green: understood · dashed: not recognised'],
   'h.nosr': ['Ebben a böngészőben nincs beszédfelismerés. iPhone-on Safariban működik (a Siri legyen bekapcsolva), Androidon Chrome-ban.','Ta przeglądarka nie obsługuje rozpoznawania mowy. Na iPhonie działa w Safari (włącz Siri), na Androidzie w Chrome.','This browser has no speech recognition. On iPhone it works in Safari (Siri must be on), on Android in Chrome.'],
-  'h.denied': ['A mikrofon nincs engedélyezve. Engedélyezd a böngésző beállításaiban, majd próbáld újra.','Mikrofon jest zablokowany. Zezwól na niego w ustawieniach przeglądarki.','The microphone is blocked. Allow it in the browser settings and try again.'],
+  'h.denied': ['A mikrofon nincs engedélyezve. iPhone-on: Beállítások → Safari → Mikrofon → Kérdezés vagy Engedélyezés, majd töltsd újra az oldalt. Androidon a címsor melletti lakat ikonnál.','Mikrofon jest zablokowany. Zezwól na niego w ustawieniach przeglądarki.','The microphone is blocked. Allow it in the browser settings and try again.'],
   'h.nospeech': ['Nem hallottam semmit. Próbáld újra, közelebb a telefonhoz.','Nic nie usłyszałem. Spróbuj ponownie, bliżej telefonu.','I did not hear anything. Try again, closer to the phone.'],
   'h.srerr': ['A beszédfelismerés most nem működött. Próbáld újra.','Rozpoznawanie mowy nie zadziałało. Spróbuj ponownie.','Speech recognition did not work. Please try again.'],
   'opt.tone': ['Hangulat','Nastrój','Tone'],
@@ -6590,11 +6598,16 @@ function renderH(){
     <div class="actions"><button type="button" class="btn ghost" id="h-listen">${PLAY.replace('aria-hidden', 'width="18" height="18" aria-hidden')} ${t('h.model')}</button>
     ${supported ? `<button type="button" class="mic ${H.listening ? 'on' : ''}" id="h-mic">${MIC} ${H.listening ? t('h.listening') : t('h.speak')}</button>` : ''}
     <button class="btn quiet" type="button" id="h-skip">${t('btn.othersent')}</button></div>
+    ${H.listening ? `<p class="muted" style="margin:4px 0 0">${t('h.hearing')} <b id="h-live">…</b></p>` : ''}
     ${supported ? '' : `<div class="feedback acc"><p>${t('h.nosr')}</p></div>`}
     ${H.err ? `<div class="feedback bad"><p>${esc(H.err)}</p></div>` : ''}
+    ${H.done ? '' : `<details class="pfall" ${(!supported || H.err) ? 'open' : ''}><summary>${t('h.kbd')}</summary>
+      <p class="muted" style="margin:6px 0 8px">${t('h.kbdhint')}</p>
+      <form id="h-pform" autocomplete="off"><input class="search" id="h-pans" autocapitalize="sentences" spellcheck="false" lang="${TLANG.bcp}">
+      <div class="actions"><button class="btn" type="submit">${t('btn.check')}</button></div></form></details>`}
     ${H.done ? `<div class="feedback ${H.res.score >= 90 ? 'ok' : H.res.score >= 60 ? 'acc' : 'bad'}">
       <p><span class="verdict">${t('h.pscore', {n: H.res.score})}</span></p>
-      <p class="muted" style="margin:6px 0 0">${t('h.heard')} <b>${esc(H.heard || '—')}</b></p>
+      <p class="muted" style="margin:6px 0 0">${H.typed ? t('h.heardkbd') : t('h.heard')} <b>${esc(H.heard || '—')}</b></p>
       ${diffHtml({out: H.res.out.filter(x => x.st !== 'extra')})}
       <p class="muted" style="margin-top:6px">${t('h.plegend')}</p>
       <div class="actions"><button class="btn" type="button" id="h-next">${t('btn.next')}</button></div></div>` : ''}`;
@@ -6602,6 +6615,7 @@ function renderH(){
   box.querySelector('.psent').id = 'h-psent';
   $('h-listen').onclick = () => readAll($('h-psent'));
   const mic = $('h-mic'); if (mic) mic.onclick = toggleRecog;
+  const pf = $('h-pform'); if (pf) pf.onsubmit = e => { e.preventDefault(); const v = $('h-pans').value.trim(); if (!v){ $('h-pans').focus(); return; } stopRecog(); if (scorePron([v], true)) renderH(); };
   $('h-skip').onclick = nextH;
   const nx = $('h-next'); if (nx) nx.onclick = nextH;
 }
@@ -6613,27 +6627,55 @@ function finishH(given){
   renderH();
 }
 function stopRecog(){ if (recog){ try{ recog.abort(); }catch(e){} recog = null; } if (HEAR) HEAR.listening = false; }
+function scorePron(alts, typed){
+  const H = HEAR;
+  alts = alts.map(a => String(a || '').trim()).filter(Boolean);
+  if (!alts.length) return false;
+  let best = null;
+  alts.forEach(a => { const d = wordDiff(H.full, a); if (!best || d.score > best.d.score) best = {a, d}; });
+  H.heard = best.a; H.res = best.d; H.done = true; H.err = null; H.typed = !!typed;
+  HST.pn++; HST.ps += best.d.score; store.set('hstats', HST); renderStatsH();
+  if (answerHook){ try{ answerHook({kind:'pron', lang: LANG, inf: H.x.inf, sentence: H.full, heard: best.a, score: best.d.score, ok: best.d.score >= 90, typed: !!typed, at: Date.now()}); }catch(e){} }
+  if (typeof logActivity === 'function') logActivity(1);
+  return true;
+}
 function toggleRecog(){
   const H = HEAR;
   if (H.listening){ try{ recog && recog.stop(); }catch(e){} return; }
-  stopReading(); try{ speechSynthesis.cancel(); }catch(e){}
+  stopReading();
+  try{ if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel(); }catch(e){}
+  let r;
   try{
-    recog = new SR();
-    recog.lang = TLANG.bcp; recog.interimResults = false; recog.maxAlternatives = 3; recog.continuous = false;
+    r = new SR();
+    r.lang = TLANG.bcp; r.interimResults = true; r.maxAlternatives = 3; r.continuous = false;
   }catch(e){ H.err = t('h.nosr'); renderH(); return; }
-  H.listening = true; H.err = null; renderH();
-  recog.onresult = ev => {
-    const alts = [...ev.results[0]].map(a => a.transcript);
-    let best = null;
-    alts.forEach(a => { const d = wordDiff(H.full, a); if (!best || d.score > best.d.score) best = {a, d}; });
-    H.heard = best.a; H.res = best.d; H.done = true;
-    HST.pn++; HST.ps += best.d.score; store.set('hstats', HST); renderStatsH();
-    if (answerHook){ try{ answerHook({kind:'pron', lang: LANG, inf: H.x.inf, sentence: H.full, heard: best.a, score: best.d.score, ok: best.d.score >= 90, at: Date.now()}); }catch(e){} }
-    if (typeof logActivity === 'function') logActivity(1);
+  recog = r;
+  let finals = [], interim = '', errored = false;
+  r.onresult = ev => {
+    interim = '';
+    for (let k = 0; k < ev.results.length; k++){
+      const res = ev.results[k];
+      if (res.isFinal) finals = [...res].map(a => a.transcript);
+      else interim = res[0] ? res[0].transcript : interim;
+    }
+    const live = document.getElementById('h-live');
+    if (live) live.textContent = (finals[0] || interim || '…');
   };
-  recog.onerror = ev => { H.err = ev && (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') ? t('h.denied') : ev && ev.error === 'no-speech' ? t('h.nospeech') : t('h.srerr'); };
-  recog.onend = () => { H.listening = false; recog = null; renderH(); };
-  try{ recog.start(); }catch(e){ H.listening = false; H.err = t('h.srerr'); renderH(); }
+  r.onerror = ev => {
+    errored = true;
+    const e = ev && ev.error;
+    H.err = e === 'not-allowed' ? t('h.denied') : e === 'service-not-allowed' ? t('h.siri') : e === 'no-speech' ? t('h.nospeech') : e === 'audio-capture' ? t('h.nomic') : e === 'aborted' ? null : t('h.srerr') + (e ? ' (' + e + ')' : '');
+  };
+  r.onend = () => {
+    if (recog !== r) return;
+    H.listening = false; recog = null;
+    const alts = finals.length ? finals : (interim ? [interim] : []);
+    if (!scorePron(alts) && !errored) H.err = t('h.nospeech');
+    renderH();
+  };
+  H.listening = true; H.err = null;
+  try{ r.start(); }catch(e){ H.listening = false; recog = null; H.err = t('h.srerr'); }
+  renderH();
 }
 
 /* ---- Mondatok: a hiányzó ige beírása ---- */
