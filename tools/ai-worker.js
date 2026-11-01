@@ -57,17 +57,17 @@ export default {
     if (!ALLOWED_ORIGINS.includes(origin)) return reply(403, { error: 'origin' });
     if (!env.GEMINI_API_KEY) return reply(500, { error: 'not_configured', message: 'Hiányzik a GEMINI_API_KEY titkos változó.' });
 
-    // 1) bejelentkezés ellenőrzése
-    const token = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
-    let uid;
-    try { uid = await verifyFirebaseToken(token); }
-    catch (e) { return reply(401, { error: 'auth', message: msg('hu', 'auth') }); }
-
-    // 2) bemenet
+    // 1) bemenet (a nyelv miatt előbb olvassuk be)
     let body;
     try { body = await request.json(); } catch (e) { return reply(400, { error: 'json' }); }
     const p = sanitize(body || {});
-    const lang = p ? p.lang : 'hu';
+    const lang = p ? p.lang : (LI[body && body.lang] !== undefined ? body.lang : 'hu');
+
+    // 2) bejelentkezés ellenőrzése
+    const token = (request.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+    let uid;
+    try { uid = await verifyFirebaseToken(token); }
+    catch (e) { return reply(401, { error: 'auth', message: msg(lang, 'auth') }); }
     if (!p) return reply(400, { error: 'input', message: msg(lang, 'input') });
 
     // 3) napi korlát
