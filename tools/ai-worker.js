@@ -83,7 +83,7 @@ export default {
       const temp = { chat: 0.7, story: 0.8, adv: 0.9 }[p.type] ?? 0.2;
       let out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], p.type, temp);
       // ritka modellhiba (idegen írásjelek a szövegben): egyszer újrakérjük
-      if (looksBroken(p.type, out)) { try { out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], p.type, temp); } catch (e) {} }
+      if (looksBroken(p.type, out, p)) { try { out = await callGemini(env, buildPrompt(p), SCHEMAS[p.type], p.type, temp); } catch (e) {} }
       return reply(200, { result: normalize(p.type, out, p) });
     } catch (e) {
       usage.set(key, used); // a sikertelen kérés ne számítson bele

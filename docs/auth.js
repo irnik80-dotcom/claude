@@ -174,7 +174,7 @@ function renderList() {
       <thead><tr><th rowspan="2">${t('t.name')}</th><th rowspan="2">${t('t.email')}</th><th colspan="2" style="text-align:center">${t('tab.practice')}</th><th colspan="2" style="text-align:center">${t('tab.vocab')}</th><th colspan="2" style="text-align:center">${t('tab.sent')}</th><th colspan="2" style="text-align:center">${t('tab.trans')}</th><th colspan="2" style="text-align:center">${t('tab.chat')}</th><th colspan="2" style="text-align:center">${t('tab.read')}</th><th colspan="2" style="text-align:center">${t('tab.adv')}</th><th rowspan="2">${t('t.last')}</th></tr>
       <tr><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.answers')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.avg')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.avg')}</th><th class="num">${t('t.count')}</th><th class="num">${t('t.correct')}</th><th class="num">${t('t.count')}</th><th class="num">★</th></tr></thead>
       <tbody>${r.map((u, k) => {
-        const L = TL === 'es' ? (u.es || {}) : u;
+        const L = TL !== 'it' ? (u[TL] || {}) : u;
         const s = L.stats || {}, v = L.vstats || {}, m = L.mstats || {}, x = L.xstats || {}, c = L.cstats || {}, rd = L.rstats || {}, ad = L.astats || {};
         return `<tr class="click" data-k="${k}" tabindex="0"><td><b></b></td><td class="mono"></td><td class="num">${s.total || 0}</td><td class="num">${pct(s.ok || 0, s.total || 0)}</td><td class="num">${v.total || 0}</td><td class="num">${pct(v.ok || 0, v.total || 0)}</td><td class="num">${m.total || 0}</td><td class="num">${pct(m.ok || 0, m.total || 0)}</td><td class="num">${x.total || 0}</td><td class="num">${x.total ? (x.sum / x.total).toFixed(1) : '–'}</td><td class="num">${c.total || 0}</td><td class="num">${c.total ? (c.sum / c.total).toFixed(1) : '–'}</td><td class="num">${rd.total || 0}</td><td class="num">${pct(rd.ok || 0, rd.q || 0)}</td><td class="num">${ad.total || 0}</td><td class="num">${ad.good || 0}</td><td>${fmt(u.updated)}</td></tr>`;
       }).join('') || `<tr><td colspan="17" class="muted">${t('t.nobody')}</td></tr>`}</tbody>
@@ -222,7 +222,7 @@ async function loadUser(u) {
     ans = qs.docs.map((d) => d.data()).filter((a) => (a.tl || 'it') === TL);
   } catch (e) { console.warn(e); }
   const tra = ans.filter((a) => a.kind === 'trans'), chats = ans.filter((a) => a.kind === 'chat'), reads = ans.filter((a) => a.kind === 'read'), advs = ans.filter((a) => a.kind === 'adv');
-  const L = TL === 'es' ? (u.es || {}) : u;
+  const L = TL !== 'it' ? (u[TL] || {}) : u;
   const cs = L.cstats || {}, rs = L.rstats || {}, as = L.astats || {};
   const conj = ans.filter((a) => !a.kind || a.kind === 'conj'), voc = ans.filter((a) => a.kind === 'vocab'), sen = ans.filter((a) => a.kind === 'sent');
   const s = L.stats || {}, v = L.vstats || {}, m = L.mstats || {}, x = L.xstats || {};

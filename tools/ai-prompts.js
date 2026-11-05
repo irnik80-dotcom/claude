@@ -51,9 +51,27 @@ const TO_ES = [
 ];
 export function sanitize(body) {
   const r = sanitizeBase(body);
-  if (r) r.tl = body && body.tl === 'es' ? 'es' : 'it';
+  if (r) r.tl = body && ['es', 'ru', 'pl'].includes(body.tl) ? body.tl : 'it';
   return r;
 }
+const TENSE_SL = { pres: 'present tense', pp: 'past tense', fut: 'future tense', cond: 'conditional mood', impv: 'imperative' };
+const TO_RU = [
+  [/"siamo andati \(andare\)"/g, '"мы пошли (пойти)"'], [/\(essere\)/g, '(быть)'], [/"siamo" ->/g, '"мы" ->'], [/"Entri nella grotta buia"/g, '"Ты входишь в тёмную пещеру"'],
+  [/"tu"/g, '"ты"'], [/Gianni Rodari/g, 'Daniil Kharms'], [/Italian bar \(café\)/g, 'Russian café'], [/a family trattoria/g, 'a small family restaurant'],
+  [/in Florence/g, 'in Saint Petersburg'], [/in Rome/g, 'in Moscow'], [/in Bologna/g, 'in Kazan'], [/at Milano Centrale station/g, "at Moscow's Leningradsky station"],
+  [/historical adventure set in Italy \(ancient Rome, the Renaissance, etc\.\)/g, 'historical adventure set in Russia (medieval Rus, the age of Peter the Great, etc.)'],
+  [/travel adventure across Italy \(cities, food, people\)/g, 'travel adventure across Russia (cities, food, people)'], [/ \(a giallo\)/g, ''],
+  [/Ignore missing capital letters and final punctuation\./g, 'Ignore missing capital letters, final punctuation, missing stress marks and ё written as е.'],
+  [/\ban Italian/g, 'a Russian'], [/\bAn Italian/g, 'A Russian'], [/Italians/g, 'Russians'], [/Italian/g, 'Russian'], [/Italy/g, 'Russia'], [/italian/g, 'russian']
+];
+const TO_PL = [
+  [/"siamo andati \(andare\)"/g, '"poszliśmy (pójść)"'], [/\(essere\)/g, '(być)'], [/"siamo" ->/g, '"jesteśmy" ->'], [/"Entri nella grotta buia"/g, '"Wchodzisz do ciemnej jaskini"'],
+  [/"tu"/g, '"ty"'], [/Gianni Rodari/g, 'Jan Brzechwa'], [/Italian bar \(café\)/g, 'Polish café'], [/a family trattoria/g, 'a family restaurant (bar mleczny)'],
+  [/in Florence/g, 'in Kraków'], [/in Rome/g, 'in Warsaw'], [/in Bologna/g, 'in Gdańsk'], [/at Milano Centrale station/g, 'at Warszawa Centralna station'],
+  [/historical adventure set in Italy \(ancient Rome, the Renaissance, etc\.\)/g, 'historical adventure set in Poland (the Piast era, Renaissance Kraków, etc.)'],
+  [/travel adventure across Italy \(cities, food, people\)/g, 'travel adventure across Poland (cities, food, people)'], [/ \(a giallo\)/g, ''],
+  [/\ban Italian/g, 'a Polish'], [/\bAn Italian/g, 'A Polish'], [/Italians/g, 'Poles'], [/Italian/g, 'Polish'], [/Italy/g, 'Poland'], [/italian/g, 'polish']
+];
 function sanitizeBase(body) {
   const type = body && body.type;
   const lang = PROMPT_LANG[body && body.lang] ? body.lang : 'hu';
@@ -100,6 +118,10 @@ export function buildPrompt(p) {
   if (p.tl === 'es') {
     Object.keys(TENSE_EN).sort((a, b) => TENSE_EN[b].length - TENSE_EN[a].length).forEach((k) => { out = out.split(TENSE_EN[k]).join(TENSE_ES[k]); });
     TO_ES.forEach(([a, b]) => { out = out.replace(a, b); });
+  }
+  if (p.tl === 'ru' || p.tl === 'pl') {
+    Object.keys(TENSE_SL).forEach((k) => { out = out.split(TENSE_EN[k]).join(TENSE_SL[k]); });
+    (p.tl === 'ru' ? TO_RU : TO_PL).forEach(([a, b]) => { out = out.replace(a, b); });
   }
   return out;
 }
@@ -221,13 +243,13 @@ export const JSON_SPEC = {
 
 /* hibás modellválasz felismerése: az olasz szövegben nem latin betűk (pl. arab, cirill írásjelek) */
 const ODD = /[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]/u;
-export function looksBroken(type, r) {
+export function looksBroken(type, r, p) {
   if (!r) return true;
-  if (type === 'story' || type === 'adv') return ODD.test(String(r.text || '') + String(r.title || '')) || !r.text;
-  if (type === 'chat') return ODD.test(String(r.reply || '')) || !r.reply;
+  if (type === 'story' || type === 'adv') return (!p || p.tl !== 'ru') && ODD.test(String(r.text || '') + String(r.title || '')) || !r.text;
+  if (type === 'chat') return (!p || p.tl !== 'ru') && ODD.test(String(r.reply || '')) || !r.reply;
   return false;
 }
-const clean = (x) => String(x || '').replace(/[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]+/gu, '');
+const clean = (x, p) => p && p.tl === 'ru' ? String(x || '').replace(/[^\p{Script=Latin}\p{Script=Cyrillic}\p{Script=Common}\p{Script=Inherited}]+/gu, '') : String(x || '').replace(/[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]+/gu, '');
 
 /* a válasz egységesítése (hiányzó/hibás mezők pótlása) */
 export function normalize(type, r, p) {
@@ -235,15 +257,15 @@ export function normalize(type, r, p) {
   const errs = (a) => (Array.isArray(a) ? a.slice(0, 10).map((e) => ({ wrong: str(e && e.wrong, 300), fix: str(e && e.fix, 300), type: str(e && e.type, 60), explanation: str(e && e.explanation, 500) })) : []);
   const score = (v) => Math.max(0, Math.min(10, Math.round(Number(v) || 0)));
   if (type === 'gloss') { const t = Array.isArray(r.translations) ? r.translations : []; return { translations: p.words.map((_, i) => str(t[i], 80)) }; }
-  if (type === 'chat') { const c = r.correction || {}; return { reply: str(clean(r.reply), 1200), translation: str(r.translation, 1200), correction: { ok: c.ok !== false || !str(c.corrected, 10), corrected: str(c.corrected, 600), explanation: str(c.explanation, 600) } }; }
+  if (type === 'chat') { const c = r.correction || {}; return { reply: str(clean(r.reply, p), 1200), translation: str(r.translation, 1200), correction: { ok: c.ok !== false || !str(c.corrected, 10), corrected: str(c.corrected, 600), explanation: str(c.explanation, 600) } }; }
   if (type === 'chatsum') return { score: score(r.score), summary: str(r.summary, 1200), errors: errs(r.errors).slice(0, 6), tips: (Array.isArray(r.tips) ? r.tips : []).slice(0, 3).map((x) => str(x, 300)) };
   if (type === 'adv') {
     const ending = ['good', 'bad'].includes(r.ending) ? r.ending : 'none';
     const final = p && p.step >= p.steps;
-    let choices = (Array.isArray(r.choices) ? r.choices : []).slice(0, 3).map((c) => ({ text: str(clean(c && c.text), 200), translation: str(c && c.translation, 200) })).filter((c) => c.text);
+    let choices = (Array.isArray(r.choices) ? r.choices : []).slice(0, 3).map((c) => ({ text: str(clean(c && c.text, p), 200), translation: str(c && c.translation, 200) })).filter((c) => c.text);
     const end = final ? (ending === 'none' ? 'good' : ending) : (choices.length ? 'none' : (ending === 'none' ? 'bad' : ending));
     if (end !== 'none') choices = [];
-    return { title: str(clean(r.title), 120), text: str(clean(r.text), 3000), translation: str(r.translation, 3500), choices,
+    return { title: str(clean(r.title, p), 120), text: str(clean(r.text, p), 3000), translation: str(r.translation, 3500), choices,
       vocab: (Array.isArray(r.vocab) ? r.vocab : []).slice(0, 6).map((v) => ({ it: str(v && v.it, 80), tr: str(v && v.tr, 120) })).filter((v) => v.it), summary: str(r.summary, 1500), ending: end };
   }
   if (type === 'textq') {
@@ -256,7 +278,7 @@ export function normalize(type, r, p) {
       const answer = Math.round(Number(q && q.answer));
       return { q: str(q && q.q, 300), options, answer: answer >= 0 && answer < options.length ? answer : 0, explanation: str(q && q.explanation, 400) };
     }).filter((q) => q.q && q.options.length >= 2);
-    return { title: str(clean(r.title), 120), text: str(clean(r.text), 4000), translation: str(r.translation, 5000), questions: qs };
+    return { title: str(clean(r.title, p), 120), text: str(clean(r.text, p), 4000), translation: str(r.translation, 5000), questions: qs };
   }
   return { score: score(r.score), correct: !!r.correct, corrected: str(r.corrected, 600), errors: errs(r.errors), comment: str(r.comment, 600) };
 }

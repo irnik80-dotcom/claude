@@ -3003,6 +3003,456 @@ function setContentLang(l){
 }
 if (typeof module!=='undefined') module.exports = {VERBS, cell, check, TENSES, SENTS, sentFill, setContentLang, personLabel, isIrrT};
 </script>
+<script type="text/x-engine" id="engine-slav">
+/*ENGINE-SLAV-START*/
+/* Coniuga – orosz és lengyel ragozó motor. Ugyanazokat a neveket adja, mint az olasz motor (VERBS, TENSES, cell, check, SENTS, …).
+   Igeidők: jelen, múlt (nemek szerint), jövő (folyamatos: összetett; befejezett: ragozott), feltételes, felszólító.
+   Az igék szemléletpárban szerepelnek; a befejezett igének nincs jelen ideje. */
+const IS_RU = TL === 'ru';
+const TLANG = IS_RU
+  ? {code:'ru', bcp:'ru-RU', name:'Русский', ppLabel:null, keys:'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'.split('')}
+  : {code:'pl', bcp:'pl-PL', name:'Polski', ppLabel:null, keys:['ą','ć','ę','ł','ń','ó','ś','ź','ż']};
+const PERS = IS_RU ? ['я','ты','он/она','мы','вы','они'] : ['ja','ty','on/ona','my','wy','oni'];
+const REFL = ['','','','','',''];
+const TENSES = IS_RU ? [
+  {id:'pres', it:'Настоящее время', hu:'jelen idő'},
+  {id:'pp',   it:'Прошедшее время', hu:'múlt idő'},
+  {id:'fut',  it:'Будущее время', hu:'jövő idő'},
+  {id:'cond', it:'Сослагательное наклонение', hu:'feltételes mód'},
+  {id:'impv', it:'Повелительное наклонение', hu:'felszólító mód'}
+] : [
+  {id:'pres', it:'Czas teraźniejszy', hu:'jelen idő'},
+  {id:'pp',   it:'Czas przeszły', hu:'múlt idő'},
+  {id:'fut',  it:'Czas przyszły', hu:'jövő idő'},
+  {id:'cond', it:'Tryb przypuszczający', hu:'feltételes mód'},
+  {id:'impv', it:'Tryb rozkazujący', hu:'felszólító mód'}
+];
+const COMPOUND = {};
+const SIMPLE = ['pres','pp','fut','cond','impv'];
+const PERS_IMPV = IS_RU ? ['—','ты','—','—','вы','—'] : ['—','ty','on/ona','my','wy','oni'];
+const personLabel = (t, i) => t === 'impv' ? PERS_IMPV[i] : PERS[i];
+const isIrrT = (vb, t) => vb.irrT.includes(t);
+const NO_IMPV = new Set();
+const NA6 = () => ['—','—','—','—','—','—'];
+
+/* igék: főnévi igenév|szemlélet (i = folyamatos, p = befejezett)|szint|jelzők|magyar|lengyel|angol
+   jelzők (;-vel): p=E1 E2 T3 (egyes szám 1., 2. és többes 3. személy; a többi ebből jön) vagy mind a hat alak,
+   pst=múlt idő tövei (orosz: hímnem nőnem többes; lengyel: hímnem nőnem férfi-tsz. nem-férfi-tsz.),
+   imv=felszólító (te alak, - = nincs), fut=a jövő idő hat alakja (ha rendhagyó), nopres, irr=rendhagyó igeidők */
+const VERB_RAW_RU = `быть|i|1|nopres;fut=буду будешь будет будем будете будут;pst=был была были;imv=будь;irr=fut,impv|lenni|być|to be
+делать|i|1|p=делаю делаешь делают;imv=делай|csinálni|robić|to do, to make
+сделать|p|1|p=сделаю сделаешь сделают;imv=сделай|megcsinálni|zrobić|to do, to make (perf.)
+говорить|i|1|p=говорю говоришь говорят;imv=говори|beszélni, mondani|mówić|to speak, to say
+сказать|p|1|p=скажу скажешь скажут;imv=скажи;irr=fut|megmondani, elmondani|powiedzieć|to say, to tell (perf.)
+знать|i|1|p=знаю знаешь знают;imv=знай|tudni (vmit)|wiedzieć|to know
+хотеть|i|1|p=хочу хочешь хочет хотим хотите хотят;imv=-;irr=pres|akarni|chcieć|to want
+мочь|i|1|p=могу можешь может можем можете могут;pst=мог могла могли;imv=-;irr=pres,pp|tudni (képes), -hat/-het|móc|can, to be able to
+идти|i|1|p=иду идёшь идут;pst=шёл шла шли;imv=иди;irr=pp|menni (gyalog, most)|iść|to go (on foot)
+пойти|p|1|p=пойду пойдёшь пойдут;pst=пошёл пошла пошли;imv=пойди;irr=pp|elmenni, elindulni (gyalog)|pójść|to go, to set off (perf.)
+ехать|i|1|p=еду едешь едут;imv=поезжай;irr=impv|menni (járművel)|jechać|to go (by vehicle)
+жить|i|1|p=живу живёшь живут;imv=живи;irr=pres|élni, lakni|żyć, mieszkać|to live
+работать|i|1|p=работаю работаешь работают;imv=работай|dolgozni|pracować|to work
+читать|i|1|p=читаю читаешь читают;imv=читай|olvasni|czytać|to read
+прочитать|p|2|p=прочитаю прочитаешь прочитают;imv=прочитай|elolvasni|przeczytać|to read (through) (perf.)
+писать|i|1|p=пишу пишешь пишут;imv=пиши;irr=pres|írni|pisać|to write
+написать|p|2|p=напишу напишешь напишут;imv=напиши;irr=fut|megírni|napisać|to write (perf.)
+понимать|i|1|p=понимаю понимаешь понимают;imv=понимай|érteni|rozumieć|to understand
+понять|p|2|p=пойму поймёшь поймут;pst=понял поняла поняли;imv=пойми;irr=fut,impv|megérteni|zrozumieć|to understand (perf.)
+любить|i|1|p=люблю любишь любят;imv=люби;irr=pres|szeretni|kochać, lubić|to love, to like
+видеть|i|1|p=вижу видишь видят;imv=-;irr=pres|látni|widzieć|to see
+смотреть|i|1|p=смотрю смотришь смотрят;imv=смотри|nézni|patrzeć, oglądać|to watch, to look
+слушать|i|1|p=слушаю слушаешь слушают;imv=слушай|hallgatni|słuchać|to listen
+есть|i|1|p=ем ешь ест едим едите едят;pst=ел ела ели;imv=ешь;irr=pres,pp,impv|enni|jeść|to eat
+пить|i|1|p=пью пьёшь пьют;imv=пей;irr=pres,impv|inni|pić|to drink
+спать|i|1|p=сплю спишь спят;imv=спи;irr=pres|aludni|spać|to sleep
+думать|i|1|p=думаю думаешь думают;imv=думай|gondolni, gondolkodni|myśleć|to think
+спрашивать|i|2|p=спрашиваю спрашиваешь спрашивают;imv=спрашивай|kérdezni|pytać|to ask
+спросить|p|2|p=спрошу спросишь спросят;imv=спроси;irr=fut|megkérdezni|zapytać|to ask (perf.)
+отвечать|i|2|p=отвечаю отвечаешь отвечают;imv=отвечай|válaszolni|odpowiadać|to answer
+ответить|p|2|p=отвечу ответишь ответят;imv=ответь;irr=fut|megválaszolni|odpowiedzieć|to answer (perf.)
+покупать|i|2|p=покупаю покупаешь покупают;imv=покупай|vásárolni|kupować|to buy
+купить|p|1|p=куплю купишь купят;imv=купи;irr=fut|megvenni|kupić|to buy (perf.)
+давать|i|2|p=даю даёшь дают;imv=давай;irr=pres|adni|dawać|to give
+дать|p|1|p=дам дашь даст дадим дадите дадут;imv=дай;irr=fut,impv|odaadni, adni|dać|to give (perf.)
+брать|i|2|p=беру берёшь берут;imv=бери;irr=pres|venni, fogni|brać|to take
+взять|p|2|p=возьму возьмёшь возьмут;pst=взял взяла взяли;imv=возьми;irr=fut,impv|elvenni, elvinni|wziąć|to take (perf.)
+учить|i|2|p=учу учишь учат;imv=учи|tanulni (vmit), tanítani|uczyć (się)|to learn, to teach
+учиться|i|2|p=учу учишь учат;imv=учи|tanulni, tanulmányokat folytatni|uczyć się, studiować|to study
+заниматься|i|2|p=занимаю занимаешь занимают;imv=занимай|foglalkozni vmivel, sportolni|zajmować się, uprawiać|to be engaged in, to do (sport)
+начинать|i|2|p=начинаю начинаешь начинают;imv=начинай|kezdeni|zaczynać|to begin
+начать|p|2|p=начну начнёшь начнут;pst=начал начала начали;imv=начни;irr=fut,impv|elkezdeni|zacząć|to begin (perf.)
+помогать|i|2|p=помогаю помогаешь помогают;imv=помогай|segíteni|pomagać|to help
+помочь|p|2|p=помогу поможешь помогут;pst=помог помогла помогли;imv=помоги;irr=fut,pp|segíteni (egyszer)|pomóc|to help (perf.)
+звонить|i|2|p=звоню звонишь звонят;imv=звони|telefonálni, csengeni|dzwonić|to call, to ring
+позвонить|p|1|p=позвоню позвонишь позвонят;imv=позвони|felhívni|zadzwonić|to call (perf.)
+ждать|i|2|p=жду ждёшь ждут;imv=жди;irr=pres|várni|czekać|to wait
+стоять|i|2|p=стою стоишь стоят;imv=стой|állni|stać|to stand
+сидеть|i|2|p=сижу сидишь сидят;imv=сиди;irr=pres|ülni|siedzieć|to sit
+открыть|p|2|p=открою откроешь откроют;imv=открой;irr=fut|kinyitni|otworzyć|to open (perf.)
+закрыть|p|2|p=закрою закроешь закроют;imv=закрой;irr=fut|bezárni|zamknąć|to close (perf.)
+готовить|i|2|p=готовлю готовишь готовят;imv=готовь;irr=pres|főzni, készíteni|gotować, przygotowywać|to cook, to prepare
+играть|i|1|p=играю играешь играют;imv=играй|játszani|grać, bawić się|to play
+гулять|i|2|p=гуляю гуляешь гуляют;imv=гуляй|sétálni|spacerować|to go for a walk
+петь|i|2|p=пою поёшь поют;imv=пой;irr=pres|énekelni|śpiewać|to sing
+приходить|i|3|p=прихожу приходишь приходят;imv=приходи;irr=pres|érkezni, jönni (gyalog)|przychodzić|to come, to arrive
+прийти|p|2|p=приду придёшь придут;pst=пришёл пришла пришли;imv=приди;irr=fut,pp|megérkezni, eljönni (gyalog)|przyjść|to come, to arrive (perf.)
+забыть|p|2|p=забуду забудешь забудут;imv=забудь;irr=fut|elfelejteni|zapomnieć|to forget (perf.)
+помнить|i|2|p=помню помнишь помнят;imv=помни|emlékezni|pamiętać|to remember
+вставать|i|2|p=встаю встаёшь встают;imv=вставай;irr=pres|felkelni|wstawać|to get up
+одеваться|i|3|p=одеваю одеваешь одевают;imv=одевай|öltözködni|ubierać się|to get dressed
+путешествовать|i|2|p=путешествую путешествуешь путешествуют;imv=путешествуй|utazni|podróżować|to travel
+танцевать|i|2|p=танцую танцуешь танцуют;imv=танцуй|táncolni|tańczyć|to dance
+рисовать|i|2|p=рисую рисуешь рисуют;imv=рисуй|rajzolni|rysować|to draw
+платить|i|2|p=плачу платишь платят;imv=плати;irr=pres|fizetni|płacić|to pay
+ходить|i|2|p=хожу ходишь ходят;imv=ходи;irr=pres|járni (gyalog, rendszeresen)|chodzić|to walk, to go (regularly)
+ездить|i|3|p=езжу ездишь ездят;imv=-;irr=pres|járni (járművel, rendszeresen)|jeździć|to travel (regularly)
+мечтать|i|3|p=мечтаю мечтаешь мечтают;imv=мечтай|álmodozni|marzyć|to dream
+решить|p|3|p=решу решишь решат;imv=реши|eldönteni, megoldani|zdecydować, rozwiązać|to decide, to solve (perf.)
+показать|p|3|p=покажу покажешь покажут;imv=покажи;irr=fut|megmutatni|pokazać|to show (perf.)
+вернуться|p|3|p=верну вернёшь вернут;imv=верни|visszatérni|wrócić|to come back (perf.)
+остаться|p|3|p=остану останешь останут;imv=остань;irr=fut|ottmaradni|zostać|to stay (perf.)`;
+
+const VERB_RAW_PL = `być|i|1|p=jestem jesteś jest jesteśmy jesteście są;fut=będę będziesz będzie będziemy będziecie będą;imv=bądź;irr=pres,fut,impv|lenni||to be
+mieć|i|1|p=mam masz mają;imv=miej;irr=impv|vmije van, birtokolni||to have
+robić|i|1|p=robię robisz robią;imv=rób|csinálni||to do, to make
+zrobić|p|1|p=zrobię zrobisz zrobią;imv=zrób|megcsinálni||to do, to make (perf.)
+mówić|i|1|p=mówię mówisz mówią;imv=mów|beszélni, mondani||to speak, to say
+powiedzieć|p|1|p=powiem powiesz powiedzą;imv=powiedz;irr=fut,impv|megmondani, elmondani||to say, to tell (perf.)
+wiedzieć|i|1|p=wiem wiesz wiedzą;imv=wiedz;irr=pres|tudni (vmit)||to know (a fact)
+znać|i|1|p=znam znasz znają;imv=znaj|ismerni||to know (someone, something)
+chcieć|i|1|p=chcę chcesz chcą;imv=chciej;irr=pres,impv|akarni||to want
+móc|i|1|p=mogę możesz mogą;pst=mógł mogła mogli mogły;imv=-;irr=pres,pp|tudni (képes), -hat/-het||can, to be able to
+iść|i|1|p=idę idziesz idą;pst=szedł szła szli szły;imv=idź;irr=pres,pp|menni (gyalog)||to go (on foot)
+pójść|p|1|p=pójdę pójdziesz pójdą;pst=poszedł poszła poszli poszły;imv=-;irr=fut,pp|elmenni, elindulni (gyalog)||to go, to set off (perf.)
+jechać|i|1|p=jadę jedziesz jadą;imv=jedź;irr=pres,impv|menni (járművel)||to go (by vehicle)
+żyć|i|1|p=żyję żyjesz żyją;imv=żyj|élni||to live
+mieszkać|i|1|p=mieszkam mieszkasz mieszkają;imv=mieszkaj|lakni||to live (somewhere)
+pracować|i|1|p=pracuję pracujesz pracują;imv=pracuj|dolgozni||to work
+czytać|i|1|p=czytam czytasz czytają;imv=czytaj|olvasni||to read
+przeczytać|p|2|p=przeczytam przeczytasz przeczytają;imv=przeczytaj|elolvasni||to read (through) (perf.)
+pisać|i|1|p=piszę piszesz piszą;imv=pisz;irr=pres|írni||to write
+napisać|p|2|p=napiszę napiszesz napiszą;imv=napisz;irr=fut|megírni||to write (perf.)
+rozumieć|i|1|p=rozumiem rozumiesz rozumieją;imv=-|érteni||to understand
+zrozumieć|p|2|p=zrozumiem zrozumiesz zrozumieją;imv=zrozum|megérteni||to understand (perf.)
+kochać|i|1|p=kocham kochasz kochają;imv=kochaj|szeretni (vkit)||to love
+lubić|i|1|p=lubię lubisz lubią;imv=-|szeretni, kedvelni||to like
+widzieć|i|1|p=widzę widzisz widzą;imv=-;irr=pres|látni||to see
+oglądać|i|1|p=oglądam oglądasz oglądają;imv=oglądaj|nézni (tévét, filmet)||to watch
+słuchać|i|1|p=słucham słuchasz słuchają;imv=słuchaj|hallgatni||to listen
+jeść|i|1|p=jem jesz jedzą;pst=jadł jadła jedli jadły;imv=jedz;irr=pres,pp,impv|enni||to eat
+pić|i|1|p=piję pijesz piją;imv=pij|inni||to drink
+spać|i|1|p=śpię śpisz śpią;imv=śpij;irr=pres,impv|aludni||to sleep
+myśleć|i|1|p=myślę myślisz myślą;imv=myśl|gondolni, gondolkodni||to think
+pytać|i|2|p=pytam pytasz pytają;imv=pytaj|kérdezni||to ask
+zapytać|p|2|p=zapytam zapytasz zapytają;imv=zapytaj|megkérdezni||to ask (perf.)
+odpowiadać|i|2|p=odpowiadam odpowiadasz odpowiadają;imv=odpowiadaj|válaszolni||to answer
+odpowiedzieć|p|2|p=odpowiem odpowiesz odpowiedzą;imv=odpowiedz;irr=fut,impv|megválaszolni||to answer (perf.)
+kupować|i|2|p=kupuję kupujesz kupują;imv=kupuj|vásárolni||to buy
+kupić|p|1|p=kupię kupisz kupią;imv=kup|megvenni||to buy (perf.)
+dawać|i|2|p=daję dajesz dają;imv=dawaj;irr=pres|adni||to give
+dać|p|1|p=dam dasz dadzą;imv=daj;irr=fut,impv|odaadni, adni||to give (perf.)
+brać|i|2|p=biorę bierzesz biorą;imv=bierz;irr=pres,impv|venni, fogni||to take
+wziąć|p|2|p=wezmę weźmiesz wezmą;pst=wziął wzięła wzięli wzięły;imv=weź;irr=fut,pp,impv|elvenni, elvinni||to take (perf.)
+uczyć się|i|2|p=uczę uczysz uczą;imv=ucz|tanulni||to learn, to study
+zaczynać|i|2|p=zaczynam zaczynasz zaczynają;imv=zaczynaj|kezdeni||to begin
+zacząć|p|2|p=zacznę zaczniesz zaczną;pst=zaczął zaczęła zaczęli zaczęły;imv=zacznij;irr=fut,pp,impv|elkezdeni||to begin (perf.)
+pomagać|i|2|p=pomagam pomagasz pomagają;imv=pomagaj|segíteni||to help
+pomóc|p|2|p=pomogę pomożesz pomogą;pst=pomógł pomogła pomogli pomogły;imv=pomóż;irr=fut,pp,impv|segíteni (egyszer)||to help (perf.)
+dzwonić|i|2|p=dzwonię dzwonisz dzwonią;imv=dzwoń|telefonálni, csengeni||to call, to ring
+zadzwonić|p|1|p=zadzwonię zadzwonisz zadzwonią;imv=zadzwoń|felhívni||to call (perf.)
+czekać|i|1|p=czekam czekasz czekają;imv=czekaj|várni||to wait
+otworzyć|p|2|p=otworzę otworzysz otworzą;imv=otwórz;irr=impv|kinyitni||to open (perf.)
+zamknąć|p|2|p=zamknę zamkniesz zamkną;pst=zamknął zamknęła zamknęli zamknęły;imv=zamknij;irr=pp|bezárni||to close (perf.)
+gotować|i|2|p=gotuję gotujesz gotują;imv=gotuj|főzni||to cook
+grać|i|1|p=gram grasz grają;imv=graj|játszani||to play
+śpiewać|i|2|p=śpiewam śpiewasz śpiewają;imv=śpiewaj|énekelni||to sing
+tańczyć|i|2|p=tańczę tańczysz tańczą;imv=tańcz|táncolni||to dance
+przyjść|p|2|p=przyjdę przyjdziesz przyjdą;pst=przyszedł przyszła przyszli przyszły;imv=przyjdź;irr=fut,pp,impv|megérkezni, eljönni (gyalog)||to come, to arrive (perf.)
+przychodzić|i|3|p=przychodzę przychodzisz przychodzą;imv=przychodź;irr=pres|érkezni, jönni (gyalog)||to come, to arrive
+zapomnieć|p|2|p=zapomnę zapomnisz zapomną;imv=zapomnij;irr=fut,impv|elfelejteni||to forget (perf.)
+pamiętać|i|2|p=pamiętam pamiętasz pamiętają;imv=pamiętaj|emlékezni||to remember
+wstawać|i|2|p=wstaję wstajesz wstają;imv=wstawaj;irr=pres|felkelni||to get up
+podróżować|i|2|p=podróżuję podróżujesz podróżują;imv=podróżuj|utazni||to travel
+płacić|i|2|p=płacę płacisz płacą;imv=płać;irr=pres|fizetni||to pay
+chodzić|i|2|p=chodzę chodzisz chodzą;imv=chodź;irr=pres|járni (gyalog, rendszeresen)||to walk, to go (regularly)
+jeździć|i|3|p=jeżdżę jeździsz jeżdżą;imv=jeźdź;irr=pres|járni (járművel, rendszeresen)||to travel (regularly)
+marzyć|i|3|p=marzę marzysz marzą;imv=marz|álmodozni||to dream
+wrócić|p|2|p=wrócę wrócisz wrócą;imv=wróć;irr=fut|visszatérni||to come back (perf.)
+zostać|p|2|p=zostanę zostaniesz zostaną;imv=zostań;irr=fut|ottmaradni; válni vmivé||to stay; to become (perf.)
+pokazać|p|3|p=pokażę pokażesz pokażą;imv=pokaż;irr=fut|megmutatni||to show (perf.)
+nazywać się|i|1|p=nazywam nazywasz nazywają;imv=-|hívják vhogy||to be called
+ubierać się|i|3|p=ubieram ubierasz ubierają;imv=ubieraj|öltözködni||to get dressed
+spacerować|i|2|p=spaceruję spacerujesz spacerują;imv=spaceruj|sétálni||to go for a walk
+siedzieć|i|2|p=siedzę siedzisz siedzą;imv=siedź;irr=pres|ülni||to sit
+stać|i|2|p=stoję stoisz stoją;imv=stój;irr=pres,impv|állni||to stand`;
+
+/* ---- ragozás ---- */
+const RU_V = /[аеёиоуыэюя]$/;
+const ruSfx = (f, refl) => !refl || f === '—' ? f : (RU_V.test(f) ? f + 'сь' : f + 'ся');
+function conjRu(o){
+  const refl = /(ся|сь)$/.test(o.inf), base = refl ? o.inf.slice(0, -2) : o.inf;
+  const R = f => ruSfx(f, refl);
+  const P = (o.fl.p || '').split(' ').filter(Boolean);
+  let six = P;
+  if (P.length === 3){ const st = P[1].replace(/шь$/, ''); six = [P[0], P[1], st + 'т', st + 'м', st + 'те', P[2]]; }
+  const pst = o.fl.pst ? o.fl.pst.split(' ') : ['л','ла','ли'].map(e => base.replace(/ть$/, e));
+  const [m, f, pl] = pst.map(R);
+  const F = {};
+  F.pres = (o.asp === 'i' && !o.fl.nopres) ? six.map(R) : NA6();
+  const BUD = ['буду','будешь','будет','будем','будете','будут'];
+  F.fut = o.fl.fut ? o.fl.fut.split(' ') : o.asp === 'p' ? six.map(R) : BUD.map(b => b + ' ' + o.inf);
+  const g = m + '/' + f;
+  F.pp = [g, g, g, pl, pl, pl];
+  const gb = m + ' бы/' + f + ' бы', pb = pl + ' бы';
+  F.cond = [gb, gb, gb, pb, pb, pb];
+  const imv = o.fl.imv;
+  F.impv = !imv || imv === '-' ? NA6() : ['—', R(imv), '—', '—', R(imv + 'те'), '—'];
+  return F;
+}
+const PL_BEDE = ['będę','będziesz','będzie','będziemy','będziecie','będą'];
+function conjPl(o){
+  const refl = / się$/.test(o.inf), base = refl ? o.inf.slice(0, -4) : o.inf;
+  const S = s => refl ? s + ' się' : s;
+  const P = (o.fl.p || '').split(' ').filter(Boolean);
+  let six = P;
+  if (P.length === 3){ const st = P[1].replace(/sz$/, ''); six = [P[0], P[1], st, st + 'my', st + 'cie', P[2]]; }
+  let m, f, vir, nvir;
+  if (o.fl.pst) [m, f, vir, nvir] = o.fl.pst.split(' ');
+  else {
+    const st = base.slice(0, -1);
+    if (/e$/.test(st)){ const a = st.slice(0, -1) + 'a'; m = a + 'ł'; f = a + 'ła'; vir = st + 'li'; nvir = a + 'ły'; }
+    else { m = st + 'ł'; f = st + 'ła'; vir = st + 'li'; nvir = st + 'ły'; }
+  }
+  const mb = m.replace(/ó(?=[^ó]*$)/, 'o');
+  const alt = a => a.map(S).join('/');
+  const F = {};
+  F.pres = o.asp === 'i' ? six.map(S) : NA6();
+  F.pp = [[mb+'em', f+'m'], [mb+'eś', f+'ś'], [m, f], [vir+'śmy', nvir+'śmy'], [vir+'ście', nvir+'ście'], [vir, nvir]].map(alt);
+  F.cond = [[m+'bym', f+'bym'], [m+'byś', f+'byś'], [m+'by', f+'by'], [vir+'byśmy', nvir+'byśmy'], [vir+'byście', nvir+'byście'], [vir+'by', nvir+'by']].map(alt);
+  if (o.fl.fut) F.fut = o.fl.fut.split(' ');
+  else if (o.asp === 'p') F.fut = six.map(S);
+  else F.fut = PL_BEDE.map((b, i) => {
+    const l = i < 3 ? [m, f] : [vir, nvir];
+    const forms = [base, ...l];
+    return forms.map(x => refl ? `${b} się ${x}/${b} ${x} się` : `${b} ${x}`).join('/');
+  });
+  const imv = o.fl.imv;
+  const third = o.fl.fut && o.asp === 'i' ? F.fut : six;   // być: niech będzie
+  if (!imv || imv === '-') F.impv = NA6();
+  else F.impv = ['—', S(imv), refl ? `niech się ${third[2]}/niech ${third[2]} się` : 'niech ' + third[2], S(imv + 'my'), S(imv + 'cie'), refl ? `niech się ${third[5]}/niech ${third[5]} się` : 'niech ' + third[5]];
+  return F;
+}
+
+const VERBS = [];
+(IS_RU ? VERB_RAW_RU : VERB_RAW_PL).trim().split('\n').forEach(l => {
+  const [inf, asp, lvl, flags, hu, pl, en] = l.split('|');
+  const fl = {};
+  (flags || '').split(';').filter(Boolean).forEach(x => { const k = x.indexOf('='); if (k < 0) fl[x] = true; else fl[x.slice(0, k)] = x.slice(k + 1); });
+  const vb = {inf, asp, lvl: +lvl, hu, mhu: hu, mean: {hu, pl: pl || en, en}, fl};
+  vb.refl = IS_RU ? /(ся|сь)$/.test(inf) : / się$/.test(inf);
+  vb.F = IS_RU ? conjRu(vb) : conjPl(vb);
+  vb.irrT = (fl.irr || '').split(',').filter(Boolean);
+  vb.R = {};
+  SIMPLE.forEach(t => { vb.R[t] = vb.F[t].map(x => x === '—' || !vb.irrT.includes(t) ? x : '#'); });
+  vb.irr = vb.irrT.length > 0;
+  vb.noT = SIMPLE.filter(t => vb.F[t].every(x => x === '—'));
+  vb.noImpv = vb.noT.includes('impv');
+  vb.aspect = asp;
+  VERBS.push(vb);
+});
+VERBS.sort((a, b) => a.inf.localeCompare(b.inf, TL));
+const VBY0 = Object.fromEntries(VERBS.map(v => [v.inf, v]));
+
+function cell(vb, t, i){
+  const raw = (vb.F[t] || [])[i];
+  if (!raw || raw === '—') return {display:'—', accept:[], irr:false, na:true};
+  const alts = raw.split('/');
+  const more = alts.slice(1, 3);
+  return {display: alts[0] + (more.length ? ' (' + more.join(', ') + (alts.length > 3 ? ', …' : '') + ')' : ''), accept: alts, irr: raw !== vb.R[t][i]};
+}
+
+const PRON_RE = IS_RU ? /^(я|ты|он\/она|он|она|оно|мы|вы|они)\s+/ : /^(ja|ty|on\/ona|on|ona|ono|my|wy|oni|one)\s+/;
+function norm(s){
+  s = (s || '').toLowerCase().normalize('NFC').trim().replace(/\s+/g, ' ').replace(/[.!?,]+$/, '');
+  return s.replace(PRON_RE, '');
+}
+const deacc = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l').replace(/Ł/g, 'L');
+function check(input, accept){
+  const n = norm(input);
+  if (!n) return 'empty';
+  if (accept.some(a => norm(a) === n)) return 'ok';
+  if (accept.some(a => deacc(norm(a)) === deacc(n))) return 'acc';
+  return 'bad';
+}
+
+/* példamondatok: ige|idő|személy|mondat ___ helyén az igével|magyar|lengyel|angol|f = nőnemű alak */
+const SENT_RAW_RU = `быть|fut|0|Завтра я ___ дома.|Holnap otthon leszek.|Jutro będę w domu.|Tomorrow I'll be at home.
+делать|pres|1|Что ты ___?|Mit csinálsz?|Co robisz?|What are you doing?
+сделать|pp|3|Мы уже ___ домашнее задание.|Már megcsináltuk a házi feladatot.|Już zrobiliśmy zadanie domowe.|We've already done the homework.
+говорить|pres|1|Ты ___ по-русски?|Beszélsz oroszul?|Mówisz po rosyjsku?|Do you speak Russian?
+сказать|pp|2|Он ___ мне правду.|Megmondta nekem az igazat.|Powiedział mi prawdę.|He told me the truth.
+знать|pres|0|Я не ___, где вокзал.|Nem tudom, hol van a pályaudvar.|Nie wiem, gdzie jest dworzec.|I don't know where the station is.
+хотеть|pres|3|Мы ___ пить чай.|Teát akarunk inni.|Chcemy pić herbatę.|We want to drink tea.
+мочь|pres|1|Ты ___ мне помочь?|Tudsz nekem segíteni?|Możesz mi pomóc?|Can you help me?
+идти|pres|0|Я ___ в магазин.|A boltba megyek.|Idę do sklepu.|I'm going to the shop.
+пойти|fut|3|Завтра мы ___ в кино.|Holnap moziba megyünk.|Jutro pójdziemy do kina.|Tomorrow we'll go to the cinema.
+ехать|pres|5|Они ___ в Москву на поезде.|Vonattal mennek Moszkvába.|Jadą pociągiem do Moskwy.|They're going to Moscow by train.
+жить|pres|0|Я ___ в Венгрии.|Magyarországon élek.|Mieszkam na Węgrzech.|I live in Hungary.
+работать|pp|2|Мой отец ___ в банке.|Apám bankban dolgozott.|Mój tata pracował w banku.|My father worked in a bank.
+читать|pres|2|Мама ___ книгу.|Anya könyvet olvas.|Mama czyta książkę.|Mum is reading a book.
+прочитать|pp|0|Я ___ эту книгу за два дня.|Két nap alatt elolvastam ezt a könyvet.|Przeczytałem tę książkę w dwa dni.|I read this book in two days.
+писать|pres|1|Кому ты ___ письмо?|Kinek írsz levelet?|Do kogo piszesz list?|Who are you writing a letter to?
+написать|fut|0|Я ___ тебе завтра.|Holnap írok neked.|Napiszę do ciebie jutro.|I'll write to you tomorrow.
+понимать|pres|0|Я не ___ это слово.|Nem értem ezt a szót.|Nie rozumiem tego słowa.|I don't understand this word.
+понять|pp|3|Мы всё ___.|Mindent megértettünk.|Wszystko zrozumieliśmy.|We understood everything.
+любить|pres|0|Я ___ музыку.|Szeretem a zenét.|Lubię muzykę.|I love music.
+видеть|pp|0|Я ___ его вчера.|Tegnap láttam őt.|Widziałem go wczoraj.|I saw him yesterday.
+смотреть|pres|5|Дети ___ телевизор.|A gyerekek tévét néznek.|Dzieci oglądają telewizję.|The children are watching TV.
+слушать|impv|1|___ меня внимательно!|Figyelj rám jól!|Słuchaj mnie uważnie!|Listen to me carefully!
+есть|pres|3|Мы ___ суп.|Levest eszünk.|Jemy zupę.|We're eating soup.
+пить|pres|2|Он ___ кофе каждое утро.|Minden reggel kávét iszik.|Pije kawę każdego ranka.|He drinks coffee every morning.
+спать|pres|5|Дети уже ___.|A gyerekek már alszanak.|Dzieci już śpią.|The children are already asleep.
+думать|pres|1|О чём ты ___?|Mire gondolsz?|O czym myślisz?|What are you thinking about?
+спрашивать|pres|5|Студенты часто ___.|A diákok gyakran kérdeznek.|Studenci często pytają.|Students often ask questions.
+спросить|pp|0|Я ___ дорогу у прохожего.|Megkérdeztem az utat egy járókelőtől.|Zapytałem przechodnia o drogę.|I asked a passer-by for directions.
+отвечать|pres|0|Я ___ на письма вечером.|Este válaszolok a levelekre.|Odpowiadam na listy wieczorem.|I answer letters in the evening.
+ответить|fut|2|Он ___ завтра.|Holnap fog válaszolni.|Odpowie jutro.|He'll answer tomorrow.
+покупать|pres|3|Мы ___ хлеб в этом магазине.|Ebben a boltban vesszük a kenyeret.|Kupujemy chleb w tym sklepie.|We buy bread in this shop.
+купить|pp|3|Мы ___ новую машину.|Új autót vettünk.|Kupiliśmy nowy samochód.|We bought a new car.
+давать|pres|2|Учитель ___ нам много заданий.|A tanár sok feladatot ad nekünk.|Nauczyciel daje nam dużo zadań.|The teacher gives us a lot of tasks.
+дать|impv|1|___ мне, пожалуйста, воды.|Adj nekem vizet, kérlek.|Daj mi, proszę, wody.|Give me some water, please.
+брать|pres|0|Я всегда ___ с собой воду.|Mindig viszek magammal vizet.|Zawsze biorę ze sobą wodę.|I always take water with me.
+взять|pp|0|Я ___ зонтик.|Elvittem az esernyőt.|Wziąłem parasol.|I took the umbrella.
+учить|pres|0|Я ___ русские слова.|Orosz szavakat tanulok.|Uczę się rosyjskich słów.|I'm learning Russian words.
+учиться|pres|0|Я ___ в университете.|Egyetemen tanulok.|Studiuję na uniwersytecie.|I study at university.
+заниматься|pres|5|Они ___ спортом.|Sportolnak.|Uprawiają sport.|They do sport.
+начинать|pres|2|Он ___ день с кофе.|Kávéval kezdi a napot.|Zaczyna dzień od kawy.|He starts the day with coffee.
+начать|pp|2|Он ___ работать в восемь.|Nyolckor kezdett dolgozni.|Zaczął pracować o ósmej.|He started working at eight.
+помогать|pres|0|Я ___ маме.|Segítek anyának.|Pomagam mamie.|I help Mum.
+помочь|cond|1|Ты ___ мне?|Segítenél nekem?|Pomógłbyś mi?|Would you help me?
+звонить|pres|2|Телефон ___.|Cseng a telefon.|Telefon dzwoni.|The phone is ringing.
+позвонить|fut|0|Я ___ тебе вечером.|Este felhívlak.|Zadzwonię do ciebie wieczorem.|I'll call you tonight.
+ждать|pres|0|Я ___ автобус.|A buszra várok.|Czekam na autobus.|I'm waiting for the bus.
+стоять|pres|2|Машина ___ у дома.|Az autó a ház előtt áll.|Samochód stoi przed domem.|The car is standing in front of the house.
+сидеть|pres|2|Кошка ___ на окне.|A macska az ablakban ül.|Kot siedzi na oknie.|The cat is sitting on the windowsill.
+открыть|impv|4|___ окно, пожалуйста.|Nyissa ki az ablakot, kérem.|Proszę otworzyć okno.|Open the window, please.
+закрыть|pp|2|Она ___ дверь.|Bezárta az ajtót.|Zamknęła drzwi.|She closed the door.|f
+готовить|pres|2|Бабушка ___ обед.|A nagymama ebédet főz.|Babcia gotuje obiad.|Grandma is cooking lunch.
+играть|pres|5|Дети ___ в парке.|A gyerekek a parkban játszanak.|Dzieci bawią się w parku.|The children are playing in the park.
+гулять|pp|3|Вчера мы ___ в парке.|Tegnap a parkban sétáltunk.|Wczoraj spacerowaliśmy po parku.|Yesterday we went for a walk in the park.
+петь|pres|2|Моя сестра хорошо ___.|A húgom jól énekel.|Moja siostra dobrze śpiewa.|My sister sings well.
+приходить|pres|2|Он всегда ___ вовремя.|Mindig időben érkezik.|Zawsze przychodzi na czas.|He always arrives on time.
+прийти|pp|5|Гости ___ в семь.|A vendégek hétkor jöttek meg.|Goście przyszli o siódmej.|The guests arrived at seven.
+забыть|pp|0|Я ___ ключи дома.|Otthon felejtettem a kulcsokat.|Zostawiłem klucze w domu.|I left my keys at home.
+помнить|pres|1|Ты ___ его имя?|Emlékszel a nevére?|Pamiętasz jego imię?|Do you remember his name?
+вставать|pres|0|Я ___ в семь часов.|Hét órakor kelek.|Wstaję o siódmej.|I get up at seven.
+одеваться|pres|1|Почему ты так долго ___?|Miért öltözöl ilyen sokáig?|Dlaczego tak długo się ubierasz?|Why are you taking so long to get dressed?
+путешествовать|cond|0|Я ___ по всему миру.|Beutaznám az egész világot.|Podróżowałbym po całym świecie.|I would travel all over the world.
+танцевать|pp|5|Они ___ всю ночь.|Egész éjjel táncoltak.|Tańczyli całą noc.|They danced all night.
+рисовать|pres|2|Мой сын хорошо ___.|A fiam jól rajzol.|Mój syn dobrze rysuje.|My son draws well.
+платить|pres|0|Сегодня я ___.|Ma én fizetek.|Dziś ja płacę.|Today I'm paying.
+ходить|pres|1|Ты часто ___ в театр?|Gyakran jársz színházba?|Często chodzisz do teatru?|Do you often go to the theatre?
+ездить|pp|3|Летом мы ___ на море.|Nyáron a tengerhez jártunk.|Latem jeździliśmy nad morze.|In summer we used to go to the seaside.
+мечтать|pres|0|Я ___ о собаке.|Kutyáról álmodozom.|Marzę o psie.|I dream of having a dog.
+решить|pp|3|Мы ___ продать дом.|Úgy döntöttünk, eladjuk a házat.|Postanowiliśmy sprzedać dom.|We decided to sell the house.
+показать|impv|1|___ мне фотографии!|Mutasd meg a fényképeket!|Pokaż mi zdjęcia!|Show me the photos!
+вернуться|fut|0|Я ___ через час.|Egy óra múlva visszajövök.|Wrócę za godzinę.|I'll be back in an hour.
+остаться|pp|0|Вчера я ___ дома.|Tegnap otthon maradtam.|Wczoraj zostałem w domu.|Yesterday I stayed at home.`;
+
+const SENT_RAW_PL = `być|pres|0|___ z Węgier.|Magyarországról jöttem.||I'm from Hungary.
+mieć|pres|1|Ile ___ lat?|Hány éves vagy?||How old are you?
+robić|pres|1|Co ___?|Mit csinálsz?||What are you doing?
+zrobić|pp|3|Już ___ zadanie domowe.|Már megcsináltuk a házi feladatot.||We've already done the homework.
+mówić|pres|1|___ po polsku?|Beszélsz lengyelül?||Do you speak Polish?
+powiedzieć|pp|2|On ___ mi prawdę.|Megmondta nekem az igazat.||He told me the truth.
+wiedzieć|pres|0|Nie ___, gdzie jest dworzec.|Nem tudom, hol van a pályaudvar.||I don't know where the station is.
+znać|pres|3|Dobrze ___ to miasto.|Jól ismerjük ezt a várost.||We know this city well.
+chcieć|pres|3|___ pić herbatę.|Teát akarunk inni.||We want to drink tea.
+móc|pres|1|___ mi pomóc?|Tudsz nekem segíteni?||Can you help me?
+iść|pres|0|___ do sklepu.|A boltba megyek.||I'm going to the shop.
+pójść|fut|3|Jutro ___ do kina.|Holnap moziba megyünk.||Tomorrow we'll go to the cinema.
+jechać|pres|5|___ pociągiem do Krakowa.|Vonattal mennek Krakkóba.||They're going to Kraków by train.
+żyć|pp|5|Moi dziadkowie ___ na wsi.|A nagyszüleim vidéken éltek.||My grandparents lived in the countryside.
+mieszkać|pres|0|___ na Węgrzech.|Magyarországon lakom.||I live in Hungary.
+pracować|pp|2|Mój tata ___ w banku.|Apám bankban dolgozott.||My father worked in a bank.
+czytać|pres|2|Mama ___ książkę.|Anya könyvet olvas.||Mum is reading a book.
+przeczytać|pp|0|___ tę książkę w dwa dni.|Két nap alatt elolvastam ezt a könyvet.||I read this book in two days.
+pisać|pres|1|Do kogo ___ list?|Kinek írsz levelet?||Who are you writing a letter to?
+napisać|fut|0|___ do ciebie jutro.|Holnap írok neked.||I'll write to you tomorrow.
+rozumieć|pres|0|Nie ___ tego słowa.|Nem értem ezt a szót.||I don't understand this word.
+zrozumieć|pp|3|Wszystko ___.|Mindent megértettünk.||We understood everything.
+kochać|pres|2|Paweł ___ swoją rodzinę.|Paweł szereti a családját.||Paweł loves his family.
+lubić|pres|0|Bardzo ___ muzykę.|Nagyon szeretem a zenét.||I really like music.
+widzieć|pp|0|___ go wczoraj.|Tegnap láttam őt.||I saw him yesterday.
+oglądać|pres|5|Dzieci ___ telewizję.|A gyerekek tévét néznek.||The children are watching TV.
+słuchać|impv|1|___ mnie uważnie!|Figyelj rám jól!||Listen to me carefully!
+jeść|pres|3|___ zupę.|Levest eszünk.||We're eating soup.
+pić|pres|2|On ___ kawę każdego ranka.|Minden reggel kávét iszik.||He drinks coffee every morning.
+spać|pres|5|Dzieci już ___.|A gyerekek már alszanak.||The children are already asleep.
+myśleć|pres|1|O czym ___?|Mire gondolsz?||What are you thinking about?
+pytać|pres|5|Studenci często ___.|A diákok gyakran kérdeznek.||Students often ask questions.
+zapytać|pp|0|___ przechodnia o drogę.|Megkérdeztem az utat egy járókelőtől.||I asked a passer-by for directions.
+odpowiadać|pres|0|___ na listy wieczorem.|Este válaszolok a levelekre.||I answer letters in the evening.
+odpowiedzieć|fut|2|On ___ jutro.|Holnap fog válaszolni.||He'll answer tomorrow.
+kupować|pres|3|___ chleb w tym sklepie.|Ebben a boltban vesszük a kenyeret.||We buy bread in this shop.
+kupić|pp|3|___ nowy samochód.|Új autót vettünk.||We bought a new car.
+dawać|pres|2|Nauczyciel ___ nam dużo zadań.|A tanár sok feladatot ad nekünk.||The teacher gives us a lot of tasks.
+dać|impv|1|___ mi, proszę, wody.|Adj nekem vizet, kérlek.||Give me some water, please.
+brać|pres|0|Zawsze ___ ze sobą wodę.|Mindig viszek magammal vizet.||I always take water with me.
+wziąć|pp|0|___ parasol.|Elvittem az esernyőt.||I took the umbrella.
+uczyć się|pres|0|___ na uniwersytecie.|Egyetemen tanulok.||I study at university.
+zaczynać|pres|2|On ___ dzień od kawy.|Kávéval kezdi a napot.||He starts the day with coffee.
+zacząć|pp|2|On ___ pracować o ósmej.|Nyolckor kezdett dolgozni.||He started working at eight.
+pomagać|pres|0|___ mamie.|Segítek anyának.||I help Mum.
+pomóc|cond|1|___ mi?|Segítenél nekem?||Would you help me?
+dzwonić|pres|2|Telefon ___.|Cseng a telefon.||The phone is ringing.
+zadzwonić|fut|0|___ do ciebie wieczorem.|Este felhívlak.||I'll call you tonight.
+czekać|pres|0|___ na autobus.|A buszra várok.||I'm waiting for the bus.
+otworzyć|impv|4|___ okno, proszę.|Nyissátok ki az ablakot, kérlek.||Open the window, please.
+zamknąć|pp|2|Ona ___ drzwi.|Bezárta az ajtót.||She closed the door.|f
+gotować|pres|2|Babcia ___ obiad.|A nagymama ebédet főz.||Grandma is cooking lunch.
+grać|pres|1|___ na gitarze?|Gitározol?||Do you play the guitar?
+śpiewać|pres|2|Moja siostra dobrze ___.|A húgom jól énekel.||My sister sings well.
+tańczyć|pp|5|___ całą noc.|Egész éjjel táncoltak.||They danced all night.
+przyjść|pp|5|Goście ___ o siódmej.|A vendégek hétkor jöttek meg.||The guests arrived at seven.
+przychodzić|pres|2|On zawsze ___ na czas.|Mindig időben érkezik.||He always arrives on time.
+zapomnieć|pp|0|___ kluczy.|Elfelejtettem a kulcsokat.||I forgot my keys.
+pamiętać|pres|1|___ jego imię?|Emlékszel a nevére?||Do you remember his name?
+wstawać|pres|0|___ o siódmej.|Hétkor kelek.||I get up at seven.
+podróżować|cond|0|___ po całym świecie.|Beutaznám az egész világot.||I would travel all over the world.
+płacić|pres|0|Dziś ja ___.|Ma én fizetek.||Today I'm paying.
+chodzić|pres|1|Często ___ do teatru?|Gyakran jársz színházba?||Do you often go to the theatre?
+jeździć|pp|3|Latem ___ nad morze.|Nyáron a tengerhez jártunk.||In summer we used to go to the seaside.
+marzyć|pres|0|___ o psie.|Kutyáról álmodozom.||I dream of having a dog.
+wrócić|fut|0|___ za godzinę.|Egy óra múlva visszajövök.||I'll be back in an hour.
+zostać|pp|0|Wczoraj ___ w domu.|Tegnap otthon maradtam.||Yesterday I stayed at home.
+pokazać|impv|1|___ mi zdjęcia!|Mutasd meg a fényképeket!||Show me the photos!
+nazywać się|pres|0|___ Anna.|Annának hívnak.||My name is Anna.
+ubierać się|pres|0|Rano ___ w pośpiechu.|Reggel sietve öltözöm fel.||In the morning I get dressed in a hurry.
+spacerować|pp|3|Wczoraj ___ po parku.|Tegnap a parkban sétáltunk.||Yesterday we went for a walk in the park.
+siedzieć|pres|2|Kot ___ na oknie.|A macska az ablakban ül.||The cat is sitting on the windowsill.
+stać|pres|2|Samochód ___ przed domem.|Az autó a ház előtt áll.||The car is standing in front of the house.`;
+
+const VBY = Object.fromEntries(VERBS.map(v => [v.inf, v]));
+const SENTS = (IS_RU ? SENT_RAW_RU : SENT_RAW_PL).trim().split('\n').map(l => {
+  const [inf, t, p, it, hu, pl, en, f] = l.split('|');
+  return {inf, t, p: +p, it, hu, f: f === 'f', tr: {hu, pl: pl || en, en}};
+}).filter(x => VBY[x.inf] && !cell(VBY[x.inf], x.t, x.p).na);
+const SENT_BY = Object.fromEntries(SENTS.map(x => [x.inf, x]));
+const capFirst = x => x ? x[0].toUpperCase() + x.slice(1) : x;
+function sentFill(x){
+  const c = cell(VBY[x.inf], x.t, x.p);
+  const form = (x.f && c.accept.length > 1) ? c.accept[1] : c.accept[0];
+  const [a, b] = x.it.split('___');
+  const shown = a ? form : capFirst(form);
+  return {form, accept: c.accept, irr: c.irr, before: a, after: b, shown, full: a + shown + b};
+}
+function setContentLang(l){
+  VERBS.forEach(v => { v.hu = v.mean[l] || v.mean.hu; });
+  SENTS.forEach(x => { x.hu = x.tr[l] || x.tr.hu; });
+}
+/*ENGINE-SLAV-END*/
+</script>
 <script type="text/x-engine" id="engine-es">
 /*ENGINE-ES-START*/
 /* Coniuga – spanyol ragozó motor. Ugyanazokat a neveket adja, mint az olasz motor (VERBS, TENSES, cell, check, SENTS, …),
@@ -3773,19 +4223,22 @@ function setContentLang(l){
 /*ENGINE-ES-END*/
 </script>
 <script>
-/* célnyelv: olasz vagy spanyol – a választott nyelv ragozó motorja töltődik be */
+/* célnyelv: olasz, spanyol, orosz vagy lengyel. Olasz/spanyol: a ragozó motor és a teljes felület töltődik be;
+   orosz/lengyel: a könnyített ábécé + szókincs felület (lent). */
 const TL = (() => {
-  try{ const q = new URLSearchParams(location.search).get('tl'); if (q === 'es' || q === 'it') return q; }catch(e){}
-  try{ return localStorage.getItem('coniuga:tl') === 'es' ? 'es' : 'it'; }catch(e){ return 'it'; }
+  const OK = ['it','es','ru','pl'];
+  try{ const q = new URLSearchParams(location.search).get('tl'); if (OK.includes(q)) return q; }catch(e){}
+  try{ const v = localStorage.getItem('coniuga:tl'); return OK.includes(v) ? v : 'it'; }catch(e){ return 'it'; }
 })();
+const FULL_APP = true;
 (function(){
   const s = document.createElement('script');
-  s.textContent = document.getElementById(TL === 'es' ? 'engine-es' : 'engine').textContent;
+  s.textContent = document.getElementById({es:'engine-es', ru:'engine-slav', pl:'engine-slav'}[TL] || 'engine').textContent;
   document.currentScript.after(s);
 })();
 </script>
 
-<script>
+<script type="text/x-app" id="app-main">
 /* ---------- Felület ---------- */
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -3802,6 +4255,15 @@ const I18N = {
   'ph.refl@es': ['pl. me …','np. me …','e.g. me …'],
   'genre.travel@es': ['Utazás Spanyolországban','Podróż po Hiszpanii','Travels in Spain'],
   'tl.label': ['Melyik nyelvet tanulod?','Jakiego języka się uczysz?','Which language are you learning?'],
+  'td.pp@ru': ['múlt idő','czas przeszły','past tense'], 'td.pp@pl': ['múlt idő','czas przeszły','past tense'],
+  'tin.pp@ru': ['múlt időben','w czasie przeszłym','in the past tense'], 'tin.pp@pl': ['múlt időben','w czasie przeszłym','in the past tense'],
+  'note.refl@ru': ['<b>Visszaható ige:</b> a végére -ся kerül (magánhangzó után -сь):','<b>Czasownik zwrotny:</b> na końcu ma -ся (po samogłosce -сь):','<b>Reflexive verb:</b> it ends in -ся (-сь after a vowel):'],
+  'note.refl@pl': ['<b>Visszaható ige:</b> mellette áll a „się”:','<b>Czasownik zwrotny:</b> występuje z „się”:','<b>Reflexive verb:</b> it is used with „się”:'],
+  'ph.refl@ru': ['pl. учусь','np. учусь','e.g. учусь'], 'ph.refl@pl': ['pl. uczę się','np. uczę się','e.g. uczę się'],
+  'm.ph.refl@ru': ['a -ся/-сь végződéssel együtt','razem z -ся/-сь','with the -ся/-сь ending'], 'm.ph.refl@pl': ['a „się”-vel együtt','razem z „się”','together with „się”'],
+  'note.asp.i': ['<b>Folyamatos (imperfektív) ige:</b> a cselekvés menetét, ismétlődését jelöli; jövő ideje összetett.','<b>Czasownik niedokonany:</b> wyraża przebieg lub powtarzanie czynności; czas przyszły złożony.','<b>Imperfective verb:</b> describes an ongoing or repeated action; its future is compound.'],
+  'note.asp.p': ['<b>Befejezett (perfektív) ige:</b> nincs jelen ideje; a jelen idejű alakjai jövő időt jelentenek.','<b>Czasownik dokonany:</b> nie ma czasu teraźniejszego; jego formy „teraźniejsze” oznaczają przyszłość.','<b>Perfective verb:</b> it has no present tense; its present-looking forms express the future.'],
+  'abc.tabs': ['','',''],
   'sub': ['Olasz igeragozás gyakorló · {n} ige, ebből {k} rendhagyó','Trener włoskich czasowników · {n} czasowników, w tym {k} nieregularnych','Italian verb trainer · {n} verbs, {k} of them irregular'],
   'lang': ['Nyelv','Język','Language'],
   'who.local': ['Az eredményeid ebben a böngészőben maradnak.','Twoje wyniki zostają w tej przeglądarce.','Your results stay in this browser.'],
@@ -4371,15 +4833,16 @@ const I18N = {
   't.noread': ['Még nincs olvasmány.','Brak tekstów.','No texts yet.']
 };
 let LANG = 'hu';
-const TL_SWAP = [
-  [/olasz/g, 'spanyol'], [/Olasz/g, 'Spanyol'],
-  [/włosk/g, 'hiszpańsk'], [/Włosk/g, 'Hiszpańsk'],
-  [/Italian/g, 'Spanish'], [/Italy/g, 'Spain']
-];
+const TL_SWAPS = {
+  es: [[/olasz/g, 'spanyol'], [/Olasz/g, 'Spanyol'], [/włosk/g, 'hiszpańsk'], [/Włosk/g, 'Hiszpańsk'], [/Italian/g, 'Spanish'], [/Italy/g, 'Spain']],
+  ru: [[/Itáliában/g, 'Oroszországban'], [/olasz/g, 'orosz'], [/Olasz/g, 'Orosz'], [/włosk/g, 'rosyjsk'], [/Włosk/g, 'Rosyjsk'], [/Italian/g, 'Russian'], [/Italy/g, 'Russia']],
+  pl: [[/Itáliában/g, 'Lengyelországban'], [/olaszul/g, 'lengyelül'], [/olaszra/g, 'lengyelre'], [/olaszból/g, 'lengyelből'], [/Olaszból/g, 'Lengyelből'], [/olasz/g, 'lengyel'], [/Olasz/g, 'Lengyel'], [/włosk/g, 'polsk'], [/Włosk/g, 'Polsk'], [/Italian/g, 'Polish'], [/Italy/g, 'Poland']]
+};
+const TL_SWAP = TL_SWAPS[TL] || [];
 function t(key, vars){
-  const row = (TL === 'es' && I18N[key + '@es']) || I18N[key];
+  const row = (TL !== 'it' && I18N[key + '@' + TL]) || I18N[key];
   let s = row ? (row[LANGS.indexOf(LANG)] ?? row[0]) : key;
-  if (TL === 'es' && typeof s === 'string') TL_SWAP.forEach(([a, b]) => { s = s.replace(a, b); });
+  if (TL_SWAP.length && typeof s === 'string') TL_SWAP.forEach(([a, b]) => { s = s.replace(a, b); });
   if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
   return s;
 }
@@ -4393,7 +4856,7 @@ function applyStatic(){
   const box = document.getElementById('langs');
   if (box) box.innerHTML = LANGS.map(l => `<button type="button" data-lang="${l}" aria-pressed="${l===LANG}" title="${LANG_LABEL[l]}">${l.toUpperCase()}</button>`).join('');
   const tb = document.getElementById('tls');
-  if (tb){ tb.setAttribute('aria-label', t('tl.label')); tb.title = t('tl.label'); tb.innerHTML = ['it','es'].map(l => `<button type="button" data-tl="${l}" aria-pressed="${l===TL}">${l==='it'?'🇮🇹 Italiano':'🇪🇸 Español'}</button>`).join(''); }
+  if (tb){ tb.setAttribute('aria-label', t('tl.label')); tb.title = t('tl.label'); tb.innerHTML = [['it','🇮🇹 Italiano'],['es','🇪🇸 Español'],['ru','🇷🇺 Русский'],['pl','🇵🇱 Polski']].map(([l, n]) => `<button type="button" data-tl="${l}" aria-pressed="${l===TL}">${n}</button>`).join(''); }
   const sb = document.getElementById('slowbtn');
   if (sb && typeof S !== 'undefined'){ sb.textContent = t('tts.slow'); sb.setAttribute('aria-pressed', !!S.slow); sb.title = t('tts.slowhint'); }
 }
@@ -4493,8 +4956,8 @@ function exampleHtml(vb){
 }
 const APP_NAME = TL === 'es' ? '¡Presente!' : 'Presente!';
 (function(){ const h = document.getElementById('appname'); if (h && TL === 'es') h.innerHTML = '<em>¡</em>Presente<em>!</em>'; document.title = APP_NAME; })();
-const NS = TL === 'es' ? 'coniuga:es:' : 'coniuga:';
-const SHARED_KEYS = new Set(['settings','pstats']);
+const NS = TL === 'it' ? 'coniuga:' : 'coniuga:' + TL + ':';
+const SHARED_KEYS = new Set(TL === 'it' || TL === 'es' ? ['settings','pstats'] : ['pstats']);
 const skey = k => (SHARED_KEYS.has(k) ? 'coniuga:' : NS) + k;
 const store = {
   get(k, d){ try{ const v = localStorage.getItem(skey(k)); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
@@ -4521,15 +4984,17 @@ const LANG_FIELDS = ['stats','vstats','mstats','xstats','cstats','rstats','astat
 function cloudDoc(p){
   const shared = {settings: p.settings, pstats: p.pstats, updated: Date.now(), tl: TL};
   const own = {}; LANG_FIELDS.forEach(k => { if (k in p) own[k] = p[k]; });
+  if (TL === 'ru' || TL === 'pl'){ own.settings = p.settings; delete shared.settings; return Object.assign({}, cloudKeep, cloudExtra, shared, {[TL]: own}); }
   return TL === 'es' ? Object.assign({}, cloudKeep, cloudExtra, shared, {es: own}) : Object.assign({}, cloudKeep, cloudExtra, own, shared);
 }
 function splitDoc(d){
   d = d || {};
-  if (TL === 'es'){
-    cloudKeep = {}; Object.keys(d).forEach(k => { if (k !== 'es') cloudKeep[k] = d[k]; });
-    return Object.assign({}, d.es || {}, {settings: d.settings, pstats: d.pstats});
+  if (TL !== 'it'){
+    cloudKeep = {}; Object.keys(d).forEach(k => { if (k !== TL) cloudKeep[k] = d[k]; });
+    const own = d[TL] || {};
+    return Object.assign({}, own, {settings: (TL === 'es' ? d.settings : own.settings || (d.settings ? {lang: d.settings.lang, goal: d.settings.goal} : undefined)), pstats: d.pstats});
   }
-  cloudKeep = d.es ? {es: d.es} : {};
+  cloudKeep = {}; ['es','ru','pl'].forEach(k => { if (d[k]) cloudKeep[k] = d[k]; });
   return d;
 }
 async function saveCloud(){
@@ -4636,7 +5101,7 @@ async function initCloud(){
   }catch(e){ /* marad a böngészős mentés */ }
 }
 const DEF = {goal:20, board:false, nick:'', mode:'single', tenses:['pres','pp','imp','fut'], levels:[1,2], kind:'all', refl:true, lenient:true, focus:null, vdir:'mix', vlevels:[1,2], vkind:'all', mtenses:['pres','pp','imp','fut','cond','cong'], mlevels:[1,2], mhu:true, xsrc:'bank', xlevels:[1,2], cscen:'cafe', clevel:'A2', ctopic:'', rsrc:'ai', rlevel:'A2', rtenses:['pres','pp'], rtopic:'', agenre:'fantasy', atone:'normal', autoForms:true, autoWords:true, hmode:'dict', hlevels:[1,2], rtone:'normal', alevel:'A2', alen:10, atenses:['pres','pp','imp'], ahero:'', ahero2:'', rhero:'', rhero2:'', lang: (/^pl/i.test(navigator.language||'') ? 'pl' : /^hu/i.test(navigator.language||'') ? 'hu' : /^en/i.test(navigator.language||'') ? 'en' : 'hu')};
-let S = Object.assign({}, DEF, store.get('settings', {}));
+let S = Object.assign({}, DEF, store.get('settings', null) || (() => { try{ const sh = JSON.parse(localStorage.getItem('coniuga:settings') || '{}'); return {lang: sh.lang || DEF.lang, goal: sh.goal || DEF.goal, slow: !!sh.slow}; }catch(e){ return {}; } })());
 let ST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('stats', {}));
 let VST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('vstats', {}));
 let MST = Object.assign({ok:0,total:0,streak:0,best:0,miss:{},recent:[]}, store.get('mstats', {}));
@@ -4666,6 +5131,7 @@ function chips(vb){
   if (vb.isc) out.push(`<li><span>${t('note.isc')} <span class="ex">${esc(cell(vb,'pres',0).display)}, ${esc(cell(vb,'pres',1).display)}…</span></span></li>`);
   if (vb.refl) out.push(`<li class="ess"><span>${t('note.refl')} <span class="ex">${esc(cell(vb,'pp',0).display)}</span></span></li>`);
   else if (vb.aux==='essere') out.push(`<li class="ess"><span>${t('note.ess')} <span class="ex">${esc(cell(vb,'pp',0).display)}</span></span></li>`);
+  if (vb.aspect) out.push(`<li class="${vb.aspect === 'p' ? 'ess' : ''}"><span>${t('note.asp.' + vb.aspect)}</span></li>`);
   out.push(`<li><span>${t('note.level', {l: LEVELS[vb.lvl].toLowerCase()})}</span></li>`);
   return '<ul class="notes">'+out.join('')+'</ul>';
 }
@@ -4684,7 +5150,13 @@ function tableImpl(vb, tn, hl){
 function chk(type, name, val, checked, label){
   return `<label><input type="${type}" name="${name}" value="${val}" ${checked?'checked':''}> ${label}</label>`;
 }
+function fixTenses(){
+  const ok = id => TENSES.some(x => x.id === id), all = TENSES.map(x => x.id);
+  const fix = (k, def) => { const v = (S[k] || []).filter(ok); S[k] = v.length ? v : def.filter(ok).length ? def.filter(ok) : all.slice(0, 2); };
+  fix('tenses', ['pres','pp','fut']); fix('mtenses', all); fix('rtenses', ['pres','pp']); fix('atenses', ['pres','pp']);
+}
 function renderOptions(){
+  fixTenses();
   $('o-mode').innerHTML = chk('radio','mode','single',S.mode==='single',t('mode.single')) + chk('radio','mode','table',S.mode==='table',t('mode.table'));
   $('o-tenses').innerHTML = TENSES.map(t=>chk('checkbox','tense',t.id,S.tenses.includes(t.id),t.it)).join('');
   $('o-levels').innerHTML = [1,2,3].map(l=>chk('checkbox','level',l,S.levels.includes(l),LEVELS[l])).join('');
@@ -4753,11 +5225,12 @@ const rnd = a => a[Math.floor(Math.random()*a.length)];
 function next(){
   const vb = pickVerb();
   if (!vb){ $('qcard').innerHTML = `<p>${t('empty.verbs')}</p>`; return; }
-  let usable = S.tenses.filter(x => !(x==='impv' && vb.noImpv));
-  if (!usable.length) usable = ['pres'];
+  let usable = S.tenses.filter(x => !(x==='impv' && vb.noImpv) && !(vb.noT && vb.noT.includes(x)));
+  if (!usable.length) usable = TENSES.map(x => x.id).filter(x => !(vb.noT && vb.noT.includes(x)));
   let t = rnd(usable);
   if (S.kind==='irr' && Math.random()<.7){ const it = usable.filter(x=>isIrrT(vb,x)); if (it.length) t = rnd(it); }
-  cur = {vb, t, i: t==='impv' ? 1+Math.floor(Math.random()*5) : Math.floor(Math.random()*6), done:false};
+  const persons = [0,1,2,3,4,5].filter(k => !cell(vb, t, k).na);
+  cur = {vb, t, i: persons.length ? rnd(persons) : (t==='impv' ? 1+Math.floor(Math.random()*5) : Math.floor(Math.random()*6)), done:false};
   S.mode==='table' ? renderTableQ() : renderSingleQ();
 }
 
@@ -4815,7 +5288,7 @@ function answerSingle(gaveUp){
   $('go').textContent = t('btn.next'); $('idk').disabled = true; $('skip').hidden = true;
   const cls = res==='ok'?'ok':res==='acc'?'acc':'bad';
   const verdict = res==='ok'?t('v.ok'):res==='acc'?(S.lenient?t('v.acc'):t('v.accbad')):(gaveUp?t('v.giveup'):t('v.bad'));
-  const note = c.irr ? `<p><span class="irrf">${t('irr.this')}</span>${tn==='pp'?t('irr.pp', {pp: esc(vb.F.pp.split('/')[0])}):''}</p>` : '';
+  const note = c.irr ? `<p><span class="irrf">${t('irr.this')}</span>${tn==='pp' && typeof vb.F.pp === 'string'?t('irr.pp', {pp: esc(vb.F.pp.split('/')[0])}):''}</p>` : '';
   const auxNote = (tn==='pp' && vb.aux==='essere') ? `<p class="muted">${t('aux.note')}</p>` : '';
   $('fb').innerHTML = `<div class="feedback ${cls}">
     <p><span class="verdict">${verdict}</span> ${res!=='ok'?`<strong class="big">${esc(personLabel(tn,i))} ${esc(c.display)}</strong>`:''} ${sayBtn(c.display)}</p>
@@ -4828,14 +5301,15 @@ function renderTableQ(){
   const {vb} = cur, tn = cur.t;
   $('qcard').innerHTML = head(vb,tn,t('table.fill')) + `
   <form id="qform" autocomplete="off"><div class="trows">
-  ${PERS.map((p,i)=>`<div class="trow" ${tn==='impv'&&i===0?'hidden':''}><label class="person" for="t${i}">${personLabel(tn,i)}</label><input id="t${i}" autocapitalize="off" spellcheck="false"><div class="sol" id="sol${i}" hidden></div></div>`).join('')}
+  ${PERS.map((p,i)=>`<div class="trow" ${(tn==='impv'&&i===0) || cell(vb,tn,i).na?'hidden':''}><label class="person" for="t${i}">${personLabel(tn,i)}</label><input id="t${i}" autocapitalize="off" spellcheck="false"><div class="sol" id="sol${i}" hidden></div></div>`).join('')}
   </div>${keysHtml()}
   <div class="actions"><button class="btn" type="submit" id="go">${t('btn.check')}</button>
   <button class="btn ghost" type="button" id="idk">${t('btn.solution')}</button>
   <button class="btn quiet" type="button" id="skip">${t('btn.otherverb')}</button></div></form><div id="fb"></div>`;
   wireCommon();
-  $(tn==='impv' ? 't1' : 't0').focus({preventScroll:true});
-  for (let i=0;i<5;i++) $('t'+i).addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); $('t'+(i+1)).focus(); } });
+  const live = [0,1,2,3,4,5].filter(k => !cell(vb,tn,k).na && !(tn==='impv' && k===0));
+  if (live.length) $('t'+live[0]).focus({preventScroll:true});
+  live.forEach((k, j) => $('t'+k).addEventListener('keydown', e=>{ if(e.key==='Enter' && j < live.length-1){ e.preventDefault(); $('t'+live[j+1]).focus(); } }));
   $('skip').onclick = next;
   $('idk').onclick = ()=>{ if(!cur.done) answerTable(true); };
   $('qform').onsubmit = e=>{ e.preventDefault(); cur.done ? next() : answerTable(false); };
@@ -4843,7 +5317,7 @@ function renderTableQ(){
 function answerTable(gaveUp){
   const {vb} = cur, tn = cur.t; let good = 0;
   cur.done = true;
-  const total = tn==='impv' ? 5 : 6;
+  const total = [0,1,2,3,4,5].filter(k => !cell(vb,tn,k).na).length;
   PERS.forEach((p,i)=>{
     const c = cell(vb,tn,i), inp = $('t'+i), given = inp.value;
     if (c.na){ inp.readOnly = true; return; }
@@ -4862,7 +5336,7 @@ function answerTable(gaveUp){
 }
 
 /* ---- Igetár ---- */
-let B = {q:'', kind:'all', sel: TL === 'es' ? 'hablar' : 'andare'};
+let B = {q:'', kind:'all', sel: TL === 'es' ? 'hablar' : TL === 'it' ? 'andare' : (byInf[TL === 'ru' ? 'делать' : 'robić'] ? (TL === 'ru' ? 'делать' : 'robić') : VERBS[0].inf)};
 function renderBrowseKind(){
   $('b-kind').innerHTML = [['all',t('kind.all')],['irr',t('b.irr')],['reg',t('b.reg')],['1',LEVELS[1].toLowerCase()],['2',LEVELS[2].toLowerCase()],['3',LEVELS[3].toLowerCase()]]
     .map(([v,l])=>chk('radio','bkind',v,B.kind===v,l)).join('');
@@ -4891,11 +5365,11 @@ PDF.verb = () => {
 };
 function renderDetail(){
   const vb = byInf[B.sel];
-  const pp = vb.F.pp.split('/');
+  const pp = typeof vb.F.pp === 'string' ? vb.F.pp.split('/') : [];
   $('b-detail').innerHTML = `
     <div class="verb-line"><h2 class="inf">${esc(vb.inf)}</h2>${sayBtn(vb.inf)}<span class="hu">${esc(vb.hu)}</span></div>
     <div class="chips">${chips(vb)}</div>
-    <p class="legend">${TLANG.ppLabel}: <b style="font-family:var(--f-mono)">${vb.irrT.includes('pp')?`<span class="irrf">${esc(pp.join(' / '))}</span>`:esc(pp.join(' / '))}</b> · ${t('b.aux')}: <b>${vb.aux}</b>${vb.irr?` · <span class="irrf">${t('b.underlined')}</span> = ${t('irr.form')}`:''}</p>
+    ${TLANG.ppLabel ? `<p class="legend">${TLANG.ppLabel}: <b style="font-family:var(--f-mono)">${vb.irrT.includes('pp')?`<span class="irrf">${esc(pp.join(' / '))}</span>`:esc(pp.join(' / '))}</b> · ${t('b.aux')}: <b>${vb.aux}</b>${vb.irr?` · <span class="irrf">${t('b.underlined')}</span> = ${t('irr.form')}`:''}</p>` : (vb.irr ? `<p class="legend"><span class="irrf">${t('b.underlined')}</span> = ${t('irr.form')}</p>` : '')}
     ${exampleHtml(vb)}
     <div class="actions"><button class="btn ghost" id="practice-this">${t('b.practice')}</button>${pdfBtn('verb')}</div>
     <div class="tgrid">${TENSES.map(t=>table(vb,t.id,-1)).join('')}</div>`;
@@ -5657,9 +6131,27 @@ const TO_ES = [
 ];
 function sanitize(body) {
   const r = sanitizeBase(body);
-  if (r) r.tl = body && body.tl === 'es' ? 'es' : 'it';
+  if (r) r.tl = body && ['es', 'ru', 'pl'].includes(body.tl) ? body.tl : 'it';
   return r;
 }
+const TENSE_SL = { pres: 'present tense', pp: 'past tense', fut: 'future tense', cond: 'conditional mood', impv: 'imperative' };
+const TO_RU = [
+  [/"siamo andati \(andare\)"/g, '"мы пошли (пойти)"'], [/\(essere\)/g, '(быть)'], [/"siamo" ->/g, '"мы" ->'], [/"Entri nella grotta buia"/g, '"Ты входишь в тёмную пещеру"'],
+  [/"tu"/g, '"ты"'], [/Gianni Rodari/g, 'Daniil Kharms'], [/Italian bar \(café\)/g, 'Russian café'], [/a family trattoria/g, 'a small family restaurant'],
+  [/in Florence/g, 'in Saint Petersburg'], [/in Rome/g, 'in Moscow'], [/in Bologna/g, 'in Kazan'], [/at Milano Centrale station/g, "at Moscow's Leningradsky station"],
+  [/historical adventure set in Italy \(ancient Rome, the Renaissance, etc\.\)/g, 'historical adventure set in Russia (medieval Rus, the age of Peter the Great, etc.)'],
+  [/travel adventure across Italy \(cities, food, people\)/g, 'travel adventure across Russia (cities, food, people)'], [/ \(a giallo\)/g, ''],
+  [/Ignore missing capital letters and final punctuation\./g, 'Ignore missing capital letters, final punctuation, missing stress marks and ё written as е.'],
+  [/\ban Italian/g, 'a Russian'], [/\bAn Italian/g, 'A Russian'], [/Italians/g, 'Russians'], [/Italian/g, 'Russian'], [/Italy/g, 'Russia'], [/italian/g, 'russian']
+];
+const TO_PL = [
+  [/"siamo andati \(andare\)"/g, '"poszliśmy (pójść)"'], [/\(essere\)/g, '(być)'], [/"siamo" ->/g, '"jesteśmy" ->'], [/"Entri nella grotta buia"/g, '"Wchodzisz do ciemnej jaskini"'],
+  [/"tu"/g, '"ty"'], [/Gianni Rodari/g, 'Jan Brzechwa'], [/Italian bar \(café\)/g, 'Polish café'], [/a family trattoria/g, 'a family restaurant (bar mleczny)'],
+  [/in Florence/g, 'in Kraków'], [/in Rome/g, 'in Warsaw'], [/in Bologna/g, 'in Gdańsk'], [/at Milano Centrale station/g, 'at Warszawa Centralna station'],
+  [/historical adventure set in Italy \(ancient Rome, the Renaissance, etc\.\)/g, 'historical adventure set in Poland (the Piast era, Renaissance Kraków, etc.)'],
+  [/travel adventure across Italy \(cities, food, people\)/g, 'travel adventure across Poland (cities, food, people)'], [/ \(a giallo\)/g, ''],
+  [/\ban Italian/g, 'a Polish'], [/\bAn Italian/g, 'A Polish'], [/Italians/g, 'Poles'], [/Italian/g, 'Polish'], [/Italy/g, 'Poland'], [/italian/g, 'polish']
+];
 function sanitizeBase(body) {
   const type = body && body.type;
   const lang = PROMPT_LANG[body && body.lang] ? body.lang : 'hu';
@@ -5706,6 +6198,10 @@ function buildPrompt(p) {
   if (p.tl === 'es') {
     Object.keys(TENSE_EN).sort((a, b) => TENSE_EN[b].length - TENSE_EN[a].length).forEach((k) => { out = out.split(TENSE_EN[k]).join(TENSE_ES[k]); });
     TO_ES.forEach(([a, b]) => { out = out.replace(a, b); });
+  }
+  if (p.tl === 'ru' || p.tl === 'pl') {
+    Object.keys(TENSE_SL).forEach((k) => { out = out.split(TENSE_EN[k]).join(TENSE_SL[k]); });
+    (p.tl === 'ru' ? TO_RU : TO_PL).forEach(([a, b]) => { out = out.replace(a, b); });
   }
   return out;
 }
@@ -5827,13 +6323,13 @@ const JSON_SPEC = {
 
 /* hibás modellválasz felismerése: az olasz szövegben nem latin betűk (pl. arab, cirill írásjelek) */
 const ODD = /[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]/u;
-function looksBroken(type, r) {
+function looksBroken(type, r, p) {
   if (!r) return true;
-  if (type === 'story' || type === 'adv') return ODD.test(String(r.text || '') + String(r.title || '')) || !r.text;
-  if (type === 'chat') return ODD.test(String(r.reply || '')) || !r.reply;
+  if (type === 'story' || type === 'adv') return (!p || p.tl !== 'ru') && ODD.test(String(r.text || '') + String(r.title || '')) || !r.text;
+  if (type === 'chat') return (!p || p.tl !== 'ru') && ODD.test(String(r.reply || '')) || !r.reply;
   return false;
 }
-const clean = (x) => String(x || '').replace(/[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]+/gu, '');
+const clean = (x, p) => p && p.tl === 'ru' ? String(x || '').replace(/[^\p{Script=Latin}\p{Script=Cyrillic}\p{Script=Common}\p{Script=Inherited}]+/gu, '') : String(x || '').replace(/[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]+/gu, '');
 
 /* a válasz egységesítése (hiányzó/hibás mezők pótlása) */
 function normalize(type, r, p) {
@@ -5841,15 +6337,15 @@ function normalize(type, r, p) {
   const errs = (a) => (Array.isArray(a) ? a.slice(0, 10).map((e) => ({ wrong: str(e && e.wrong, 300), fix: str(e && e.fix, 300), type: str(e && e.type, 60), explanation: str(e && e.explanation, 500) })) : []);
   const score = (v) => Math.max(0, Math.min(10, Math.round(Number(v) || 0)));
   if (type === 'gloss') { const t = Array.isArray(r.translations) ? r.translations : []; return { translations: p.words.map((_, i) => str(t[i], 80)) }; }
-  if (type === 'chat') { const c = r.correction || {}; return { reply: str(clean(r.reply), 1200), translation: str(r.translation, 1200), correction: { ok: c.ok !== false || !str(c.corrected, 10), corrected: str(c.corrected, 600), explanation: str(c.explanation, 600) } }; }
+  if (type === 'chat') { const c = r.correction || {}; return { reply: str(clean(r.reply, p), 1200), translation: str(r.translation, 1200), correction: { ok: c.ok !== false || !str(c.corrected, 10), corrected: str(c.corrected, 600), explanation: str(c.explanation, 600) } }; }
   if (type === 'chatsum') return { score: score(r.score), summary: str(r.summary, 1200), errors: errs(r.errors).slice(0, 6), tips: (Array.isArray(r.tips) ? r.tips : []).slice(0, 3).map((x) => str(x, 300)) };
   if (type === 'adv') {
     const ending = ['good', 'bad'].includes(r.ending) ? r.ending : 'none';
     const final = p && p.step >= p.steps;
-    let choices = (Array.isArray(r.choices) ? r.choices : []).slice(0, 3).map((c) => ({ text: str(clean(c && c.text), 200), translation: str(c && c.translation, 200) })).filter((c) => c.text);
+    let choices = (Array.isArray(r.choices) ? r.choices : []).slice(0, 3).map((c) => ({ text: str(clean(c && c.text, p), 200), translation: str(c && c.translation, 200) })).filter((c) => c.text);
     const end = final ? (ending === 'none' ? 'good' : ending) : (choices.length ? 'none' : (ending === 'none' ? 'bad' : ending));
     if (end !== 'none') choices = [];
-    return { title: str(clean(r.title), 120), text: str(clean(r.text), 3000), translation: str(r.translation, 3500), choices,
+    return { title: str(clean(r.title, p), 120), text: str(clean(r.text, p), 3000), translation: str(r.translation, 3500), choices,
       vocab: (Array.isArray(r.vocab) ? r.vocab : []).slice(0, 6).map((v) => ({ it: str(v && v.it, 80), tr: str(v && v.tr, 120) })).filter((v) => v.it), summary: str(r.summary, 1500), ending: end };
   }
   if (type === 'textq') {
@@ -5862,7 +6358,7 @@ function normalize(type, r, p) {
       const answer = Math.round(Number(q && q.answer));
       return { q: str(q && q.q, 300), options, answer: answer >= 0 && answer < options.length ? answer : 0, explanation: str(q && q.explanation, 400) };
     }).filter((q) => q.q && q.options.length >= 2);
-    return { title: str(clean(r.title), 120), text: str(clean(r.text), 4000), translation: str(r.translation, 5000), questions: qs };
+    return { title: str(clean(r.title, p), 120), text: str(clean(r.text, p), 4000), translation: str(r.translation, 5000), questions: qs };
   }
   return { score: score(r.score), correct: !!r.correct, corrected: str(r.corrected, 600), errors: errs(r.errors), comment: str(r.comment, 600) };
 }
@@ -5910,7 +6406,7 @@ function renderX(){
           : `<p class="msent" style="font-family:var(--f-display)">${glossify(curX.x.hu, 'nat', curX.ref)}</p><p class="taphint">${t('x.tap')}</p>`}
     <form id="xform" autocomplete="off">
       <label class="xlbl" for="x-ans">${t('x.yours')}</label>
-      <textarea class="xarea" id="x-ans" rows="3" maxlength="600" autocapitalize="off" spellcheck="false" placeholder="Scrivi qui…"></textarea>
+      <textarea class="xarea" id="x-ans" rows="3" maxlength="600" autocapitalize="off" spellcheck="false" placeholder="${({it:'Scrivi qui…', es:'Escribe aquí…', ru:'Пиши здесь…', pl:'Pisz tutaj…'})[TL]}"></textarea>
       ${keysHtml()}
       <div class="actions">
         <button class="btn" type="submit" id="x-go">${t('x.go')}</button>
@@ -6845,6 +7341,887 @@ renderRevSide(); renderRev(); revBadge();
 renderOptionsH(); renderStatsH(); nextH();
 renderOptionsG(); renderStatsG(); nextG();
 checkBadges(true); renderP(); initAI();
+</script>
+<script>
+(function(){
+  const s = document.createElement('script');
+  s.textContent = document.getElementById('app-main').textContent;
+  document.currentScript.after(s);
+})();
+</script>
+<script>
+/* ---------- Orosz és lengyel: ábécé gyakorló, betűtábla, alapszókincs (kiegészítő fülek a teljes felület mellé) ---------- */
+(function(){
+if (TL !== 'ru' && TL !== 'pl') return;
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const SPK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+
+/* ---- tárolás (ebben a böngészőben) ---- */
+const NSX = 'coniuga:' + TL + ':';
+const sget = (k, d) => { try{ const v = localStorage.getItem(NSX + k); return v ? JSON.parse(v) : d; }catch(e){ return d; } };
+const sset = (k, v) => { try{ localStorage.setItem(NSX + k, JSON.stringify(v)); }catch(e){} };
+let UI = (typeof LANG === 'string' && ['hu','pl','en'].includes(LANG)) ? LANG : 'hu';
+const UIX = {hu:0, pl:1, en:2};
+
+/* ---- felület szövegei: [magyar, lengyel, angol] ---- */
+const T = {
+  'sub.ru': ['Orosz ábécé és alapszókincs · a ragozás hamarosan jön','Alfabet rosyjski i podstawowe słownictwo · koniugacja wkrótce','Russian alphabet and basic vocabulary · conjugation coming soon'],
+  'sub.pl': ['Lengyel ábécé és alapszókincs · a ragozás hamarosan jön','Alfabet polski i podstawowe słownictwo · koniugacja wkrótce','Polish alphabet and basic vocabulary · conjugation coming soon'],
+  'who': ['Az eredményeid ebben a böngészőben maradnak.','Twoje wyniki zostają w tej przeglądarce.','Your results stay in this browser.'],
+  'tl.label': ['Melyik nyelvet tanulod?','Jakiego języka się uczysz?','Which language are you learning?'],
+  'slow': ['Lassú felolvasás','Wolne czytanie','Slow audio'],
+  'tab.abc': ['ABC gyakorló','Ćwiczenia z alfabetu','Alphabet practice'],
+  'tab.table': ['Betűtábla','Tabela liter','Letter chart'],
+  'tab.voc': ['Szókincs','Słownictwo','Vocabulary'],
+  'res': ['Eredmény','Wynik','Score'],
+  'st.correct': ['helyes','poprawne','correct'],
+  'st.streak': ['sorozat','seria','streak'],
+  'st.best': ['legjobb','najlepsza','best'],
+  'total': ['{n} válasz összesen','{n} odpowiedzi łącznie','{n} answers in total'],
+  'settings': ['Beállítások','Ustawienia','Settings'],
+  'opt.mode': ['Feladat','Zadanie','Exercise'],
+  'opt.groups': ['Betűk','Litery','Letters'],
+  'opt.dir': ['Irány','Kierunek','Direction'],
+  'opt.cats': ['Témák','Tematy','Topics'],
+  'opt.tr': ['átírás mutatása','pokaż transkrypcję','show transcription'],
+  'm.l2s': ['Betű → hang','Litera → dźwięk','Letter → sound'],
+  'm.s2l': ['Hang → betű','Dźwięk → litera','Sound → letter'],
+  'm.read': ['Szóolvasás','Czytanie słów','Reading words'],
+  'm.dict': ['Diktálás','Dyktando','Dictation'],
+  'q.l2s': ['Hogyan ejtjük ezt a betűt?','Jak wymawiamy tę literę?','How is this letter pronounced?'],
+  'q.s2l': ['Melyik betű jelöli ezt a hangot?','Która litera oznacza ten dźwięk?','Which letter makes this sound?'],
+  'q.read': ['Hogyan olvasod ezt a szót? (magyaros átírás)','Jak czytasz to słowo? (zapis węgierski)','How do you read this word? (Hungarian-style spelling)'],
+  'q.dict': ['Hallgasd meg: hogyan írjuk?','Posłuchaj: jak to się pisze?','Listen: how is it spelled?'],
+  'q.v2h': ['Mit jelent?','Co to znaczy?','What does it mean?'],
+  'q.h2v': ['Hogy mondod?','Jak to powiedzieć?','How do you say it?'],
+  'dir.t2h': ['{L} → magyar','{L} → węgierski','{L} → Hungarian'],
+  'dir.h2t': ['magyar → {L}','węgierski → {L}','Hungarian → {L}'],
+  'dir.mix': ['vegyes','mieszane','mixed'],
+  'ex.word': ['Példaszó','Przykład','Example'],
+  'ok': ['Helyes!','Dobrze!','Correct!'],
+  'bad': ['Nem egészen.','Niezupełnie.','Not quite.'],
+  'right.is': ['A helyes válasz:','Poprawna odpowiedź:','The answer is:'],
+  'next': ['Következő','Dalej','Next'],
+  'listen': ['Meghallgatom','Posłuchaj','Listen'],
+  'keys': ['Billentyűk: 1–4 válasz, Enter következő','Klawisze: 1–4 odpowiedź, Enter dalej','Keys: 1–4 to answer, Enter for next'],
+  'mist': ['Gyakran tévesztett','Częste błędy','Often missed'],
+  'mist.none': ['Még nincs hiba. Így tovább!','Na razie bez błędów.','No mistakes yet.'],
+  'reset': ['Eredmények törlése','Wyczyść wyniki','Reset scores'],
+  'sure': ['Biztosan?','Na pewno?','Are you sure?'],
+  'reset.yes': ['Igen, törlöm','Tak, usuń','Yes, reset'],
+  'pool': ['{n} betű a gyakorlásban','{n} liter w ćwiczeniu','{n} letters in play'],
+  'vpool': ['{n} szó a gyakorlásban','{n} słów w ćwiczeniu','{n} words in play'],
+  'need.group': ['Válassz ki legalább egy betűcsoportot.','Wybierz co najmniej jedną grupę liter.','Pick at least one letter group.'],
+  'need.cat': ['Válassz ki legalább egy témát.','Wybierz co najmniej jeden temat.','Pick at least one topic.'],
+  'no.voice': ['Ebben a böngészőben nincs {L} felolvasó hang, ezért a diktálás nem érhető el.','Ta przeglądarka nie ma głosu w tym języku, dyktando jest niedostępne.','This browser has no {L} voice, so dictation is unavailable.'],
+  'table.hint': ['Koppints egy betűre a példaszó meghallgatásához.','Kliknij literę, aby usłyszeć przykład.','Tap a letter to hear its example word.'],
+  'table.trans': ['A hangértékek magyaros átírással szerepelnek (s = sh, sz = s, cs = ch, zs = zh).','Dźwięki zapisane po węgiersku (s = sz, sz = s, cs = cz, zs = ż).','Sounds use Hungarian spelling (s = sh, sz = s, cs = ch, zs = zh).'],
+  'stress': ['A hangsúlyos magánhangzó fölött piros ékjel van. Az orosz szövegekben ez nincs kiírva.','Akcent oznaczono czerwoną kreską; w zwykłych tekstach go nie ma.','The stressed vowel has a red mark above it; normal Russian text leaves it out.'],
+  'L.ru': ['orosz','rosyjski','Russian'],
+  'L.pl': ['lengyel','polski','Polish'],
+  'L.ru.cap': ['Orosz','Rosyjski','Russian'],
+  'L.pl.cap': ['Lengyel','Polski','Polish'],
+  'g.known': ['Ismerős betűk','Znajome litery','Familiar letters'],
+  'g.false': ['Hamis barátok','Fałszywi przyjaciele','False friends'],
+  'g.new': ['Új betűk','Nowe litery','New letters'],
+  'g.same': ['Mint a magyarban','Jak po węgiersku','Same as Hungarian'],
+  'g.diff': ['Magyartól eltérő','Inaczej niż po węgiersku','Different from Hungarian'],
+  'g.diac': ['Ékezetes betűk','Litery ze znakami','Letters with marks'],
+  'g.digr': ['Betűkapcsolatok','Dwuznaki','Letter pairs'],
+  'c.alap': ['Alapok','Podstawy','Basics'],
+  'c.csal': ['Család, emberek','Rodzina','Family'],
+  'c.etel': ['Étel, ital','Jedzenie','Food & drink'],
+  'c.hely': ['Helyek, tárgyak','Miejsca','Places & things'],
+  'c.ido': ['Idő, számok','Czas, liczby','Time & numbers'],
+  'c.ige': ['Igék','Czasowniki','Verbs'],
+  'c.mell': ['Melléknevek','Przymiotniki','Adjectives']
+};
+const t = (k, v) => { const r = T[k]; let s = r ? (r[UIX[UI]] || r[0]) : k; if (v) Object.keys(v).forEach(x => { s = s.replace('{' + x + '}', v[x]); }); return s; };
+const LNAME = () => t('L.' + TL);
+const SND_EN = [[/lágyít/g,'softens'],[/elválaszt/g,'separates'],[/néma/g,'silent'],[/lágy/g,'soft'],[/mély/g,'deep']];
+const sndLabel = s => UI === 'hu' ? s : SND_EN.reduce((a, [r, b]) => a.replace(r, b), s);
+
+/* ---- ábécék: nagy|kis|név|hang (magyaros)|csoport|példaszó|jelentés hu|jelentés en|megjegyzés hu|megjegyzés en ---- */
+const RU_ABC = `А|а|а|a|known|ма'ма|anya|mom||
+Б|б|бэ|b|new|брат|fiútestvér|brother|A nagybetű kicsit a 6-osra hasonlít.|Looks a bit like the digit 6.
+В|в|вэ|v|false|вода'|víz|water|Úgy néz ki, mint a B, de V-nek ejtjük.|Looks like B but sounds like V.
+Г|г|гэ|g|new|го'род|város|city|Fejjel lefelé fordított L-re hasonlít.|Looks like an upside-down L.
+Д|д|дэ|d|new|дом|ház|house|Kézírásban g-szerű.|In handwriting it looks like g.
+Е|е|е|je / e|false|есть|enni|to eat|Szó elején és magánhangzó után „je”, mássalhangzó után „e” (és lágyítja azt).|"ye" at the start and after vowels, "e" after a consonant (which it softens).
+Ё|ё|ё|jo|new|ёлка|fenyőfa|fir tree|Mindig hangsúlyos. Gyakran pontok nélkül nyomtatják (е).|Always stressed; often printed without the dots.
+Ж|ж|жэ|zs|new|жена'|feleség|wife|Kemény zs.|Like s in "pleasure".
+З|з|зэ|z|new|зима'|tél|winter|Úgy néz ki, mint a 3-as számjegy.|Looks like the digit 3.
+И|и|и|i|false|игра'|játék|game|Tükrözött N-nek látszik, de i.|Looks like a mirrored N but sounds like i.
+Й|й|и кра'ткое|j|new|мой|enyém|my|„Rövid i”: magánhangzó után j-nek hangzik.|"Short i": a y-glide, like y in "boy".
+К|к|ка|k|known|кот|macska|cat||
+Л|л|эль|l|new|ле'то|nyár|summer||
+М|м|эм|m|known|мир|béke; világ|peace; world||
+Н|н|эн|n|false|нос|orr|nose|Úgy néz ki, mint a H, de N.|Looks like H but sounds like N.
+О|о|о|o|known|окно'|ablak|window|Hangsúlytalanul inkább a-nak hangzik (молоко́ ≈ malakó).|Unstressed it sounds more like "a".
+П|п|пэ|p|new|па'па|apa|dad|A kisbetű (п) az n-re hasonlít.|Lowercase п looks like n.
+Р|р|эр|r|false|рука'|kéz|hand|Úgy néz ki, mint a P, de pergetett R.|Looks like P but is a rolled R.
+С|с|эс|sz|false|сок|gyümölcslé|juice|Úgy néz ki, mint a C, de SZ.|Looks like C but sounds like S.
+Т|т|тэ|t|known|там|ott|there|Kézírásban m-szerű.|In handwriting it looks like m.
+У|у|у|u|false|у'тро|reggel|morning|Úgy néz ki, mint az y, de U.|Looks like y but sounds like "oo".
+Ф|ф|эф|f|new|фо'то|fénykép|photo||
+Х|х|ха|h|false|хлеб|kenyér|bread|Úgy néz ki, mint az X, de torokban képzett H.|Looks like X but is a throaty H, as in "loch".
+Ц|ц|цэ|c|new|цирк|cirkusz|circus||Like ts in "cats".
+Ч|ч|че|cs|new|чай|tea|tea|Lágy cs.|Like ch in "cheese".
+Ш|ш|ша|s|new|шко'ла|iskola|school|Kemény s.|Like sh in "shop".
+Щ|щ|ща|scs|new|щи|káposztaleves|cabbage soup|Hosszú, lágy s (régi átírásban scs).|A long, soft sh.
+Ъ|ъ|твёрдый знак|néma · elválaszt|new|объе'кт|objektum, tárgy|object|Keményjel: nincs hangja, elválasztja a mássalhangzót a következő magánhangzótól.|Hard sign: silent, it separates a consonant from the next vowel.
+Ы|ы|ы|i (mély)|new|сыр|sajt|cheese|Mély, hátul képzett i, az i és az ü között.|A deep, back "i", between i and u.
+Ь|ь|мя'гкий знак|néma · lágyít|new|соль|só|salt|Lágyjel: nincs hangja, az előtte álló mássalhangzót lágyítja (ль ≈ ly, нь ≈ ny, ть ≈ ty).|Soft sign: silent, it softens the consonant before it.
+Э|э|э|e|new|э'то|ez|this|Tiszta e, nem lágyít.|A plain "e" that doesn't soften.
+Ю|ю|ю|ju|new|юг|dél (égtáj)|south||Like "you".
+Я|я|я|ja|new|я'блоко|alma|apple|Tükrözött R-nek látszik, de ja.|Looks like a mirrored R but sounds like "ya".`;
+
+const PL_ABC = `A|a|a|a|same|mama|anya|mom|Nyíltabb, mint a magyar a, rövid á-szerű.|Open "a" as in "father".
+Ą|ą|ą|on|diac|mąż|férj|husband|Orrhangú o, mint a francia „on”; b/p előtt om.|Nasal o; before b/p it sounds like "om".
+B|b|be|b|same|brat|fiútestvér|brother|Szó végén p-nek hangzik.|At the end of a word it sounds like p.
+C|c|ce|c|diff|cukier|cukor|sugar|Mindig c, sosem k.|Always "ts", never k.
+Ć|ć|cie|cs (lágy)|diac|być|lenni|to be|Lágy cs; magánhangzó előtt ci-nek írják (ciocia).|Soft "ch"; written ci before a vowel (ciocia).
+D|d|de|d|same|dom|ház|house||
+E|e|e|e|same|ser|sajt|cheese|Nyílt e, sosem é.|Open e as in "bed".
+Ę|ę|ę|en|diac|ręka|kéz|hand|Orrhangú e; szó végén sima e, b/p előtt em.|Nasal e; a plain e at the end of a word.
+F|f|ef|f|same|film|film|film||
+G|g|gie|g|same|gazeta|újság|newspaper||
+H|h|ha|h|same|herbata|tea|tea|Ugyanaz, mint a ch.|Same sound as ch.
+I|i|i|i|same|ile|mennyi|how much|Mássalhangzó után lágyít (si, ci, zi, ni).|After s, c, z, n it softens them.
+J|j|jot|j|same|jabłko|alma|apple||
+K|k|ka|k|same|kot|macska|cat||
+L|l|el|l|same|lato|nyár|summer||
+Ł|ł|eł|u|diac|szkoła|iskola|school|Nem l! Az angol w-hez hasonló félhangzó.|Not an l: it sounds like English w.
+M|m|em|m|same|morze|tenger|sea||
+N|n|en|n|same|noc|éjszaka|night||
+Ń|ń|eń|ny|diac|koń|ló|horse|Magyar ny; magánhangzó előtt ni-nek írják (nie).|Like ny in "canyon"; written ni before a vowel.
+O|o|o|o|same|okno|ablak|window||
+Ó|ó|o z kreską|u|diac|góra|hegy|mountain|Nem hosszú ó! Ugyanaz a hang, mint az u.|Not a long o: same sound as u.
+P|p|pe|p|same|piwo|sör|beer||
+R|r|er|r|same|ryba|hal|fish||
+S|s|es|sz|diff|sok|gyümölcslé|juice|A lengyel s a magyar sz-nek felel meg.|Always like s in "sun".
+Ś|ś|eś|s (lágy)|diac|środa|szerda|Wednesday|Lágy s; magánhangzó előtt si-nek írják (siostra).|Soft "sh"; written si before a vowel (siostra).
+T|t|te|t|same|tata|apa|dad||
+U|u|u|u|same|ulica|utca|street||
+W|w|wu|v|diff|woda|víz|water|A w = v (zöngétlen mássalhangzó után f: twój).|Sounds like v (like f after voiceless consonants).
+Y|y|igrek|i (mély)|diff|syn|fiú (gyermek)|son|Mély, hátul képzett i, az i és az ü között.|A deep "i" as in "bit".
+Z|z|zet|z|same|zupa|leves|soup||
+Ź|ź|ziet|zs (lágy)|diac|źle|rosszul|badly|Lágy zs; magánhangzó előtt zi-nek írják (zima).|Soft "zh"; written zi before a vowel.
+Ż|ż|żet|zs|diac|żona|feleség|wife|Kemény zs; ugyanaz a hang, mint az rz.|Hard "zh"; same sound as rz.
+Ch|ch|ce ha|h|digr|chleb|kenyér|bread|Ugyanaz, mint a h.|Same sound as h.
+Cz|cz|ce zet|cs|digr|czas|idő|time|Kemény cs.|Hard "ch" as in "church".
+Dz|dz|de zet|dz|digr|dzwon|harang|bell|Egyetlen hang, mint a magyar dz.|One sound, like ds in "kids".
+Dź|dź|de ziet|dzs (lágy)|digr|dźwięk|hang|sound|Lágy dzs; magánhangzó előtt dzi-nek írják (dziecko).|Soft "j"; written dzi before a vowel.
+Dż|dż|de żet|dzs|digr|dżem|lekvár|jam|Kemény dzs.|Hard "j" as in "jam".
+Rz|rz|er zet|zs|digr|rzeka|folyó|river|Ugyanaz, mint a ż (p, t, k után s).|Same as ż (sh after p, t, k).
+Sz|sz|es zet|s|digr|szafa|szekrény|wardrobe|A lengyel sz a magyar s-nek felel meg.|Like sh in "shop".`;
+
+/* ---- szókincs: szó|magyar|angol|lengyel (csak orosznál)|téma ; ' = hangsúly az előtte álló magánhangzón ---- */
+const RU_VOC = `да|igen|yes|tak|alap
+нет|nem|no|nie|alap
+приве'т|szia|hi|cześć|alap
+здра'вствуйте|jó napot (magázva)|hello (formal)|dzień dobry|alap
+спаси'бо|köszönöm|thank you|dziękuję|alap
+пожа'луйста|kérem; szívesen|please; you're welcome|proszę|alap
+извини'те|elnézést|excuse me|przepraszam|alap
+до свида'ния|viszontlátásra|goodbye|do widzenia|alap
+хорошо'|jól; rendben|well; okay|dobrze|alap
+пло'хо|rosszul|badly|źle|alap
+я|én|I|ja|alap
+ты|te|you|ty|alap
+он|ő (férfi)|he|on|alap
+она'|ő (nő)|she|ona|alap
+мы|mi|we|my|alap
+вы|ti; Ön|you (plural, formal)|wy; pan, pani|alap
+они'|ők|they|oni|alap
+что|mi?|what|co|alap
+кто|ki?|who|kto|alap
+где|hol?|where|gdzie|alap
+когда'|mikor?|when|kiedy|alap
+почему'|miért?|why|dlaczego|alap
+ско'лько|mennyi?|how much|ile|alap
+и|és|and|i|alap
+но|de|but|ale|alap
+о'чень|nagyon|very|bardzo|alap
+ма'ма|anya|mom|mama|csal
+па'па|apa|dad|tata|csal
+сын|fiú (gyermek)|son|syn|csal
+дочь|lány (gyermek)|daughter|córka|csal
+брат|fiútestvér|brother|brat|csal
+сестра'|lánytestvér|sister|siostra|csal
+муж|férj|husband|mąż|csal
+жена'|feleség|wife|żona|csal
+семья'|család|family|rodzina|csal
+друг|barát|friend|przyjaciel|csal
+де'ти|gyerekek|children|dzieci|csal
+ба'бушка|nagymama|grandmother|babcia|csal
+де'душка|nagypapa|grandfather|dziadek|csal
+челове'к|ember|person|człowiek|csal
+хлеб|kenyér|bread|chleb|etel
+вода'|víz|water|woda|etel
+молоко'|tej|milk|mleko|etel
+чай|tea|tea|herbata|etel
+ко'фе|kávé|coffee|kawa|etel
+сыр|sajt|cheese|ser|etel
+мя'со|hús|meat|mięso|etel
+ры'ба|hal|fish|ryba|etel
+я'блоко|alma|apple|jabłko|etel
+суп|leves|soup|zupa|etel
+сок|gyümölcslé|juice|sok|etel
+са'хар|cukor|sugar|cukier|etel
+соль|só|salt|sól|etel
+пи'во|sör|beer|piwo|etel
+вино'|bor|wine|wino|etel
+за'втрак|reggeli|breakfast|śniadanie|etel
+обе'д|ebéd|lunch|obiad|etel
+у'жин|vacsora|dinner|kolacja|etel
+дом|ház|house|dom|hely
+кварти'ра|lakás|flat|mieszkanie|hely
+го'род|város|city|miasto|hely
+у'лица|utca|street|ulica|hely
+шко'ла|iskola|school|szkoła|hely
+рабо'та|munka|work|praca|hely
+магази'н|bolt|shop|sklep|hely
+вокза'л|pályaudvar|railway station|dworzec|hely
+окно'|ablak|window|okno|hely
+дверь|ajtó|door|drzwi|hely
+маши'на|autó|car|samochód|hely
+река'|folyó|river|rzeka|hely
+мо'ре|tenger|sea|morze|hely
+лес|erdő|forest|las|hely
+страна'|ország|country|kraj|hely
+день|nap|day|dzień|ido
+ночь|éjszaka|night|noc|ido
+у'тро|reggel|morning|rano|ido
+ве'чер|este|evening|wieczór|ido
+сего'дня|ma|today|dzisiaj|ido
+за'втра|holnap|tomorrow|jutro|ido
+вчера'|tegnap|yesterday|wczoraj|ido
+неде'ля|hét (7 nap)|week|tydzień|ido
+год|év|year|rok|ido
+вре'мя|idő|time|czas|ido
+зима'|tél|winter|zima|ido
+ле'то|nyár|summer|lato|ido
+оди'н|egy|one|jeden|ido
+два|kettő|two|dwa|ido
+три|három|three|trzy|ido
+четы'ре|négy|four|cztery|ido
+пять|öt|five|pięć|ido
+шесть|hat|six|sześć|ido
+семь|hét (szám)|seven|siedem|ido
+во'семь|nyolc|eight|osiem|ido
+де'вять|kilenc|nine|dziewięć|ido
+де'сять|tíz|ten|dziesięć|ido
+быть|lenni|to be|być|ige
+говори'ть|beszélni|to speak|mówić|ige
+знать|tudni (vmit)|to know|wiedzieć|ige
+хоте'ть|akarni|to want|chcieć|ige
+мочь|tudni (képes)|can, to be able|móc|ige
+идти'|menni (gyalog)|to go (on foot)|iść|ige
+е'хать|menni (járművel)|to go (by vehicle)|jechać|ige
+де'лать|csinálni|to do, to make|robić|ige
+ви'деть|látni|to see|widzieć|ige
+люби'ть|szeretni|to love|kochać|ige
+жить|élni|to live|żyć|ige
+рабо'тать|dolgozni|to work|pracować|ige
+чита'ть|olvasni|to read|czytać|ige
+писа'ть|írni|to write|pisać|ige
+есть|enni|to eat|jeść|ige
+пить|inni|to drink|pić|ige
+спать|aludni|to sleep|spać|ige
+понима'ть|érteni|to understand|rozumieć|ige
+большо'й|nagy|big|duży|mell
+ма'ленький|kicsi|small|mały|mell
+хоро'ший|jó|good|dobry|mell
+плохо'й|rossz|bad|zły|mell
+но'вый|új|new|nowy|mell
+ста'рый|régi; öreg|old|stary|mell
+краси'вый|szép|beautiful|piękny|mell
+горя'чий|forró|hot|gorący|mell
+холо'дный|hideg|cold|zimny|mell
+бы'стрый|gyors|fast|szybki|mell
+ру'сский|orosz|Russian|rosyjski|mell
+венге'рский|magyar|Hungarian|węgierski|mell`;
+
+const PL_VOC = `tak|igen|yes||alap
+nie|nem|no||alap
+cześć|szia|hi||alap
+dzień dobry|jó napot|good morning, hello||alap
+dziękuję|köszönöm|thank you||alap
+proszę|kérem; szívesen|please; you're welcome||alap
+przepraszam|elnézést|excuse me, sorry||alap
+do widzenia|viszontlátásra|goodbye||alap
+dobrze|jól; rendben|well; okay||alap
+źle|rosszul|badly||alap
+ja|én|I||alap
+ty|te|you||alap
+on|ő (férfi)|he||alap
+ona|ő (nő)|she||alap
+my|mi|we||alap
+wy|ti|you (plural)||alap
+oni|ők|they||alap
+co|mi?|what||alap
+kto|ki?|who||alap
+gdzie|hol?|where||alap
+kiedy|mikor?|when||alap
+dlaczego|miért?|why||alap
+ile|mennyi?|how much||alap
+i|és|and||alap
+ale|de|but||alap
+bardzo|nagyon|very||alap
+mama|anya|mom||csal
+tata|apa|dad||csal
+syn|fiú (gyermek)|son||csal
+córka|lány (gyermek)|daughter||csal
+brat|fiútestvér|brother||csal
+siostra|lánytestvér|sister||csal
+mąż|férj|husband||csal
+żona|feleség|wife||csal
+rodzina|család|family||csal
+przyjaciel|barát|friend||csal
+dzieci|gyerekek|children||csal
+babcia|nagymama|grandmother||csal
+dziadek|nagypapa|grandfather||csal
+człowiek|ember|person||csal
+chleb|kenyér|bread||etel
+woda|víz|water||etel
+mleko|tej|milk||etel
+herbata|tea|tea||etel
+kawa|kávé|coffee||etel
+ser|sajt|cheese||etel
+mięso|hús|meat||etel
+ryba|hal|fish||etel
+jabłko|alma|apple||etel
+zupa|leves|soup||etel
+sok|gyümölcslé|juice||etel
+cukier|cukor|sugar||etel
+sól|só|salt||etel
+piwo|sör|beer||etel
+wino|bor|wine||etel
+śniadanie|reggeli|breakfast||etel
+obiad|ebéd|lunch||etel
+kolacja|vacsora|dinner||etel
+dom|ház|house||hely
+mieszkanie|lakás|flat||hely
+miasto|város|city||hely
+ulica|utca|street||hely
+szkoła|iskola|school||hely
+praca|munka|work||hely
+sklep|bolt|shop||hely
+dworzec|pályaudvar|railway station||hely
+okno|ablak|window||hely
+drzwi|ajtó|door||hely
+samochód|autó|car||hely
+rzeka|folyó|river||hely
+morze|tenger|sea||hely
+las|erdő|forest||hely
+kraj|ország|country||hely
+dzień|nap|day||ido
+noc|éjszaka|night||ido
+rano|reggel|morning||ido
+wieczór|este|evening||ido
+dzisiaj|ma|today||ido
+jutro|holnap|tomorrow||ido
+wczoraj|tegnap|yesterday||ido
+tydzień|hét (7 nap)|week||ido
+rok|év|year||ido
+czas|idő|time||ido
+zima|tél|winter||ido
+lato|nyár|summer||ido
+jeden|egy|one||ido
+dwa|kettő|two||ido
+trzy|három|three||ido
+cztery|négy|four||ido
+pięć|öt|five||ido
+sześć|hat|six||ido
+siedem|hét (szám)|seven||ido
+osiem|nyolc|eight||ido
+dziewięć|kilenc|nine||ido
+dziesięć|tíz|ten||ido
+być|lenni|to be||ige
+mówić|beszélni|to speak||ige
+wiedzieć|tudni (vmit)|to know||ige
+chcieć|akarni|to want||ige
+móc|tudni (képes)|can, to be able||ige
+iść|menni (gyalog)|to go (on foot)||ige
+jechać|menni (járművel)|to go (by vehicle)||ige
+robić|csinálni|to do, to make||ige
+widzieć|látni|to see||ige
+kochać|szeretni|to love||ige
+żyć|élni|to live||ige
+pracować|dolgozni|to work||ige
+czytać|olvasni|to read||ige
+pisać|írni|to write||ige
+jeść|enni|to eat||ige
+pić|inni|to drink||ige
+spać|aludni|to sleep||ige
+rozumieć|érteni|to understand||ige
+duży|nagy|big||mell
+mały|kicsi|small||mell
+dobry|jó|good||mell
+zły|rossz|bad||mell
+nowy|új|new||mell
+stary|régi; öreg|old||mell
+piękny|szép|beautiful||mell
+gorący|forró|hot||mell
+zimny|hideg|cold||mell
+szybki|gyors|fast||mell
+polski|lengyel|Polish||mell
+węgierski|magyar|Hungarian||mell`;
+
+/* ---- átírás magyar helyesírással, betűnként, a tévesztésre csábító olvasatokkal (alts) ---- */
+const STRESS = "'";
+const plain = w => w.split(STRESS).join('');
+/* hangsúly: a magánhangzó fölé CSS-sel rajzolt ékjel, mert a betűtípusok a kombinált ékezetet (U+0301) gyakran elcsúsztatják */
+const shown = w => esc(w).replace(/([^'])'/g, '<span class="sv">$1</span>');
+const RU_MAP = {а:'a',б:'b',в:'v',г:'g',д:'d',ж:'zs',з:'z',и:'i',й:'j',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'sz',т:'t',у:'u',ф:'f',х:'h',ц:'c',ч:'cs',ш:'s',щ:'scs',ъ:'',ы:'i',ь:'',э:'e',ю:'ju',я:'ja'};
+const RU_ALT = {в:['b'],н:['h'],р:['p'],с:['c','s'],у:['y'],х:['x'],п:['n'],и:['u','j'],г:['r'],д:['g'],ш:['scs','sz'],щ:['s','cs'],ч:['c','sz'],ц:['cs','sz'],ж:['z','s'],з:['zs','sz'],я:['a'],ю:['u'],ы:['bi','u'],й:['i'],к:['g'],б:['v'],ф:['v'],э:['je'],ь:['b']};
+const RU_V = 'аеёиоуыэюя';
+function tokRU(word){
+  const w = plain(word).toLowerCase(), out = [];
+  for (let i = 0; i < w.length; i++){
+    const c = w[i], p = i ? w[i-1] : ' ';
+    if (c === ' ' || c === '-'){ out.push({c, alts:[]}); continue; }
+    let r, alts = (RU_ALT[c] || []).slice();
+    if (c === 'е'){ r = (p === ' ' || RU_V.includes(p) || p === 'ъ' || p === 'ь') ? 'je' : 'e'; alts.push(r === 'je' ? 'e' : 'je'); }
+    else if (c === 'ё'){ r = 'жшчщ'.includes(p) ? 'o' : 'jo'; alts.push('je', 'e'); }
+    else if (c === 'и' && p === 'ь') r = 'ji';
+    else r = RU_MAP[c] !== undefined ? RU_MAP[c] : c;
+    out.push({c:r, alts:alts.filter(a => a !== r)});
+  }
+  for (let i = 1; i < out.length; i++) if (out[i].c === 'sz' && out[i-1].c === 'sz') out[i-1].c = 's';   /* сс → ssz */
+  return out;
+}
+const PL_MAP = {a:'a',b:'b',c:'c',ć:'cs',d:'d',e:'e',f:'f',g:'g',h:'h',i:'i',j:'j',k:'k',l:'l',ł:'u',m:'m',n:'n',ń:'ny',o:'o',ó:'u',p:'p',r:'r',s:'sz',ś:'s',t:'t',u:'u',w:'v',y:'i',z:'z',ź:'zs',ż:'zs',ch:'h',cz:'cs',dz:'dz',dż:'dzs',dź:'dzs',rz:'zs',sz:'s'};
+const PL_ALT = {s:['s'],sz:['sz'],cz:['c'],rz:['r','rzs'],ch:['cs'],c:['k'],w:['u'],ł:['l'],y:['j'],ś:['sz'],ć:['c'],ź:['z'],ń:['n'],ż:['z'],ó:['o'],dź:['dz'],dż:['dz'],ą:['a'],ę:['e']};
+const SOFT = {s:'ś', c:'ć', z:'ź', n:'ń', dz:'dź'};
+const PL_V = 'aąeęioóuy';
+const DEVOICE = {b:'p', d:'t', g:'k', w:'f', z:'sz', ż:'s', rz:'s', ź:'s', dz:'c', dź:'cs', dż:'cs'};
+const VOICELESS = new Set(['p','t','k','s','sz','ś','c','cz','ć','ch','f','h']);
+function tokPL(word){
+  const w = word.toLowerCase(), g = [];
+  for (let i = 0; i < w.length;){
+    const di = w.slice(i, i + 2);
+    let soft = false;
+    if (w.startsWith('dzi', i)){ g.push({k:'dź'}); i += 3; soft = true; }
+    else if (['dż','dź','dz','ch','cz','rz','sz'].includes(di)){ g.push({k:di}); i += 2; }
+    else if (/^[sczn]i$/.test(di)){ g.push({k:SOFT[di[0]]}); i += 2; soft = true; }
+    else { g.push({k:w[i]}); i += 1; }
+    /* lágyító i: magánhangzó előtt néma, különben kimondjuk */
+    if (soft){ const last = g[g.length - 1]; last.soft = true; if (i < w.length && PL_V.includes(w[i])) last.silentI = true; else g.push({k:'i'}); }
+  }
+  const out = [];
+  g.forEach((x, j) => {
+    const k = x.k, nx = g[j + 1] ? g[j + 1].k : '', pv = g[j - 1] ? g[j - 1].k : '';
+    const end = !nx || nx === ' ';
+    if (k === ' '){ out.push({c:' ', alts:[]}); return; }
+    let r;
+    if (k === 'ą') r = 'bp'.includes(nx) && nx ? 'om' : ('lł'.includes(nx) && nx ? 'o' : 'on');
+    else if (k === 'ę') r = end ? 'e' : ('bp'.includes(nx) ? 'em' : ('lł'.includes(nx) ? 'e' : 'en'));
+    else if (k === 'rz' && ['p','t','k','ch'].includes(pv)) r = 's';
+    else if (k === 'w' && VOICELESS.has(pv)) r = 'f';
+    else if (end && DEVOICE[k]) r = DEVOICE[k];
+    else r = PL_MAP[k] !== undefined ? PL_MAP[k] : k;
+    let alts = (PL_ALT[k] || []).slice();
+    if (x.soft && x.silentI) alts.push({ś:'szi', ć:'ci', ź:'zi', ń:'ni', dź:'dzi'}[k]);
+    out.push({c:r, alts:alts.filter(a => a && a !== r)});
+  });
+  return out;
+}
+const tok = TL === 'ru' ? tokRU : tokPL;
+const translit = w => tok(w).map(x => x.c).join('');
+
+/* ---- adatok felépítése ---- */
+const ABC = (TL === 'ru' ? RU_ABC : PL_ABC).trim().split('\n').map((l, i) => {
+  const [U, l2, name, snd, grp, ex, exHu, exEn, nHu, nEn] = l.split('|');
+  return {id:i, U, l:l2, name, snd, grp, ex, exHu, exEn, nHu, nEn};
+});
+const GROUPS = TL === 'ru' ? ['known','false','new'] : ['same','diff','diac','digr'];
+const VOC = (TL === 'ru' ? RU_VOC : PL_VOC).trim().split('\n').map((l, i) => {
+  const [w, hu, en, pl, cat] = l.split('|');
+  return {id:i, w, hu, en, pl, cat};
+});
+const CATS = ['alap','csal','etel','hely','ido','ige','mell'];
+const meaning = v => UI === 'en' ? v.en : (UI === 'pl' && v.pl ? v.pl : (UI === 'pl' ? v.en : v.hu));
+const exMeaning = a => UI === 'hu' ? a.exHu : a.exEn;
+const note = a => UI === 'hu' ? a.nHu : (a.nEn || '');
+
+/* ---- felolvasás: a fő felület felolvasóját használja (lassú mód, hangválasztás közös) ---- */
+const HAS_TTS = typeof TTS !== 'undefined' && TTS;
+const voiceKnown = () => { try{ return speechSynthesis.getVoices().length > 0; }catch(e){ return false; } };
+const canDict = () => HAS_TTS && ((typeof itVoice !== 'undefined' && !!itVoice) || !voiceKnown());
+if (HAS_TTS){ try{ speechSynthesis.addEventListener('voiceschanged', () => { setTimeout(() => { if (ST.cur && ST.cur.m === 'dict') renderABC(); renderSideABC(); }, 50); }); }catch(e){} }
+function say(text){ if (HAS_TTS && typeof speak === 'function') speak(plain(text)); }
+const sayBtn = (text, cls) => HAS_TTS ? `<button type="button" class="say ${cls || ''}" data-say="${esc(plain(text))}" title="${esc(t('listen'))}" aria-label="${esc(t('listen'))}">${SPK}</button>` : '';
+
+/* ---- állapot ---- */
+const DEF = {mode:'l2s', groups:GROUPS.slice(), dir:'mix', cats:CATS.slice(), tr:true, tab:null};
+const S = Object.assign({}, DEF, sget('abcsettings', {}));
+const BLANK = () => ({ok:0, total:0, streak:0, best:0, miss:{}});
+let AST = Object.assign(BLANK(), sget('abcstats', {}));
+let VST = Object.assign(BLANK(), sget('vocstats', {}));
+const ST = {cur:null};   /* aktuális ABC-kérdés */
+const VQ = {cur:null};   /* aktuális szókérdés */
+const saveS = () => sset('abcsettings', S);
+
+/* ---- fejléc átalakítása ---- */
+const nav = document.querySelector('nav.tabs');
+const TABS = ['abc','table','voc'];
+TABS.forEach(id => {
+  const b = document.createElement('button');
+  b.id = 'tab-s-' + id; b.type = 'button'; b.setAttribute('role','tab'); b.className = 'slav-tab';
+  b.addEventListener('click', () => showTab(id));
+  nav.appendChild(b);
+});
+/* a fő fülekre kattintva a saját nézetek eltűnnek */
+nav.addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b || b.classList.contains('slav-tab')) return;
+  TABS.forEach(x => { $('tab-s-' + x).setAttribute('aria-selected', 'false'); $('view-s-' + x).hidden = true; });
+  if (S.tab){ S.tab = null; saveS(); }
+}, true);
+
+const CSS = `
+.slav .abc-big{display:flex; align-items:baseline; gap:.35em; font-family:var(--f-display); font-size:clamp(4rem,16vw,6.2rem); line-height:1; margin:4px 0 18px; color:var(--ink)}
+.slav .abc-big small{font-size:.55em; color:var(--ink-soft)}
+.slav .qlbl{font-size:.72rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.slav .sndbox{display:inline-flex; align-items:center; gap:14px; font-family:var(--f-mono); font-size:clamp(2rem,8vw,2.8rem); background:var(--accent-soft); color:var(--accent); border-radius:12px; padding:10px 20px; margin:4px 0 18px}
+.slav .sndbox small{font-family:var(--f-body); font-size:.9rem; color:var(--ink-soft)}
+.slav .wordbig{font-family:var(--f-display); font-size:clamp(2.2rem,9vw,3.2rem); line-height:1.15; margin:4px 0 6px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; overflow-wrap:anywhere}
+.slav .tr{font-family:var(--f-mono); color:var(--ink-soft); font-size:1rem; margin:0 0 16px}
+.slav .optbtn .t.mono{font-family:var(--f-mono)}
+.slav .sv{position:relative; display:inline-block}
+.slav .sv::after{content:'´'; position:absolute; left:50%; top:-.08em; transform:translateX(-20%); line-height:1; color:var(--pen); pointer-events:none}
+.slav .optbtn .t.disp{font-family:var(--f-display); font-size:1.35rem}
+.slav .feedback .fb-row{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:6px}
+.slav .feedback .fb-letter{font-family:var(--f-display); font-size:2rem; line-height:1}
+.slav .feedback .fb-ex{font-family:var(--f-display); font-size:1.2rem}
+.slav .feedback .fb-tr{font-family:var(--f-mono); color:var(--ink-soft)}
+.slav .keys{font-size:.78rem; color:var(--ink-soft); margin:14px 0 0}
+.slav .hearbtn{display:inline-flex; align-items:center; gap:10px; font:inherit; font-weight:700; font-size:1.05rem; padding:14px 22px; border-radius:999px; border:0; background:var(--accent); color:var(--on-accent); cursor:pointer; margin:4px 0 18px}
+.slav .hearbtn svg{width:22px; height:22px}
+.slav .abc-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-top:14px}
+.slav .tile{display:flex; flex-direction:column; gap:3px; text-align:left; font:inherit; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; cursor:pointer; min-width:0}
+.slav .tile:hover{border-color:var(--accent); background:var(--accent-soft)}
+.slav .tile .tl{font-family:var(--f-display); font-size:2rem; line-height:1.05}
+.slav .tile .tl small{font-size:.65em; color:var(--ink-soft); margin-left:6px}
+.slav .tile .ts{font-family:var(--f-mono); color:var(--accent); font-weight:600}
+.slav .tile .tn{font-size:.75rem; color:var(--ink-soft)}
+.slav .tile .te{font-size:.85rem; margin-top:4px; overflow-wrap:anywhere}
+.slav .tile .te b{font-family:var(--f-display); font-weight:400; font-size:1rem}
+.slav .tile .tnote{font-size:.76rem; color:var(--ink-soft); line-height:1.35}
+.slav .tile.miss{border-color:var(--pen)}
+.slav .gtitle{font-size:.72rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-soft); margin:22px 0 0}
+.slav .gtitle:first-of-type{margin-top:6px}
+.slav h2.ttl{font-family:var(--f-display); font-weight:400; font-size:clamp(1.5rem,5vw,2rem); margin:0 0 4px; text-wrap:balance}
+.slav .mist li .c{font-family:var(--f-display); font-size:1.05rem}
+`;
+const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
+
+const wrap = document.querySelector('.wrap');
+const mk = html => { const d = document.createElement('div'); d.innerHTML = html.trim(); return d.firstChild; };
+const sideStats = (p) => `
+  <div class="card">
+    <h3 id="${p}-res"></h3>
+    <div class="stats">
+      <div class="stat"><b id="${p}-pct">–</b><span data-k="st.correct"></span></div>
+      <div class="stat"><b id="${p}-streak">0</b><span data-k="st.streak"></span></div>
+      <div class="stat"><b id="${p}-best">0</b><span data-k="st.best"></span></div>
+    </div>
+    <p class="muted" id="${p}-total" style="margin:10px 0 0;text-align:center"></p>
+  </div>`;
+const sideMist = (p) => `
+  <div class="card">
+    <h3 data-k="mist"></h3>
+    <ul class="mist" id="${p}-mist"></ul>
+    <div class="actions" style="margin-top:12px"><button class="btn quiet" id="${p}-reset" data-k="reset"></button></div>
+    <p class="muted" id="${p}-reset-confirm" hidden style="margin:8px 0 0"><span data-k="sure"></span> <button class="btn quiet" id="${p}-reset-yes" style="padding:3px 10px" data-k="reset.yes"></button></p>
+  </div>`;
+wrap.appendChild(mk(`<section id="view-s-abc" class="slav" hidden><div class="layout">
+  <div class="card" id="abc-card"></div>
+  <aside class="side">${sideStats('abc')}
+    <div class="card"><h3 data-k="settings"></h3>
+      <div class="opt"><span class="lbl" data-k="opt.mode"></span><div class="checks" id="abc-modes"></div></div>
+      <div class="opt"><span class="lbl" data-k="opt.groups"></span><div class="checks" id="abc-groups"></div><span class="pool" id="abc-pool"></span></div>
+    </div>${sideMist('abc')}
+  </aside></div></section>`));
+wrap.appendChild(mk(`<section id="view-s-table" class="slav" hidden><div class="card" id="table-card"></div></section>`));
+wrap.appendChild(mk(`<section id="view-s-voc" class="slav" hidden><div class="layout">
+  <div class="card" id="voc-card"></div>
+  <aside class="side">${sideStats('voc')}
+    <div class="card"><h3 data-k="settings"></h3>
+      <div class="opt"><span class="lbl" data-k="opt.dir"></span><div class="checks" id="voc-dir"></div></div>
+      <div class="opt"><span class="lbl" data-k="opt.cats"></span><div class="checks" id="voc-cats"></div><span class="pool" id="voc-pool"></span></div>
+      ${TL === 'ru' ? '<div class="opt"><div class="checks"><label><input type="checkbox" id="voc-tr"> <span data-k="opt.tr"></span></label></div></div>' : ''}
+    </div>${sideMist('voc')}
+  </aside></div></section>`));
+
+function applyStaticS(){
+  document.querySelectorAll('.slav [data-k]').forEach(el => { el.textContent = t(el.dataset.k); });
+  TABS.forEach(id => { $('tab-s-' + id).textContent = t('tab.' + id); });
+  $('abc-res').textContent = t('res') + ' · ' + t('tab.abc');
+  $('voc-res').textContent = t('res') + ' · ' + t('tab.voc');
+}
+window.onLangChange = () => { UI = LANG; newABC(); newVoc(); renderAll(); };
+
+function showTab(id){
+  S.tab = id; saveS();
+  if (typeof hideBubble === 'function') hideBubble();
+  document.querySelectorAll('.wrap > section').forEach(x => { x.hidden = true; });
+  document.querySelectorAll('nav.tabs button').forEach(x => { x.setAttribute('aria-selected', 'false'); });
+  TABS.forEach(x => { $('tab-s-' + x).setAttribute('aria-selected', x === id); $('view-s-' + x).hidden = x !== id; });
+  try{ speechSynthesis.cancel(); }catch(e){}
+}
+
+/* =================== ABC gyakorló =================== */
+const MODES = ['l2s','s2l','read','dict'];
+const poolABC = () => ABC.filter(a => S.groups.includes(a.grp));
+function weighted(list, miss){
+  /* a gyakran tévesztett elemek többször jönnek */
+  const bag = [];
+  list.forEach(x => { const n = 1 + Math.min(4, miss[x.key] || 0); for (let i = 0; i < n; i++) bag.push(x); });
+  return pick(bag);
+}
+function readWords(){
+  const letters = poolABC().map(a => a.l);
+  const vs = VOC.map(v => ({w:v.w, mean:v, key:'w:' + plain(v.w)}));
+  /* a kiválasztott betűcsoportokat tartalmazó szavak előnyben */
+  const rel = vs.filter(v => letters.some(l => plain(v.w).toLowerCase().includes(l)));
+  return rel.length >= 8 ? rel : vs;
+}
+function distractStrings(correct, tokens, others){
+  const set = new Set([correct]), out = [];
+  const idx = tokens.map((x, i) => x.alts.length ? i : -1).filter(i => i >= 0);
+  for (let tries = 0; tries < 60 && out.length < 3 && idx.length; tries++){
+    const n = Math.min(idx.length, 1 + (tries > 20 && Math.random() < .5 ? 1 : 0));
+    const chosen = shuffle(idx).slice(0, n);
+    const s = tokens.map((x, i) => chosen.includes(i) ? pick(x.alts) : x.c).join('');
+    if (!set.has(s)){ set.add(s); out.push(s); }
+  }
+  for (const o of shuffle(others)){ if (out.length >= 3) break; if (!set.has(o)){ set.add(o); out.push(o); } }
+  return out;
+}
+const RU_SW = [['е','э'],['э','е'],['и','ы'],['ы','и'],['ш','щ'],['щ','ш'],['о','а'],['а','о'],['я','а'],['ц','с'],['ч','щ'],['б','п'],['д','т'],['в','ф'],['з','с'],['г','к'],['ж','ш'],['ь',''],['ю','у'],['ё','о']];
+const PL_SW = [['rz','ż'],['ż','rz'],['ch','h'],['h','ch'],['ó','u'],['u','ó'],['ą','om'],['ą','on'],['ę','en'],['ę','em'],['sz','ś'],['ś','sz'],['si','ś'],['cz','ć'],['ć','cz'],['ci','ć'],['ł','l'],['l','ł'],['ni','ń'],['ń','ni'],['zi','ź'],['ź','ż'],['y','i'],['i','y'],['w','f'],['dż','rz']];
+function misspell(w){
+  const sw = TL === 'ru' ? RU_SW : PL_SW, out = [];
+  sw.forEach(([a, b]) => { let p = w.indexOf(a); while (p >= 0){ out.push(w.slice(0, p) + b + w.slice(p + a.length)); p = w.indexOf(a, p + 1); } });
+  if (TL === 'ru' && /[бвгджзклмнпрстфхцчшщ]$/.test(w)) out.push(w + 'ь');
+  return [...new Set(out)].filter(x => x && x !== w);
+}
+function newABC(){
+  if (S.mode === 'dict' && !canDict()) S.mode = 'l2s';
+  const pool = poolABC();
+  if (!pool.length){ ST.cur = null; return; }
+  const m = S.mode;
+  if (m === 'l2s' || m === 's2l'){
+    const items = pool.map(a => Object.assign({key:a.l}, a));
+    const a = weighted(items, AST.miss);
+    /* tévesztők: azonos csoportból előbb, eltérő hangértékkel */
+    const pool2 = shuffle(ABC.filter(x => x.snd !== a.snd && x.l !== a.l));
+    pool2.sort((x, y) => (y.grp === a.grp) - (x.grp === a.grp));
+    const ds = pool2.slice(0, 3);
+    const opts = shuffle([a, ...ds]);
+    ST.cur = {m, a, key:a.l, opts:opts.map(o => ({txt: m === 'l2s' ? sndLabel(o.snd) : o.U + ' ' + o.l, ok:o === a, ref:o})), done:false};
+  } else {
+    const ws = readWords();
+    const it = weighted(ws, AST.miss);
+    const w = plain(it.w);
+    if (m === 'read'){
+      const tokens = tok(w), corr = tokens.map(x => x.c).join('');
+      const others = ws.filter(x => x !== it && Math.abs(plain(x.w).length - w.length) <= 2).map(x => translit(x.w));
+      const ds = distractStrings(corr, tokens, others);
+      ST.cur = {m, it, key:it.key, word:it.w, corr, opts:shuffle([corr, ...ds]).map(s => ({txt:s, ok:s === corr})), done:false};
+    } else {
+      const lw = w.toLowerCase();
+      let ds = shuffle(misspell(lw)).slice(0, 3);
+      if (ds.length < 3) ds = ds.concat(shuffle(ws.filter(x => x !== it).map(x => plain(x.w).toLowerCase())).filter(x => x !== lw && !ds.includes(x)).slice(0, 3 - ds.length));
+      ST.cur = {m, it, key:it.key, word:it.w, opts:shuffle([lw, ...ds]).map(s => ({txt:s, ok:s === lw})), done:false};
+    }
+  }
+}
+function letterInfo(a){
+  const n = note(a);
+  return `<div class="fb-row"><span class="fb-letter">${esc(a.U)} ${esc(a.l)}</span><span class="fb-tr">[${esc(sndLabel(a.snd))}]</span><span class="muted">${esc(a.name)}</span></div>
+    ${n ? `<p>${esc(n)}</p>` : ''}
+    <div class="fb-row"><span class="muted">${esc(t('ex.word'))}:</span><span class="fb-ex">${(shown(a.ex))}</span><span class="fb-tr">${esc(translit(a.ex))}</span><span>– ${esc(exMeaning(a))}</span>${sayBtn(a.ex)}</div>`;
+}
+function wordInfo(it){
+  return `<div class="fb-row"><span class="fb-ex">${(shown(it.mean.w))}</span><span class="fb-tr">${esc(translit(it.mean.w))}</span><span>– ${esc(meaning(it.mean))}</span>${sayBtn(it.mean.w)}</div>`;
+}
+function renderABC(){
+  const c = $('abc-card');
+  if (!ST.cur){ c.innerHTML = `<p class="muted">${esc(t('need.group'))}</p>`; return; }
+  const q = ST.cur, m = q.m;
+  let head = `<p class="qlbl"><span class="chip">${esc(t('m.' + m))}</span><span>${esc(t('q.' + m))}</span></p>`;
+  let prompt = '';
+  if (m === 'l2s') prompt = `<div class="abc-big">${esc(q.a.U)}<small>${esc(q.a.l)}</small></div>`;
+  else if (m === 's2l') prompt = `<div class="sndbox">${esc(sndLabel(q.a.snd))}${q.done ? '' : ''}</div>`;
+  else if (m === 'read') prompt = `<div class="wordbig">${esc(TL === 'ru' ? plain(q.word) : q.word)}</div><p class="tr">&nbsp;</p>`;
+  else prompt = `<button type="button" class="hearbtn" id="abc-hear">${SPK}<span>${esc(t('listen'))}</span></button>`;
+  const cls = m === 'l2s' || m === 'read' ? 'mono' : 'disp';
+  const opts = `<div class="opts" id="abc-opts">${q.opts.map((o, i) => {
+    let st = '';
+    if (q.done){ if (o.ok) st = 'right'; else if (i === q.pick) st = 'wrong'; else st = 'dim'; }
+    return `<button type="button" class="optbtn ${st}" data-i="${i}" ${q.done ? 'disabled' : ''}><span class="k">${i + 1}</span><span class="t ${cls}">${esc(o.txt)}</span></button>`;
+  }).join('')}</div>`;
+  let fb = '';
+  if (q.done){
+    const good = q.opts[q.pick] && q.opts[q.pick].ok;
+    const right = q.opts.find(o => o.ok).txt;
+    const info = (m === 'l2s' || m === 's2l') ? letterInfo(q.a) : wordInfo(q.it);
+    fb = `<div class="feedback ${good ? 'ok' : 'bad'}"><p class="verdict">${esc(good ? t('ok') : t('bad'))}</p>
+      ${good ? '' : `<p>${esc(t('right.is'))} <strong class="big">${esc(right)}</strong></p>`}${info}</div>
+      <div class="actions"><button type="button" class="btn" id="abc-next">${esc(t('next'))}</button></div>`;
+  }
+  c.innerHTML = head + prompt + opts + fb + `<p class="keys">${esc(t('keys'))}</p>`;
+  const h = $('abc-hear'); if (h) h.addEventListener('click', () => say(q.word));
+  c.querySelectorAll('#abc-opts .optbtn').forEach(b => b.addEventListener('click', () => answerABC(+b.dataset.i)));
+  const n = $('abc-next'); if (n){ n.addEventListener('click', nextABC); n.focus({preventScroll:true}); }
+}
+function answerABC(i){
+  const q = ST.cur; if (!q || q.done) return;
+  q.done = true; q.pick = i;
+  const ok = q.opts[i].ok;
+  AST.total++;
+  if (ok){ AST.ok++; AST.streak++; AST.best = Math.max(AST.best, AST.streak); if (AST.miss[q.key]) AST.miss[q.key] = Math.max(0, AST.miss[q.key] - 1); if (!AST.miss[q.key]) delete AST.miss[q.key]; }
+  else { AST.streak = 0; AST.miss[q.key] = (AST.miss[q.key] || 0) + 1; }
+  sset('abcstats', AST);
+  renderABC(); renderSideABC();
+  if (q.m === 'read' || q.m === 'dict') say(q.word); else if (ok) say(q.a.ex);
+}
+function nextABC(){ newABC(); renderABC(); if (ST.cur && ST.cur.m === 'dict') say(ST.cur.word); }
+function renderStatsBox(p, X){
+  $(p + '-pct').textContent = X.total ? Math.round(100 * X.ok / X.total) + '%' : '–';
+  $(p + '-streak').textContent = X.streak; $(p + '-best').textContent = X.best;
+  $(p + '-total').textContent = t('total', {n: X.total});
+}
+function missList(X, label){
+  const e = Object.entries(X.miss).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  return e.length ? e.map(([k, n]) => `<li><span class="c">${esc(label(k))}</span><span class="w" style="text-decoration:none">${'×' + n}</span></li>`).join('') : `<li class="muted" style="border:0">${esc(t('mist.none'))}</li>`;
+}
+function renderSideABC(){
+  renderStatsBox('abc', AST);
+  $('abc-modes').innerHTML = MODES.map(m => {
+    const dis = m === 'dict' && !canDict();
+    return `<label${dis ? ' style="opacity:.5"' : ''}><input type="radio" name="abc-mode" value="${m}" ${S.mode === m ? 'checked' : ''} ${dis ? 'disabled' : ''}> ${esc(t('m.' + m))}</label>`;
+  }).join('') + (!canDict() ? `<p class="muted" style="margin:6px 0 0">${esc(t('no.voice', {L: LNAME()}))}</p>` : '');
+  $('abc-groups').innerHTML = GROUPS.map(g => `<label><input type="checkbox" value="${g}" ${S.groups.includes(g) ? 'checked' : ''}> ${esc(t('g.' + g))}</label>`).join('');
+  $('abc-pool').textContent = t('pool', {n: poolABC().length});
+  $('abc-mist').innerHTML = missList(AST, k => k.startsWith('w:') ? k.slice(2) : (ABC.find(a => a.l === k) || {U:k}).U + ' ' + k);
+}
+$('abc-modes').addEventListener('change', e => { S.mode = e.target.value; saveS(); nextABC(); });
+$('abc-groups').addEventListener('change', () => { S.groups = [...$('abc-groups').querySelectorAll('input:checked')].map(x => x.value); saveS(); renderSideABC(); nextABC(); });
+function wireReset(p, onYes){
+  $(p + '-reset').addEventListener('click', () => { $(p + '-reset-confirm').hidden = false; });
+  $(p + '-reset-yes').addEventListener('click', () => { $(p + '-reset-confirm').hidden = true; onYes(); });
+}
+wireReset('abc', () => { AST = BLANK(); sset('abcstats', AST); renderSideABC(); });
+
+/* =================== Betűtábla =================== */
+function renderTable(){
+  const missed = new Set(Object.keys(AST.miss));
+  let h = `<h2 class="ttl">${esc(t('L.' + TL + '.cap'))} ${TL === 'ru' ? 'алфави́т' : 'alfabet'}</h2>
+    <p class="muted" style="margin:0">${esc(t('table.hint'))} ${esc(t('table.trans'))}</p>`;
+  GROUPS.forEach(g => {
+    const list = ABC.filter(a => a.grp === g);
+    h += `<h3 class="gtitle">${esc(t('g.' + g))} · ${list.length}</h3><div class="abc-grid">` + list.map(a => {
+      const n = note(a);
+      return `<button type="button" class="tile${missed.has(a.l) ? ' miss' : ''}" data-say="${esc(a.ex)}" aria-label="${esc(a.U + ' ' + a.l + ', ' + a.ex)}">
+        <span class="tl">${esc(a.U)}<small>${esc(a.l)}</small></span>
+        <span class="ts">[${esc(sndLabel(a.snd))}]</span><span class="tn">${esc(a.name)}</span>
+        <span class="te"><b>${(shown(a.ex))}</b> · ${esc(exMeaning(a))}</span>
+        ${n ? `<span class="tnote">${esc(n)}</span>` : ''}</button>`;
+    }).join('') + `</div>`;
+  });
+  $('table-card').innerHTML = h;
+}
+
+/* =================== Szókincs =================== */
+const poolVoc = () => VOC.filter(v => S.cats.includes(v.cat));
+function newVoc(){
+  const pool = poolVoc();
+  if (pool.length < 4){ VQ.cur = null; return; }
+  const items = pool.map(v => Object.assign({key:plain(v.w)}, v));
+  const v = weighted(items, VST.miss);
+  const dir = S.dir === 'mix' ? (Math.random() < .5 ? 't2h' : 'h2t') : S.dir;
+  const same = shuffle(VOC.filter(x => x.cat === v.cat && x !== v && meaning(x) !== meaning(v)));
+  const rest = shuffle(VOC.filter(x => x.cat !== v.cat && meaning(x) !== meaning(v)));
+  const ds = same.concat(rest).slice(0, 3);
+  VQ.cur = {v, key:plain(v.w), dir, opts:shuffle([v, ...ds]).map(o => ({o, txt: dir === 't2h' ? esc(meaning(o)) : shown(o.w), ok:o === v})), done:false};
+}
+function renderVoc(){
+  const c = $('voc-card');
+  if (!VQ.cur){ c.innerHTML = `<p class="muted">${esc(t('need.cat'))}</p>`; return; }
+  const q = VQ.cur, v = q.v;
+  const showTr = TL === 'ru' && S.tr;
+  let h = `<p class="qlbl"><span class="chip">${esc(t('c.' + v.cat))}</span><span>${esc(t(q.dir === 't2h' ? 'q.v2h' : 'q.h2v'))}</span></p>`;
+  if (q.dir === 't2h') h += `<div class="wordbig"><span>${shown(v.w)}</span>${sayBtn(v.w)}</div><p class="tr">${showTr ? esc(translit(v.w)) : '&nbsp;'}</p>`;
+  else h += `<div class="wordbig">${esc(meaning(v))}</div><p class="tr">&nbsp;</p>`;
+  h += `<div class="opts" id="voc-opts">${q.opts.map((o, i) => {
+    let s = '';
+    if (q.done){ if (o.ok) s = 'right'; else if (i === q.pick) s = 'wrong'; else s = 'dim'; }
+    const sub = q.dir === 'h2t' && showTr ? `<span class="muted" style="font-family:var(--f-mono);font-size:.8rem;margin-left:auto">${esc(translit(o.o.w))}</span>` : '';
+    return `<button type="button" class="optbtn ${q.dir === 'h2t' ? 'it' : ''} ${s}" data-i="${i}" ${q.done ? 'disabled' : ''}><span class="k">${i + 1}</span><span class="t">${o.txt}</span>${sub}</button>`;
+  }).join('')}</div>`;
+  if (q.done){
+    const good = q.opts[q.pick].ok;
+    h += `<div class="feedback ${good ? 'ok' : 'bad'}"><p class="verdict">${esc(good ? t('ok') : t('bad'))}</p>
+      <div class="fb-row"><span class="fb-ex">${(shown(v.w))}</span><span class="fb-tr">${esc(translit(v.w))}</span><span>– ${esc(meaning(v))}</span>${sayBtn(v.w)}</div></div>
+      <div class="actions"><button type="button" class="btn" id="voc-next">${esc(t('next'))}</button></div>`;
+  }
+  if (TL === 'ru') h += `<p class="keys">${esc(t('stress'))}</p>`;
+  h += `<p class="keys">${esc(t('keys'))}</p>`;
+  c.innerHTML = h;
+  c.querySelectorAll('#voc-opts .optbtn').forEach(b => b.addEventListener('click', () => answerVoc(+b.dataset.i)));
+  const n = $('voc-next'); if (n){ n.addEventListener('click', nextVoc); n.focus({preventScroll:true}); }
+}
+function answerVoc(i){
+  const q = VQ.cur; if (!q || q.done) return;
+  q.done = true; q.pick = i;
+  const ok = q.opts[i].ok;
+  VST.total++;
+  if (ok){ VST.ok++; VST.streak++; VST.best = Math.max(VST.best, VST.streak); if (VST.miss[q.key]) VST.miss[q.key]--; if (!VST.miss[q.key]) delete VST.miss[q.key]; }
+  else { VST.streak = 0; VST.miss[q.key] = (VST.miss[q.key] || 0) + 1; }
+  sset('vocstats', VST);
+  renderVoc(); renderSideVoc(); say(q.v.w);
+}
+function nextVoc(){ newVoc(); renderVoc(); if (VQ.cur && VQ.cur.dir === 't2h') say(VQ.cur.v.w); }
+function renderSideVoc(){
+  renderStatsBox('voc', VST);
+  $('voc-dir').innerHTML = ['t2h','h2t','mix'].map(d => `<label><input type="radio" name="voc-dir" value="${d}" ${S.dir === d ? 'checked' : ''}> ${esc(t('dir.' + d, {L: LNAME()}))}</label>`).join('');
+  $('voc-cats').innerHTML = CATS.map(c => `<label><input type="checkbox" value="${c}" ${S.cats.includes(c) ? 'checked' : ''}> ${esc(t('c.' + c))}</label>`).join('');
+  $('voc-pool').textContent = t('vpool', {n: poolVoc().length});
+  const tr = $('voc-tr'); if (tr) tr.checked = !!S.tr;
+  $('voc-mist').innerHTML = missList(VST, k => { const v = VOC.find(x => plain(x.w) === k); return v ? plain(v.w) + ' – ' + meaning(v) : k; });
+}
+$('voc-dir').addEventListener('change', e => { S.dir = e.target.value; saveS(); nextVoc(); });
+$('voc-cats').addEventListener('change', () => { S.cats = [...$('voc-cats').querySelectorAll('input:checked')].map(x => x.value); saveS(); renderSideVoc(); nextVoc(); });
+if ($('voc-tr')) $('voc-tr').addEventListener('change', e => { S.tr = e.target.checked; saveS(); renderVoc(); });
+wireReset('voc', () => { VST = BLANK(); sset('vocstats', VST); renderSideVoc(); });
+
+/* ---- billentyűk ---- */
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey || /INPUT|TEXTAREA/.test((e.target || {}).tagName || '')) return;
+  const inABC = !$('view-s-abc').hidden, inVoc = !$('view-s-voc').hidden;
+  const q = inABC ? ST.cur : inVoc ? VQ.cur : null;
+  if (!q) return;
+  if (/^[1-4]$/.test(e.key) && !q.done){ e.preventDefault(); (inABC ? answerABC : answerVoc)(+e.key - 1); }
+  else if (e.key === 'Enter' && q.done && !(e.target && e.target.tagName === 'BUTTON')){ e.preventDefault(); (inABC ? nextABC : nextVoc)(); }
+});
+
+function renderAll(){
+  applyStaticS();
+  renderABC(); renderSideABC(); renderTable();
+  renderVoc(); renderSideVoc();
+}
+newABC(); newVoc();
+renderAll();
+if (TABS.includes(S.tab)) showTab(S.tab);
+})();
 </script>
 
 <dialog class="login" id="login">
