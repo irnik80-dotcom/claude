@@ -1,6 +1,6 @@
 # Presente! (korábban Coniuga)
 
-Igeragozás gyakorló négy nyelvre: 482 olasz és 306 spanyol ige (15 igeidő/mód), valamint kb. 70 orosz és 70 lengyel ige szemléletpárokban (jelen, múlt, jövő, feltételes, felszólító), a rendhagyó alakok jelölve. Orosznál és lengyelnél ezen felül ABC gyakorló, betűtábla és alapszókincs is van. A felület nyelve: magyar, lengyel, angol. A célnyelv (🇮🇹 / 🇪🇸 / 🇷🇺 / 🇵🇱) a fejlécben váltható; az eredmények nyelvenként külön mentődnek, a napi cél és a haladás közös.
+Igeragozás gyakorló négy nyelvre: 482 olasz és 306 spanyol ige (15 igeidő/mód), kb. 70 orosz és 70 lengyel ige szemléletpárokban (jelen, múlt, jövő, feltételes, felszólító), valamint 81 török ige (şimdiki, geniş, -di és -miş múlt, jövő, feltételes, felszólító), a rendhagyó alakok jelölve. Orosznál, lengyelnél és töröknél ezen felül ABC gyakorló, betűtábla és alapszókincs is van. A felület nyelve: magyar, lengyel, angol. A célnyelv (🇮🇹 / 🇪🇸 / 🇷🇺 / 🇵🇱 / 🇹🇷) a fejlécben váltható; az eredmények nyelvenként külön mentődnek, a napi cél és a haladás közös.
 
 - `coniuga.html`: a forrás (ez fut Claude artifactként is).
 - `docs/`: a nyilvános weboldal (GitHub Pages), saját bejelentkezéssel (Firebase). Fülek: Ragozás, Szójelentés (4 lehetőség közül), Mondatok (hiányzó ige), Fordítás (AI), Beszélgetés (AI), Olvasás (AI vagy saját szöveg), Kaland (AI-s lapozgatós könyv), Ismétlés (szókártyák), Hallás (diktálás, kiejtés), Nyelvtan (csak olasz), Igetár, Tanári nézet; a fejlécben a Haladás (napi cél, sorozat, jelvények, heti ranglista). Kiejtés és példamondat minden igéhez.
@@ -30,5 +30,5 @@ Igeragozás gyakorló négy nyelvre: 482 olasz és 306 spanyol ige (15 igeidő/m
 - `tools/i18n-verbs.txt`, `tools/i18n-sentences.txt`: az igék jelentése és a példamondatok lengyelül és angolul (a `coniuga.html`-be ágyazva). A felület feliratai a `coniuga.html` `I18N` táblájában vannak.
 - `tools/ai-prompts.js`: az AI-feladatok promptjai (a Worker importálja; a `coniuga.html`-be a `node tools/embed-prompts.mjs` másolja be).
 - `tools/ai-worker.js` + `wrangler.toml`: a Cloudflare Worker (AI-közvetítő), a GitHubról automatikusan települ.
-- `tools/engine-es.js`: a spanyol ragozó motor, igék és példamondatok; `tools/engine-slav.js`: az orosz és lengyel ragozó motor. Mindkettőt a `node tools/embed-engine.mjs` másolja a `coniuga.html`-be.
+- `tools/engine-es.js`: a spanyol ragozó motor, igék és példamondatok; `tools/engine-slav.js`: az orosz és lengyel, `tools/engine-tr.js`: a török ragozó motor. Mindegyiket a `node tools/embed-engine.mjs` másolja a `coniuga.html`-be.
 - `tools/new-verbs.py`: a 2. bővítés igéi (adatok + mondatok); `tools/embed-data.mjs`: a `tools/*.txt` adatfájlokat másolja a `coniuga.html`-be.

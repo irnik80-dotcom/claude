@@ -37,7 +37,7 @@ export const TONES = {
   funny: 'Tone: funny and light-hearted. Use humour, comic situations, witty dialogue and a playful narrator, while the story still makes sense.',
   absurd: 'Tone: absurd and surreal (in the spirit of Gianni Rodari or Monty Python): illogical, surprising and impossible events, talking objects and animals, ridiculous twists. Keep it followable and keep the Italian correct and at the right level.'
 };
-const TENSE_EN = { pres: 'presente', pp: 'passato prossimo', imp: 'imperfetto', trp: 'trapassato prossimo', rem: 'passato remoto', trr: 'trapassato remoto', fut: 'futuro semplice', futa: 'futuro anteriore', cond: 'condizionale presente', condp: 'condizionale passato', cong: 'congiuntivo presente', congp: 'congiuntivo passato', congi: 'congiuntivo imperfetto', congt: 'congiuntivo trapassato', impv: 'imperativo' };
+const TENSE_EN = { pres: 'presente', pp: 'passato prossimo', imp: 'imperfetto', trp: 'trapassato prossimo', rem: 'passato remoto', trr: 'trapassato remoto', fut: 'futuro semplice', futa: 'futuro anteriore', cond: 'condizionale presente', condp: 'condizionale passato', cong: 'congiuntivo presente', congp: 'congiuntivo passato', congi: 'congiuntivo imperfetto', congt: 'congiuntivo trapassato', impv: 'imperativo', aor: 'geniş zaman', mis: 'miş-geçmiş' };
 
 const str = (v, n) => String(v == null ? '' : v).slice(0, n).trim();
 
@@ -51,7 +51,7 @@ const TO_ES = [
 ];
 export function sanitize(body) {
   const r = sanitizeBase(body);
-  if (r) r.tl = body && ['es', 'ru', 'pl'].includes(body.tl) ? body.tl : 'it';
+  if (r) r.tl = body && ['es', 'ru', 'pl', 'tr'].includes(body.tl) ? body.tl : 'it';
   return r;
 }
 const TENSE_SL = { pres: 'present tense', pp: 'past tense', fut: 'future tense', cond: 'conditional mood', impv: 'imperative' };
@@ -63,6 +63,16 @@ const TO_RU = [
   [/travel adventure across Italy \(cities, food, people\)/g, 'travel adventure across Russia (cities, food, people)'], [/ \(a giallo\)/g, ''],
   [/Ignore missing capital letters and final punctuation\./g, 'Ignore missing capital letters, final punctuation, missing stress marks and ё written as е.'],
   [/\ban Italian/g, 'a Russian'], [/\bAn Italian/g, 'A Russian'], [/Italians/g, 'Russians'], [/Italian/g, 'Russian'], [/Italy/g, 'Russia'], [/italian/g, 'russian']
+];
+const TENSE_TR = { pres: 'present continuous (şimdiki zaman, -iyor)', aor: 'aorist (geniş zaman, -r)', pp: 'definite past (görülen geçmiş, -di)', mis: 'reported past (öğrenilen geçmiş, -miş)', fut: 'future (gelecek zaman, -ecek)', cond: 'conditional (dilek-şart, -se)', impv: 'imperative (emir kipi)' };
+const TO_TR = [
+  [/"siamo andati \(andare\)"/g, '"gittik (gitmek)"'], [/\(essere\)/g, '(olmak)'], [/"siamo" ->/g, '"evdeyiz" ->'], [/"Entri nella grotta buia"/g, '"Karanlık mağaraya giriyorsun"'],
+  [/"tu"/g, '"sen"'], [/Gianni Rodari/g, 'Aziz Nesin'], [/Italian bar \(café\)/g, 'Turkish tea garden (çay bahçesi)'], [/a family trattoria/g, 'a small family lokanta'],
+  [/in Florence/g, 'in Istanbul'], [/in Rome/g, 'in Ankara'], [/in Bologna/g, 'in İzmir'], [/at Milano Centrale station/g, "at Ankara's main railway station"],
+  [/historical adventure set in Italy \(ancient Rome, the Renaissance, etc\.\)/g, 'historical adventure set in Turkey (Byzantine Constantinople, the Ottoman Empire, etc.)'],
+  [/travel adventure across Italy \(cities, food, people\)/g, 'travel adventure across Turkey (cities, food, people)'], [/ \(a giallo\)/g, ''],
+  [/Ignore missing capital letters and final punctuation\./g, 'Ignore missing capital letters, final punctuation and Turkish letters typed without their marks (i for ı, s for ş, g for ğ, c for ç, o for ö, u for ü).'],
+  [/\ban Italian/g, 'a Turkish'], [/\bAn Italian/g, 'A Turkish'], [/Italians/g, 'Turks'], [/Italian/g, 'Turkish'], [/Italy/g, 'Turkey'], [/italian/g, 'turkish']
 ];
 const TO_PL = [
   [/"siamo andati \(andare\)"/g, '"poszliśmy (pójść)"'], [/\(essere\)/g, '(być)'], [/"siamo" ->/g, '"jesteśmy" ->'], [/"Entri nella grotta buia"/g, '"Wchodzisz do ciemnej jaskini"'],
@@ -119,9 +129,10 @@ export function buildPrompt(p) {
     Object.keys(TENSE_EN).sort((a, b) => TENSE_EN[b].length - TENSE_EN[a].length).forEach((k) => { out = out.split(TENSE_EN[k]).join(TENSE_ES[k]); });
     TO_ES.forEach(([a, b]) => { out = out.replace(a, b); });
   }
-  if (p.tl === 'ru' || p.tl === 'pl') {
-    Object.keys(TENSE_SL).forEach((k) => { out = out.split(TENSE_EN[k]).join(TENSE_SL[k]); });
-    (p.tl === 'ru' ? TO_RU : TO_PL).forEach(([a, b]) => { out = out.replace(a, b); });
+  if (p.tl === 'ru' || p.tl === 'pl' || p.tl === 'tr') {
+    const TT = p.tl === 'tr' ? TENSE_TR : TENSE_SL;
+    Object.keys(TT).sort((a, b) => TENSE_EN[b].length - TENSE_EN[a].length).forEach((k) => { out = out.split(TENSE_EN[k]).join(TT[k]); });
+    ({ ru: TO_RU, pl: TO_PL, tr: TO_TR }[p.tl]).forEach(([a, b]) => { out = out.replace(a, b); });
   }
   return out;
 }
