@@ -1,0 +1,5 @@
+<resources>
+    <style name="Theme.WhatIAte" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/ic_bg</item>
+    </style>
+</resources>
